@@ -173,6 +173,15 @@ then
     ARGS="${ARGS} -Dbqt.query.plan=${TEIID_QUERYPLAN}"
 fi
 
+if [ ! -z "${SCENARIO_INCLUDE}" ]
+then
+    ARGS="${ARGS} -Dbqt.scenario.include=${SCENARIO_INCLUDE}"
+fi
+
+if [ ! -z "${SCENARIO_EXCLUDE}" ]
+then
+    ARGS="${ARGS} -Dbqt.scenario.exclude=${SCENARIO_EXCLUDE}"
+fi
 
 if [ ! -x "${ROOTDIR}/log" ]; then
     echo "Create ${ROOTDIR}/log directory"

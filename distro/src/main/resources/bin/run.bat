@@ -86,6 +86,14 @@ if not "x%PASSWORD%" == "x" (
   set  ARGS=%ARGS -Dpassword=%PASSWORD%
 )
 
+if not "x%SCENARIO_INCLUDE%" == "x" (
+  set ARGS=%ARGS -Dbqt.scenario.include=%SCENARIO_INCLUDE%
+)
+
+if not "x%SCENARIO_EXCLUDE%" == "x" (
+  set ARGS=%ARGS -Dbqt.scenario.exclude=%SCENARIO_EXCLUDE%
+)
+
 if not "x%TEIID_QUERYPLAN%" == "x" (
   set  ARGS=%ARGS -Dbqt.query.plan=true
 )

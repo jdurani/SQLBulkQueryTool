@@ -57,7 +57,6 @@ import org.jboss.bqt.core.xml.SAXBuilderHelper;
 import org.jboss.bqt.jdbc.sql.lang.ElementSymbol;
 import org.jboss.bqt.jdbc.sql.lang.Select;
 import org.jdom.Attribute;
-import org.jdom.CDATA;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -433,7 +432,7 @@ public class XMLQueryVisitationStrategy {
         // ---------------------------
 
 		Element messageElement = new Element(TagNames.Elements.MESSAGE);
-		messageElement.addContent(new CDATA(ex.getMessage()));
+		messageElement.setText(ex.getMessage());
 		exceptionElement.addContent(messageElement);
 
         // -------------------------
@@ -886,13 +885,13 @@ public class XMLQueryVisitationStrategy {
         // -----------------------
         Character result;
         try {
-            if ( cellElement.getTextTrim().length() == 0 ) {
+            if ( cellElement.getText().length() == 0 ) {
                 return null;
             }
-            result = new Character(cellElement.getTextTrim().charAt(0));
+            result = new Character(cellElement.getText().charAt(0));
         } catch ( NumberFormatException e ) {
             throw new JDOMException("Unable to parse the value for " + cellElement.getName() + //$NON-NLS-1$
-                                    " element: " + cellElement.getTextTrim(), e); //$NON-NLS-1$
+                                    " element: " + cellElement.getText(), e); //$NON-NLS-1$
         }
         return result;
     }

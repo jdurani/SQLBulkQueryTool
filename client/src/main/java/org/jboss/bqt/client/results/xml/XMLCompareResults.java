@@ -690,14 +690,14 @@ public class XMLCompareResults {
 	private static final int MISMATCH_OFFSET = 20;
 	private static final int MAX_MESSAGE_SIZE = 50;
 
-	private static void assertStringsMatch(final String expectedStr,
-			final String actualStr, final int row, final int col,
+	private static void assertStringsMatch(final String expected,
+			final String actual, final int row, final int col,
 			final String eMsg) throws QueryTestFailedException {
 		// TODO: Replace stripCR() with XMLUnit comparison for XML results.
 		// stripCR() is a workaround for comparing XML Queries
 		// that have '\r'.
-		String expected = stripCR(expectedStr).trim();
-		String actual = stripCR(actualStr).trim();
+		//String expected = stripCR(expectedStr).trim(); // DISABLED, should not do any trimming
+		//String actual = stripCR(actualStr).trim();
 
 		String locationText = ""; //$NON-NLS-1$
 		int mismatchIndex = -1;

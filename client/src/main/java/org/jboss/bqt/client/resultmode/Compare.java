@@ -30,6 +30,7 @@ import org.jboss.bqt.client.api.ExpectedResultsReader;
 import org.jboss.bqt.client.api.QueryScenario;
 import org.jboss.bqt.client.api.QueryWriter;
 import org.jboss.bqt.core.exception.FrameworkException;
+import org.jboss.bqt.core.exception.MultiTestFailedException;
 import org.jboss.bqt.core.exception.QueryTestFailedException;
 import org.jboss.bqt.framework.TestCase;
 import org.jboss.bqt.framework.TestResult;
@@ -89,10 +90,15 @@ public class Compare extends QueryScenario {
 		 for (ExpectedResultsReader reader : readers) {	
 			 ExpectedResults es = null;
 			 Throwable testException = null;
+			 MultiTestFailedException multiException = null;
 				try {
 					es = reader.getExpectedResults(testCase.getActualTest());
 					reader.compareResults(testCase, transaction, es, isOrdered(tr.getQuery()));
 
+				} catch (MultiTestFailedException mtf) {
+					testException = mtf;
+					resultException = (resultException != null ? resultException : mtf);
+					multiException = mtf;
 				} catch (QueryTestFailedException qtf) {
 					testException = qtf;
 					resultException = (resultException != null ? resultException
@@ -108,6 +114,11 @@ public class Compare extends QueryScenario {
 					} else 	if (! es.isExceptionExpected()) {
 						this.getErrorWriter().generateErrorFile(testCase, es, transaction, testException);
 					}	
+				}
+
+				// in case of exception with more failures, generate additional file with all messages
+				if (multiException != null) {
+					getErrorWriter().generateErrorMessagesFile(tr, multiException.getFailures());
 				}
 		  		 		 
 		 }	

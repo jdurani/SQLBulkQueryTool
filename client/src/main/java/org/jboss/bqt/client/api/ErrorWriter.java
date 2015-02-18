@@ -22,6 +22,7 @@
 
 package org.jboss.bqt.client.api;
 
+import java.util.List;
 import java.util.Properties;
 
 import org.jboss.bqt.client.TestProperties;
@@ -92,5 +93,15 @@ public abstract class ErrorWriter {
 	 */
 	public abstract String generateErrorFile(final TestResult testResult, final Throwable error)
 			throws FrameworkException;
-	
+
+	/**
+	 * Call to generate a file containing all error messages, in case the test resulted in more than one failure.
+	 * @param testResult test result being run
+	 * @param failures list of exceptions-failures to print out
+	 * @return name of the error messages file
+	 * @throws FrameworkException when any I/O error occurs, possibly file permissions / disk access errors
+	 */
+	public abstract String generateErrorMessagesFile(TestResult testResult, List<? extends Throwable> failures)
+			throws FrameworkException;
+
 }

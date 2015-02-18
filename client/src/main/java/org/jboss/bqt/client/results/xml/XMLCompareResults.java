@@ -44,6 +44,7 @@ import org.jboss.bqt.client.results.ExpectedResultsHolder;
 import org.jboss.bqt.client.util.ListNestedSortComparator;
 import org.jboss.bqt.client.xml.TagNames;
 import org.jboss.bqt.client.xml.TagNames.Elements;
+import org.jboss.bqt.core.exception.MultiTestFailedException;
 import org.jboss.bqt.core.exception.QueryTestFailedException;
 import org.jboss.bqt.core.util.ExceptionUtil;
 import org.jboss.bqt.core.util.ObjectConverterUtil;
@@ -424,6 +425,110 @@ public class XMLCompareResults {
 		return true;
 	}
 
+	private static void compareResultColumn(Object actualValue, Object expectedValue, int row, int col,
+			final String eMsg) throws QueryTestFailedException {
+
+		// DEBUG:
+		// debugOut.println(" Col: " +(col +1) + ": expectedValue:[" +
+		// expectedValue + "] actualValue:[" + actualValue +
+		// "]");
+
+		// Compare these values
+		if ((expectedValue == null && actualValue != null) || (actualValue == null && expectedValue != null)) {
+			// Compare nulls
+			throw new QueryTestFailedException(eMsg + "Value mismatch at row " + (row + 1) //$NON-NLS-1$
+					+ " and column " + (col + 1) //$NON-NLS-1$
+					+ ": expected = [" //$NON-NLS-1$
+					+ (expectedValue != null ? expectedValue : "null") + "], actual = [" //$NON-NLS-1$
+					+ (actualValue != null ? actualValue : "null") + "]"); //$NON-NLS-1$
+
+		}
+
+		if (expectedValue == null && actualValue == null) {
+			return;
+		}
+
+		if (actualValue instanceof Blob || actualValue instanceof Clob || actualValue instanceof SQLXML) {
+
+			if (actualValue instanceof Clob) {
+				Clob c = (Clob) actualValue;
+				try {
+					actualValue = ObjectConverterUtil.convertToString(c.getAsciiStream());
+
+				} catch (Throwable e) {
+					// TODO Auto-generated catch block
+					throw new QueryTestFailedException(e);
+				}
+			} else if (actualValue instanceof Blob) {
+				Blob b = (Blob) actualValue;
+				try {
+					byte[] ba = ObjectConverterUtil.convertToByteArray(b.getBinaryStream());
+
+					actualValue = String.valueOf(ba.length);
+
+					// actualValue =
+					// ObjectConverterUtil.convertToString(b.getBinaryStream());
+
+				} catch (Throwable e) {
+					// TODO Auto-generated catch block
+					throw new QueryTestFailedException(e);
+				}
+			} else if (actualValue instanceof SQLXML) {
+				SQLXML s = (SQLXML) actualValue;
+				try {
+					actualValue = ObjectConverterUtil.convertToString(s.getBinaryStream());
+
+				} catch (Throwable e) {
+					// TODO Auto-generated catch block
+					throw new QueryTestFailedException(e);
+				}
+			}
+
+			if (!(expectedValue instanceof String)) {
+				expectedValue = expectedValue.toString();
+			}
+		}
+
+		// Compare values with equals
+		if (!expectedValue.equals(actualValue)) {
+			// DEBUG:
+
+			if (expectedValue instanceof java.sql.Date) {
+				expectedValue = expectedValue.toString();
+				actualValue = actualValue.toString();
+
+			} else if (expectedValue instanceof java.sql.Time) {
+				expectedValue = expectedValue.toString();
+				actualValue = actualValue.toString();
+
+			}
+
+			if (expectedValue instanceof String) {
+				final String expectedString = (String) expectedValue;
+
+				if (!(actualValue instanceof String)) {
+					throw new QueryTestFailedException(eMsg + "Value (types) mismatch at row " + (row + 1) //$NON-NLS-1$
+							+ " and column " + (col + 1) //$NON-NLS-1$
+							+ ": expected = [" //$NON-NLS-1$
+							+ expectedValue + ", (String) ], actual = [" //$NON-NLS-1$
+							+ actualValue + ", (" + actualValue.getClass().getName() + ") ]"); //$NON-NLS-1$
+				}
+
+				// Check for String difference
+				assertStringsMatch(expectedString, (String) actualValue, (row + 1), (col + 1), eMsg);
+
+			} else {
+
+				throw new QueryTestFailedException(eMsg + "Value mismatch at row " + (row + 1) //$NON-NLS-1$
+						+ " and column " + (col + 1) //$NON-NLS-1$
+						+ ": expected = [" //$NON-NLS-1$
+						+ expectedValue + "], actual = [" //$NON-NLS-1$
+						+ actualValue + "]"); //$NON-NLS-1$
+
+			}
+		}
+	}
+
 	/**
 	 * Compare actual results, identifiers and types with expected. <br>
 	 * <strong>Note </strong>: result list are expected to match element for
@@ -469,6 +574,8 @@ public class XMLCompareResults {
 		// DEBUG:
 		// debugOut.println("================== Compariing Rows ===================");
 
+		ArrayList<QueryTestFailedException> cellFailures = new ArrayList<QueryTestFailedException>();
+
 		// Loop through rows
 		for (int row = 0; row < actualRowCount; row++) {
 
@@ -491,121 +598,22 @@ public class XMLCompareResults {
 				// Get expected value
 				Object expectedValue = expectedRecord.get(col);
 
-				// DEBUG:
-				// debugOut.println(" Col: " +(col +1) + ": expectedValue:[" +
-				// expectedValue + "] actualValue:[" + actualValue +
-				// "]");
-
-				// Compare these values
-				if ((expectedValue == null && actualValue != null)
-						|| (actualValue == null && expectedValue != null)) {
-					// Compare nulls
-					throw new QueryTestFailedException(
-							eMsg + "Value mismatch at row " + (row + 1) //$NON-NLS-1$
-									+ " and column " + (col + 1) //$NON-NLS-1$
-									+ ": expected = [" //$NON-NLS-1$
-									+ (expectedValue != null ? expectedValue
-											: "null") + "], actual = [" //$NON-NLS-1$
-									+ (actualValue != null ? actualValue
-											: "null") + "]"); //$NON-NLS-1$
-
-				}
-
-				if (expectedValue == null && actualValue == null) {
-					continue;
-				}
-
-				if (actualValue instanceof Blob || actualValue instanceof Clob
-						|| actualValue instanceof SQLXML) {
-
-					if (actualValue instanceof Clob) {
-						Clob c = (Clob) actualValue;
-						try {
-							actualValue = ObjectConverterUtil.convertToString(c
-									.getAsciiStream());
-
-						} catch (Throwable e) {
-							// TODO Auto-generated catch block
-							throw new QueryTestFailedException(e);
-						}
-					} else if (actualValue instanceof Blob) {
-						Blob b = (Blob) actualValue;
-						try {
-							byte[] ba = ObjectConverterUtil
-									.convertToByteArray(b.getBinaryStream());
-
-							actualValue = String.valueOf(ba.length);
-
-							// actualValue =
-							// ObjectConverterUtil.convertToString(b.getBinaryStream());
-
-						} catch (Throwable e) {
-							// TODO Auto-generated catch block
-							throw new QueryTestFailedException(e);
-						}
-					} else if (actualValue instanceof SQLXML) {
-						SQLXML s = (SQLXML) actualValue;
-						try {
-							actualValue = ObjectConverterUtil.convertToString(s
-									.getBinaryStream());
-
-						} catch (Throwable e) {
-							// TODO Auto-generated catch block
-							throw new QueryTestFailedException(e);
-						}
-					}
-
-					if (!(expectedValue instanceof String)) {
-						expectedValue = expectedValue.toString();
-					}
-				}
-
-				// Compare values with equals
-				if (!expectedValue.equals(actualValue)) {
-					// DEBUG:
-					
-
-					if (expectedValue instanceof java.sql.Date) {
-						expectedValue = expectedValue.toString();
-						actualValue = actualValue.toString();
-						
-					} else if (expectedValue instanceof java.sql.Time) {
-						expectedValue = expectedValue.toString();
-						actualValue = actualValue.toString();
-						
-					}
-
-					if (expectedValue instanceof String) {
-						final String expectedString = (String) expectedValue;
-
-						if (!(actualValue instanceof String)) {
-							throw new QueryTestFailedException(eMsg
-									+ "Value (types) mismatch at row " + (row + 1) //$NON-NLS-1$
-									+ " and column " + (col + 1) //$NON-NLS-1$
-									+ ": expected = [" //$NON-NLS-1$
-									+ expectedValue + ", (String) ], actual = [" //$NON-NLS-1$
-									+ actualValue + ", (" + actualValue.getClass().getName()+ ") ]"); //$NON-NLS-1$
-						} 
-											
-							// Check for String difference
-							assertStringsMatch(  expectedString,
-									(String) actualValue, (row + 1), (col + 1),
-									eMsg);
-
-					} else {
-
-						throw new QueryTestFailedException(eMsg
-								+ "Value mismatch at row " + (row + 1) //$NON-NLS-1$
-								+ " and column " + (col + 1) //$NON-NLS-1$
-								+ ": expected = [" //$NON-NLS-1$
-								+ expectedValue + "], actual = [" //$NON-NLS-1$
-								+ actualValue + "]"); //$NON-NLS-1$
-
-					}
+				try {
+					compareResultColumn(actualValue, expectedValue, row, col, eMsg);
+				} catch (QueryTestFailedException e) {
+					cellFailures.add(e);
 				}
 
 			} // end loop through columns
 		} // end loop through rows
+
+		if (cellFailures.size() > 1) {
+			// multiple failures
+			throw new MultiTestFailedException(cellFailures);
+		} else if (cellFailures.size() == 1) {
+			// it was single exception only
+			throw cellFailures.get(0);
+		}
 	}
 
 	private static void compareIdentifiers(List actualIdentifiers,

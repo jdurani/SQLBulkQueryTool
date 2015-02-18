@@ -22,12 +22,15 @@
 package org.jboss.bqt.client.xml;
 
 import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Properties;
 
 import org.jboss.bqt.client.ClientPlugin;
@@ -313,5 +316,50 @@ public class XMLErrorWriter extends ErrorWriter {
 			}
 		}
 
+	/**
+	 * Creates file with all failure messages, for cases when there were more than one failure detected.
+	 * @see org.jboss.bqt.client.api.ErrorWriter#generateErrorMessagesFile(org.jboss.bqt.framework.TestResult,
+	 *      java.util.List)
+	 */
+	@Override
+	public String generateErrorMessagesFile(TestResult testResult, List<? extends Throwable> failures) throws FrameworkException {
+		String messagesFileName = getQueryScenario().getFileType().getErrorMessagesFileName(getQueryScenario(),
+				testResult);
+
+		File messagesFile = new File(getErrorDirectory(), messagesFileName);
+		ClientPlugin.LOGGER.warn("**** Generate Additional Error Messages File: " + messagesFile.getAbsolutePath());
+
+		generateErrorMessages(messagesFile, failures);
+
+		return messagesFileName;
+	}
+
+	/**
+	 * Writes list of failure messages to specified file.
+	 * @param messagesFile file with write permissions
+	 * @param failures list of failures-exceptions
+	 * @throws FrameworkException in case of any I/O error, possibly missing permissions or disk access failure
+	 */
+	private void generateErrorMessages(File messagesFile, List<? extends Throwable> failures) throws FrameworkException {
+		BufferedWriter bw = null;
+		try {
+			bw = new BufferedWriter(new FileWriter(messagesFile));
+
+			for (Throwable failure : failures) {
+				bw.write(failure.getMessage() + '\n');
+			}
+		} catch (IOException e) {
+			throw new FrameworkException("Failed to output error results to " + messagesFile.getPath() + ": "
+					+ e.getMessage());
+		} finally {
+			if (bw != null) {
+				try {
+					bw.close();
+				} catch (IOException e) {
+					ClientPlugin.LOGGER.error("Cannot close the Additional Error Messages File: " + e.getMessage());
+				}
+			}
+		}
+	}
 
 }

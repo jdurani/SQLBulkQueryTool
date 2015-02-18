@@ -89,4 +89,11 @@ public interface FileType {
 	 */
 	String getErrorFileName(QueryScenario scenario, TestResult testResult);
 
+	/**
+	 * Returns the name of the file with all error messages (excluding path).
+	 * @param scenario scenario being run
+	 * @param testResult test result
+	 * @return error messages file name
+	 */
+	String getErrorMessagesFileName(QueryScenario scenario, TestResult testResult);
 }

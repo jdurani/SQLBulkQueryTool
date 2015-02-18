@@ -267,6 +267,51 @@ public class TestXMLExpectedResults {
 		compare.compareResults(testcase, es, null, false);
 
 	}
-	
+
+	/**
+	 * Test of comparison expected exception against empty result, there was a bug in previous versions.
+	 * @throws QueryTestFailedException empty result but exception expected
+	 */
+	@Test(expected = QueryTestFailedException.class)
+	public void testCompareResults_ExpectedException_No() throws QueryTestFailedException {
+		// the following 3 properties are what's normally found in the scenario.properties file
+		System.setProperty("queryset.dirname", "test_query_set");
+		System.setProperty("test.queries.dirname", "test_queries");
+		System.setProperty("expected.results.dirname", "expected_results");
+
+		System.setProperty("result.mode", "compare");
+		System.setProperty("project.data.path", UnitTestUtil.getTestDataPath());
+		System.setProperty("output.dir", UnitTestUtil.getTestOutputPath() + File.separator + "sqltest");
+		System.setProperty(ConfigPropertyNames.CONFIG_FILE, UnitTestUtil.getTestDataPath() + File.separator
+				+ "localconfig.properties");
+
+		ConfigPropertyLoader _instance = ConfigPropertyLoader.getInstance();
+		Properties p = _instance.getProperties();
+		if (p == null || p.isEmpty()) {
+			throw new RuntimeException("Failed to load config properties file");
+		}
+
+		// test with expected exception
+		QueryScenario set = QueryScenario.createInstance("testscenario", p);
+		QueryTest qt = new QueryTest(set.getQueryScenarioIdentifier(), "test_queries1", "Query2", null);
+		TestResult testResult = new TestResult(qt.getQuerySetID(), qt.getQueryID());
+
+		TestCase testcase = new TestCase(qt);
+		testcase.setTestResult(testResult);
+
+		List<ExpectedResultsReader> readers = set.getExpectedResultsReaders(testcase);
+		assertEquals(1, readers.size());
+
+		ExpectedResults es = readers.get(0).getExpectedResults(qt);
+
+		// simulate empty test result
+		testResult.setRowCount(0);
+		testResult.setResultMode(set.getResultsMode());
+
+		XMLCompareResults compare = XMLCompareResults.create(set.getProperties());
+
+		// this should throw an exception, there is empty result but exception expected
+		compare.compareResults(testcase, es, null, false);
+	}
 
 }

@@ -160,6 +160,11 @@ public class XMLCompareResults {
 			
 			convertResults(resultSet, testcase.getTestResult().getUpdateCount(), actualResults);
 
+			if (expResults.isExceptionExpected()) {
+				throw new QueryTestFailedException(eMsg + expectedResults.getExceptionClassName()
+						+ " expected but not thrown, returned " + actualResults.getRows().size() + " rows.");
+			}
+
 			if (expectedResults.getRows().size() > 0) {
 				compareResults(testcase, actualResults, expectedResults, eMsg, isOrdered);
 			} else if (actualResults.getRows() != null

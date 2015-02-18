@@ -591,7 +591,7 @@ public class XMLCompareResults {
 		// DEBUG:
 		// debugOut.println("================== Compariing Rows ===================");
 
-		ArrayList<QueryTestFailedException> cellFailures = new ArrayList<QueryTestFailedException>();
+		MultiTestFailedException multiException = new MultiTestFailedException();
 
 		// Loop through rows
 		for (int row = 0; row < actualRowCount; row++) {
@@ -618,18 +618,16 @@ public class XMLCompareResults {
 				try {
 					compareResultColumn(actualValue, expectedValue, row, col, eMsg);
 				} catch (QueryTestFailedException e) {
-					cellFailures.add(e);
+					multiException.addFailure(e);
 				}
 
 			} // end loop through columns
 		} // end loop through rows
 
-		if (cellFailures.size() > 1) {
-			// multiple failures
-			throw new MultiTestFailedException(new ArrayList<Throwable>(cellFailures));
-		} else if (cellFailures.size() == 1) {
-			// it was single exception only
-			throw cellFailures.get(0);
+		if (multiException.getTotalFailures() == 1) {
+			throw multiException.getFailures().get(0);
+		} else if (multiException.getTotalFailures() > 1) {
+			throw multiException;
 		}
 	}
 

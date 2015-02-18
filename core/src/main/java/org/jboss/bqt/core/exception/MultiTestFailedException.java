@@ -23,6 +23,7 @@
 package org.jboss.bqt.core.exception;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -36,16 +37,43 @@ public class MultiTestFailedException extends QueryTestFailedException {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * List of encapsulated failures.
+	 * Maximum number of failures saved (to prevent excessive memory and file sizes)
 	 */
-	private List<Throwable> failures;
+	private static final int savedFailuresLimit = 100;
 
 	/**
-	 * New exception consisting of multiple test failures.
-	 * @param failures list of test failures
+	 * Total number of failures, including those not enlisted.
 	 */
-	public MultiTestFailedException(List<Throwable> failures) {
-		this.failures = failures;
+	private long totalFailures;
+
+	/**
+	 * List of encapsulated failures.
+	 */
+	private List<QueryTestFailedException> failures = new ArrayList<QueryTestFailedException>();
+
+	/**
+	 * New multi-failure exception.
+	 */
+	public MultiTestFailedException() {
+	}
+
+	/**
+	 * Returns total number of failures.
+	 * @return total number of failures.
+	 */
+	public long getTotalFailures() {
+		return totalFailures;
+	}
+
+	/**
+	 * Add failure to the list.
+	 * @param failure failure to add
+	 */
+	public void addFailure(QueryTestFailedException failure) {
+		if (totalFailures < savedFailuresLimit) {
+			failures.add(failure);
+		}
+		totalFailures++;
 	}
 
 	/**
@@ -55,8 +83,8 @@ public class MultiTestFailedException extends QueryTestFailedException {
 	 */
 	@Override
 	public String getMessage() {
-		if (failures != null) {
-			return failures.get(0).getMessage() + " (+" + (failures.size() - 1) + " more failures)";
+		if (failures.size() > 0) {
+			return failures.get(0).getMessage() + " (+" + (totalFailures - 1) + " more failures)";
 		}
 
 		return super.getMessage();
@@ -66,12 +94,16 @@ public class MultiTestFailedException extends QueryTestFailedException {
 	 * Returns list of failures encapsulated by this exception.
 	 * @return list of failures-exceptions
 	 */
-	public List<Throwable> getFailures() {
-		if (failures != null) {
-			return failures;
+	public List<QueryTestFailedException> getFailures() {
+		// in case there were more failures than is the limit, set the last exception to inform about it
+		if (totalFailures > savedFailuresLimit) {
+			if (failures.size() == savedFailuresLimit) {
+				failures.add(null);
+			}
+			failures.set(failures.size() - 1, new QueryTestFailedException("(+" + (totalFailures - savedFailuresLimit)
+					+ " more failures)"));
 		}
-
-		return new ArrayList<Throwable>();
+		return Collections.unmodifiableList(failures);
 	}
 
 }

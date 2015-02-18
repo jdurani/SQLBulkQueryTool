@@ -96,8 +96,8 @@ public class Compare extends QueryScenario {
 				reader.compareResults(testCase, transaction, es, isOrdered(tr.getQuery()));
 			} catch (MultiTestFailedException mtf) {
 				tr.setFailureMessage(mtf.getMessage());
-				for(Throwable t : mtf.getFailures()) {
-					exs.add(t);
+				for(QueryTestFailedException ex : mtf.getFailures()) {
+					exs.add(ex);
 				}
 			} catch (QueryTestFailedException qtf) {
 				tr.setFailureMessage(qtf.getMessage());

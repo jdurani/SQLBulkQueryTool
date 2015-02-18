@@ -186,6 +186,19 @@ public class QueryTestFailedException extends Exception implements Serializable 
 	}
 
 	/**
+	 * Returns child/parent exception, the concept of child seems to be deprecated, this is rather a 'hack'.
+	 * @see java.lang.Throwable#getCause()
+	 */
+	@Override
+	public synchronized Throwable getCause() {
+		if (child != null) {
+			return child;
+		}
+
+		return super.getCause();
+	}
+
+	/**
 	 * Get the error code.
 	 * 
 	 * @return The error code

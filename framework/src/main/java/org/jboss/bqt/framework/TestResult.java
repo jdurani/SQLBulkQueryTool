@@ -199,23 +199,29 @@ private String resultMode = null;
 		return false;
 	}
 
-	
-	public String getExceptionMsg() {
-		return (this.errorMsg != null ? this.errorMsg : (error != null ? error
-				.getMessage() : ""));
+	public Throwable getException() {
+		return this.error;
 	}
 
 	public void setException(Throwable error) {
 		this.error = error;
 	}
 
-	public void setExceptionMessage(String errorMsg) {
-		this.errorMsg = errorMsg;
-
+	/**
+	 * Get the reason why the test case failed.
+	 * @return reason why the test case failed
+	 */
+	public String getFailureMessage() {
+		return (this.errorMsg != null ? this.errorMsg : (error != null ? error.getMessage() : ""));
 	}
 
-	public Throwable getException() {
-		return this.error;
+	/**
+	 * Set the reason why the test case failed.
+	 * @param errorMsg reason why the test case failed
+	 */
+	public void setFailureMessage(String errorMsg) {
+		this.errorMsg = errorMsg;
+
 	}
 
 	public long getBeginTS() {

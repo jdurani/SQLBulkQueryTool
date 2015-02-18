@@ -322,7 +322,7 @@ public class XMLErrorWriter extends ErrorWriter {
 	 *      java.util.List)
 	 */
 	@Override
-	public String generateErrorMessagesFile(TestResult testResult, List<? extends Throwable> failures) throws FrameworkException {
+	public String generateErrorMessagesFile(TestResult testResult, List<Throwable> failures) throws FrameworkException {
 		String messagesFileName = getQueryScenario().getFileType().getErrorMessagesFileName(getQueryScenario(),
 				testResult);
 
@@ -340,7 +340,7 @@ public class XMLErrorWriter extends ErrorWriter {
 	 * @param failures list of failures-exceptions
 	 * @throws FrameworkException in case of any I/O error, possibly missing permissions or disk access failure
 	 */
-	private void generateErrorMessages(File messagesFile, List<? extends Throwable> failures) throws FrameworkException {
+	private void generateErrorMessages(File messagesFile, List<Throwable> failures) throws FrameworkException {
 		BufferedWriter bw = null;
 		try {
 			bw = new BufferedWriter(new FileWriter(messagesFile));

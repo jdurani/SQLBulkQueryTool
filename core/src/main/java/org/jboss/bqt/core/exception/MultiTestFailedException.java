@@ -38,13 +38,13 @@ public class MultiTestFailedException extends QueryTestFailedException {
 	/**
 	 * List of encapsulated failures.
 	 */
-	private List<? extends Throwable> failures;
+	private List<Throwable> failures;
 
 	/**
 	 * New exception consisting of multiple test failures.
 	 * @param failures list of test failures
 	 */
-	public MultiTestFailedException(List<? extends Throwable> failures) {
+	public MultiTestFailedException(List<Throwable> failures) {
 		this.failures = failures;
 	}
 
@@ -66,7 +66,7 @@ public class MultiTestFailedException extends QueryTestFailedException {
 	 * Returns list of failures encapsulated by this exception.
 	 * @return list of failures-exceptions
 	 */
-	public List<? extends Throwable> getFailures() {
+	public List<Throwable> getFailures() {
 		if (failures != null) {
 			return failures;
 		}

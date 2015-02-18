@@ -101,7 +101,7 @@ public abstract class ErrorWriter {
 	 * @return name of the error messages file
 	 * @throws FrameworkException when any I/O error occurs, possibly file permissions / disk access errors
 	 */
-	public abstract String generateErrorMessagesFile(TestResult testResult, List<? extends Throwable> failures)
+	public abstract String generateErrorMessagesFile(TestResult testResult, List<Throwable> failures)
 			throws FrameworkException;
 
 }

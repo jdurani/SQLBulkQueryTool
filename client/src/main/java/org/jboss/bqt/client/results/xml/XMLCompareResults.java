@@ -49,7 +49,6 @@ import org.jboss.bqt.client.xml.TagNames.Elements;
 import org.jboss.bqt.core.exception.FrameworkRuntimeException;
 import org.jboss.bqt.core.exception.MultiTestFailedException;
 import org.jboss.bqt.core.exception.QueryTestFailedException;
-import org.jboss.bqt.core.util.ExceptionUtil;
 import org.jboss.bqt.core.util.ObjectConverterUtil;
 import org.jboss.bqt.framework.TestCase;
 import org.jboss.bqt.framework.TestResult;
@@ -115,7 +114,7 @@ public class XMLCompareResults {
 				
 				throw new QueryTestFailedException(
 				eMsg
-						+ "TestResult resulted in unexpected exception " + testcase.getTestResult().getExceptionMsg()); //$NON-NLS-1$
+						+ "TestResult resulted in unexpected exception " + testcase.getTestResult().getFailureMessage()); //$NON-NLS-1$
 				
 			}
 //		case TestResult.RESULT_STATE.TEST_EXPECTED_EXCEPTION:
@@ -200,7 +199,7 @@ public class XMLCompareResults {
 		actualResults.setExceptionClassName(actualException.getClass()
 				.getName());
 		
-		actualResults.setExceptionMsg(ExceptionUtil.getExceptionMessage(actualException));
+		actualResults.setExceptionMsg(actualException.getMessage());
 		
 		return actualResults;
 	}
@@ -336,7 +335,7 @@ public class XMLCompareResults {
 							+ msg) ; //$NON-NLS-1$
 					
 					testCase.getTestResult().setException(f);
-					testCase.getTestResult().setExceptionMessage(msg);							
+					testCase.getTestResult().setFailureMessage(msg);
 					testCase.getTestResult().setStatus(TestResult.RESULT_STATE.TEST_EXECUTION_TIME_EXCEEDED_EXCEPTION);
 				}			
 		
@@ -627,7 +626,7 @@ public class XMLCompareResults {
 
 		if (cellFailures.size() > 1) {
 			// multiple failures
-			throw new MultiTestFailedException(cellFailures);
+			throw new MultiTestFailedException(new ArrayList<Throwable>(cellFailures));
 		} else if (cellFailures.size() == 1) {
 			// it was single exception only
 			throw cellFailures.get(0);
@@ -733,7 +732,7 @@ public class XMLCompareResults {
 						- MISMATCH_OFFSET, mismatchIndex + MISMATCH_OFFSET);
 			}
 
-			String message = eMsg + " String mismatch at row " + row + //$NON-NLS-1$
+			String message = eMsg + "String mismatch at row " + row + //$NON-NLS-1$
 					" and column " + col + //$NON-NLS-1$
 					". Expected: {0} but was: {1}" + locationText; //$NON-NLS-1$
 			message = MessageFormat.format(message, new Object[] {

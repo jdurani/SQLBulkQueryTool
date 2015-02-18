@@ -21,6 +21,7 @@
  */
 package org.jboss.bqt.client.resultmode;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -77,51 +78,49 @@ public class Compare extends QueryScenario {
 	 *
 	 */
 	@Override
-	public void handleTestResult(TestCase testCase, TransactionAPI transaction) throws FrameworkException, QueryTestFailedException {
-		
+	public void handleTestResult(TestCase testCase, TransactionAPI transaction) throws FrameworkException,
+			QueryTestFailedException {
+
 		List<ExpectedResultsReader> readers = this.getExpectedResultsReaders(testCase);
-		
+
 		ArgCheck.isNotNull(readers);
 		ArgCheck.isTrue(readers.size() > 0, "No Expected Results Readers");
-		
-		TestResult tr = testCase.getTestResult();
-		Throwable resultException = tr.getException();
-		
-		 for (ExpectedResultsReader reader : readers) {	
-			 ExpectedResults es = null;
-			 Throwable testException = null;
-			 MultiTestFailedException multiException = null;
-				try {
-					es = reader.getExpectedResults(testCase.getActualTest());
-					reader.compareResults(testCase, transaction, es, isOrdered(tr.getQuery()));
 
-				} catch (MultiTestFailedException mtf) {
-					testException = mtf;
-					resultException = (resultException != null ? resultException : mtf);
-					multiException = mtf;
-				} catch (QueryTestFailedException qtf) {
-					testException = qtf;
-					resultException = (resultException != null ? resultException
-							: qtf);
+		TestResult tr = testCase.getTestResult();
+
+		for (ExpectedResultsReader reader : readers) {
+			ExpectedResults es = reader.getExpectedResults(testCase.getActualTest());
+
+			List<Throwable> exs = new ArrayList<Throwable>();
+			try {
+				reader.compareResults(testCase, transaction, es, isOrdered(tr.getQuery()));
+			} catch (MultiTestFailedException mtf) {
+				tr.setFailureMessage(mtf.getMessage());
+				for(Throwable t : mtf.getFailures()) {
+					exs.add(t);
 				}
-				
+			} catch (QueryTestFailedException qtf) {
+				tr.setFailureMessage(qtf.getMessage());
+				exs.add(qtf);
+			}
+
+			if (exs.size() > 0) {
+				// there was some failure to the test
+				tr.setStatus(TestResult.RESULT_STATE.TEST_EXCEPTION);
+
 				// create an error file that also contains the expected results
-				if (testException != null) {
-					tr.setException(resultException);
-					tr.setStatus(TestResult.RESULT_STATE.TEST_EXCEPTION);
-					if ( es.getExpectedResultsFile() == null) {
-						this.getErrorWriter().generateErrorFile(testCase.getTestResult(), testException);
-					} else 	if (! es.isExceptionExpected()) {
-						this.getErrorWriter().generateErrorFile(testCase, es, transaction, testException);
-					}	
+				if (es.getExpectedResultsFile() == null) {
+					getErrorWriter().generateErrorFile(tr, exs.get(0));
+				} else {
+					getErrorWriter().generateErrorFile(testCase, es, transaction, exs.get(0));
 				}
 
 				// in case of exception with more failures, generate additional file with all messages
-				if (multiException != null) {
-					getErrorWriter().generateErrorMessagesFile(tr, multiException.getFailures());
+				if (exs.size() > 1) {
+					getErrorWriter().generateErrorMessagesFile(tr, exs);
 				}
-		  		 		 
-		 }	
+			}
+		}
 	}
 	
 	private boolean isOrdered(String sql) {

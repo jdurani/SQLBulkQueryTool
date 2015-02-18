@@ -260,7 +260,7 @@ public class FrameworkRuntimeException extends RuntimeException {
 	 * @return String representation of instance
 	 */
 	public String toString() {
-		return ExceptionUtil.getExceptionMessage(this);
+		return getMessage();
 	}
 
 	public void superPrintStackTrace(PrintStream output) {

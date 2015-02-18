@@ -429,15 +429,10 @@ public class XMLQueryVisitationStrategy {
         // ---------------------------
         // Add the Message element ...
         // ---------------------------
- 
-        Element messageElement = new Element(TagNames.Elements.MESSAGE);       
-        
-        messageElement.addContent(
-        		new CDATA(ExceptionUtil.getExceptionMessage(ex)));
-        		
- //       		StringUtils.remove( ExceptionUtil.getExceptionMessage(ex), '\r'));  
-        		
-        exceptionElement.addContent(messageElement);
+
+		Element messageElement = new Element(TagNames.Elements.MESSAGE);
+		messageElement.addContent(new CDATA(ex.getMessage()));
+		exceptionElement.addContent(messageElement);
 
         // -------------------------
         // Add the Class element ...
@@ -1808,7 +1803,7 @@ public class XMLQueryVisitationStrategy {
         // ---------------------------
         Element messageElement = new Element(TagNames.Elements.MESSAGE);
         
-        messageElement.setText(StringUtils.remove(ExceptionUtil.getExceptionMessage(exception), '\r'));
+        messageElement.setText(StringUtils.remove(exception.getMessage(), '\r'));
          
         exceptionElement.addContent(messageElement);
 

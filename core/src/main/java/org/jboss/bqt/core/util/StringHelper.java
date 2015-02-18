@@ -22,11 +22,13 @@
 
 package org.jboss.bqt.core.util;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.jboss.bqt.core.CorePlugin;
+import org.jboss.bqt.core.exception.FrameworkRuntimeException;
 
 /**
  * This is a common place to put String helper methods.
@@ -119,6 +121,63 @@ public final class StringHelper {
         matcher.appendTail(text);
 
         return text.toString();
-    }	
+	}
+
+	/**
+	 * Replace unprintable XML characters with dummy unicode character.
+	 * @param str string to filter
+	 * @return filtered string
+	 */
+	public static String replaceXmlUnprintable(String str) {
+		String xml10pattern = "[^" + "\u0009\r\n" + "\u0020-\uD7FF" + "\uE000-\uFFFD" + "\ud800\udc00-\udbff\udfff"
+				+ "]";
+		return str.replaceAll(xml10pattern, "\uFFFD");
+	}
+
+	/**
+	 * Encode any Java-string to UTF-8 textual hexadecimal representation.
+	 * @param s input string to encode
+	 * @return encoded hexadecimal sequence
+	 */
+	public static String encodeHex(String s) {
+		try {
+			byte[] asBytes = s.getBytes("UTF-8");
+
+			StringBuilder sb = new StringBuilder(asBytes.length * 2);
+			for (byte b : asBytes) {
+				sb.append(String.format("%02x", Byte.valueOf(b)));
+			}
+
+			return sb.toString();
+		} catch (UnsupportedEncodingException e) {
+			throw new FrameworkRuntimeException("UTF-8 encoding not supported");
+		}
+	}
+
+	/**
+	 * Decode hexadecimally encoded UTF-8 back to Java-string.
+	 * @param hex encoded hexadecimal sequence (consisting of 0-9a-fA-F)
+	 * @return decoded string
+	 * @throws FrameworkRuntimeException when the input string is invalid
+	 */
+	public static String decodeHex(String hex) throws FrameworkRuntimeException {
+		if (hex.length() % 2 == 1) {
+			throw new FrameworkRuntimeException("Odd number of hexadecimal characters: " + hex);
+		}
+
+		try {
+			byte[] asBytes = new byte[hex.length() / 2];
+			for (int i = 0; i < asBytes.length; i++) {
+				// must be integer for bigger range, the value is unsigned
+				asBytes[i] = Integer.valueOf(hex.substring(i * 2, i * 2 + 2), 16).byteValue();
+			}
+
+			return new String(asBytes, "UTF-8");
+		} catch (NumberFormatException e) {
+			throw new FrameworkRuntimeException("Invalid hexadecimal string: " + e.getMessage());
+		} catch (UnsupportedEncodingException e) {
+			throw new FrameworkRuntimeException("UTF-8 encoding not supported");
+		}
+	}
 
 }

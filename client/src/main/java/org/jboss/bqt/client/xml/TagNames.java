@@ -140,6 +140,9 @@ public final class TagNames {
 		public static final String STAR = "star"; //$NON-NLS-1$
 		public static final String UPDATE_CNT = "updatecnt"; //$NON-NLS-1$
 		public static final String EXECUTION_TIME = "exectime"; //$NON-NLS-1$
+
+		public static final String UNPRINTABALE = "unprintable";
+		public static final String HEXVALUE = "hexValue";
 	}
 
 	/**

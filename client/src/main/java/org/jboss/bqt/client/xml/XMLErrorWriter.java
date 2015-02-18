@@ -44,6 +44,7 @@ import org.jboss.bqt.core.exception.FrameworkRuntimeException;
 import org.jboss.bqt.core.exception.QueryTestFailedException;
 import org.jboss.bqt.core.util.ExceptionUtil;
 import org.jboss.bqt.core.util.FileUtils;
+import org.jboss.bqt.core.util.StringHelper;
 import org.jboss.bqt.core.xml.JdomHelper;
 import org.jboss.bqt.framework.AbstractQuery;
 import org.jboss.bqt.framework.TestCase;
@@ -52,6 +53,7 @@ import org.jboss.bqt.framework.TransactionAPI;
 import org.jdom.Attribute;
 import org.jdom.Document;
 import org.jdom.Element;
+import org.jdom.IllegalDataException;
 import org.jdom.JDOMException;
 import org.jdom.input.JDOMParseException;
 import org.jdom.output.XMLOutputter;
@@ -190,7 +192,12 @@ public class XMLErrorWriter extends ErrorWriter {
 				if (failures != null) {
 					for (Throwable failure : failures) {
 						Element failureEl = new Element(TagNames.Elements.FAILURE_MESSAGE);
-						failureEl.setText(failure.getMessage());
+						try {
+							failureEl.setText(failure.getMessage());
+						} catch(IllegalDataException e) {
+							// unprintable characters, replace them
+							failureEl.setText(StringHelper.replaceXmlUnprintable(failure.getMessage()));
+						}
 						resultElement.addContent(failureEl);
 					}
 				}

@@ -24,7 +24,9 @@ package org.jboss.bqt.client.xml;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.Serializable;
+import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Blob;
@@ -439,9 +441,19 @@ public class XMLQueryVisitationStrategy {
         // -------------------------
         Element classElement = new Element(TagNames.Elements.CLASS);
         classElement.setText(ex.getClass().getName());
-        exceptionElement.addContent(classElement);
+		exceptionElement.addContent(classElement);
 
-        return exceptionElement;
+		// ------------------------------
+		// Add the StackTrace element ...
+		// ------------------------------
+		StringWriter sw = new StringWriter();
+		ex.printStackTrace(new PrintWriter(sw));
+
+		Element stackTraceElement = new Element(TagNames.Elements.STACK_TRACE);
+		stackTraceElement.setText(sw.toString());
+		exceptionElement.addContent(stackTraceElement);
+
+		return exceptionElement;
     }
 
     /**

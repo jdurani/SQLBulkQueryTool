@@ -72,7 +72,7 @@ public class None extends QueryScenario {
 		ArgCheck.isNotNull(testCase, "TestResult must be passed in");
 
 		if (testCase.getTestResult().getStatus() == TestResult.RESULT_STATE.TEST_EXCEPTION) {
-				this.getErrorWriter().generateErrorFile(testCase.getTestResult(),testCase.getTestResult().getException());
+				this.getErrorWriter().generateErrorFile(testCase.getTestResult(), null);
 		}
 	}
 

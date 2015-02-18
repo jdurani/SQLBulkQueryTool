@@ -110,9 +110,9 @@ public class Compare extends QueryScenario {
 
 				// create an error file that also contains the expected results
 				if (es.getExpectedResultsFile() == null) {
-					getErrorWriter().generateErrorFile(tr, exs.get(0));
+					getErrorWriter().generateErrorFile(tr, exs);
 				} else {
-					getErrorWriter().generateErrorFile(testCase, es, transaction, exs.get(0));
+					getErrorWriter().generateErrorFile(testCase, es, transaction, exs);
 				}
 
 				// in case of exception with more failures, generate additional file with all messages

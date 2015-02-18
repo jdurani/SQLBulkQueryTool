@@ -112,7 +112,7 @@ public class XMLCompareResults {
 
 			if (!expResults.isExceptionExpected()) {
 				
-				throw new QueryTestFailedException(
+				throw new QueryTestFailedException(testcase.getTestResult().getException(),
 				eMsg
 						+ "TestResult resulted in unexpected exception " + testcase.getTestResult().getFailureMessage()); //$NON-NLS-1$
 				
@@ -240,7 +240,7 @@ public class XMLCompareResults {
 					columnTypes.add(rsMetadata.getColumnTypeName(col));
 				}
 			} catch (SQLException qre) {
-				throw new QueryTestFailedException(
+				throw new QueryTestFailedException(qre,
 						"Can't get results metadata: " + qre.getMessage()); //$NON-NLS-1$
 			}
 	
@@ -261,7 +261,7 @@ public class XMLCompareResults {
 					}
 				}
 			} catch (SQLException qre) {
-				throw new QueryTestFailedException(
+				throw new QueryTestFailedException(qre,
 						"Can't get results: " + qre.getMessage()); //$NON-NLS-1$
 			}
 		}

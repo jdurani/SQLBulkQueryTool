@@ -90,7 +90,7 @@ public class XMLErrorWriter extends ErrorWriter {
 	}
 	
 	@Override
-	public 	String generateErrorFile(final TestResult testResult, final Throwable error)
+	public 	String generateErrorFile(final TestResult testResult, final List<Throwable> failures)
 				throws FrameworkException {
 
 		String errorFileName = null;
@@ -103,16 +103,16 @@ public class XMLErrorWriter extends ErrorWriter {
 			ClientPlugin.LOGGER.warn("**** Generate Error File: " + errorFile.getAbsolutePath());
 
 			generateErrorResults(testResult,
-					 (String) null, errorFile, (ResultSet) null, (File) null, error);
+					 (String) null, errorFile, (ResultSet) null, (File) null, failures);
 		
 		return errorFileName;
 	}
 
 	@Override
-	public String generateErrorFile(TestCase testCase, ExpectedResults expectedResults, TransactionAPI transaction, Throwable ex) throws QueryTestFailedException, FrameworkException {
+	public String generateErrorFile(TestCase testCase, ExpectedResults expectedResults, TransactionAPI transaction, List<Throwable> failures) throws QueryTestFailedException, FrameworkException {
 
 		if (expectedResults == null) {
-			return generateErrorFile(testCase.getTestResult(), testCase.getTestResult().getException());
+			return generateErrorFile(testCase.getTestResult(), failures);
 		}
 
 		
@@ -135,7 +135,7 @@ public class XMLErrorWriter extends ErrorWriter {
 			ClientPlugin.LOGGER.warn("**** E 2 Generate Error File");
 		
 			generateErrorResults(testResult, testResult.getQuery(), errorFile,
-					resultSet, expectedResults.getExpectedResultsFile() , ex);
+					resultSet, expectedResults.getExpectedResultsFile() , failures);
 
 		} catch (SQLException sqle) {
 			throw new QueryTestFailedException(sqle);
@@ -161,7 +161,7 @@ public class XMLErrorWriter extends ErrorWriter {
 		 */
 		private void generateErrorResults(TestResult testResult,
 				String sql, File resultsFile, ResultSet actualResult,
-				File expectedResultFile, Throwable ex)
+				File expectedResultFile, List<Throwable> failures)
 				throws FrameworkException {
 			OutputStream outputStream;
 			try {
@@ -187,13 +187,22 @@ public class XMLErrorWriter extends ErrorWriter {
 				resultElement.setAttribute(new Attribute(TagNames.Attributes.VALUE,
 						(sql != null ? sql : "NULL")));
 
+				if (failures != null) {
+					for (Throwable failure : failures) {
+						Element failureEl = new Element(TagNames.Elements.FAILURE_MESSAGE);
+						failureEl.setText(failure.getMessage());
+						resultElement.addContent(failureEl);
+					}
+				}
+
 				// ---------------------
 				// Actual Exception
 				// ---------------------
 				// create a JDOM element from the actual exception object
 				// produce xml for the actualException and this to the
 				// exceptionElement
-				if (ex != null) {
+				Throwable actualError = testResult.getException();
+				if (actualError != null) {
 					
 					ClientPlugin.LOGGER.warn("**** E 3 Generate Error File");
 
@@ -201,7 +210,7 @@ public class XMLErrorWriter extends ErrorWriter {
 							TagNames.Elements.ACTUAL_EXCEPTION);
 
 					actualExceptionElement = XMLQueryVisitationStrategy
-							.jdomException(ex, actualExceptionElement);
+							.jdomException(actualError, actualExceptionElement);
 					resultElement.addContent(actualExceptionElement);
 				} else if (actualResult != null) {
 					ClientPlugin.LOGGER.warn("**** E 4 Generate Error File");
@@ -238,9 +247,9 @@ public class XMLErrorWriter extends ErrorWriter {
 						expectedResult = jstrat.parseXMLResultsFile(expectedResultFile,
 								expectedResult);
 						ClientPlugin.LOGGER.warn("**** E 5 Expected: " + expectedResult);
-						
-						if (testResult.isSuccess()) {
-							
+
+						if (expectedResult.getChild(TagNames.Elements.CLASS) == null) { // exception-class element not found
+
 							expectedResult
 							.setName(TagNames.Elements.EXPECTED_QUERY_RESULTS);
 							

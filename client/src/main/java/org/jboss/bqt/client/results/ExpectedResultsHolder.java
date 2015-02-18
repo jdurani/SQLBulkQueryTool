@@ -55,6 +55,7 @@ public class ExpectedResultsHolder extends ExpectedResults {
 	private String exceptionMsg;
 	private boolean exceptionContains = false;
 	private boolean exceptionStartsWith = false;
+	private boolean exceptionRegex = false;
 	
 	private long executionTime = -1;
 	
@@ -158,6 +159,22 @@ public class ExpectedResultsHolder extends ExpectedResults {
 
 	public void setExceptionStartsWith(boolean exceptionStartsWith) {
 		this.exceptionStartsWith = exceptionStartsWith;
+	}
+
+	/**
+	 * Whether message comparison mode is by regular expression.
+	 * @return if the comparison mode is regex
+	 */
+	public boolean isExceptionRegex() {
+		return this.exceptionRegex;
+	}
+
+	/**
+	 * Set the message comparison mode to regular expression
+	 * @param exceptionRegex true to set the mode to regex
+	 */
+	public void setExceptionRegex(boolean exceptionRegex) {
+		this.exceptionRegex = exceptionRegex;
 	}
 
 	public boolean hasRows() {

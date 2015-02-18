@@ -34,6 +34,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import org.apache.commons.lang.StringUtils;
 import org.jboss.bqt.client.ClientPlugin;
@@ -44,6 +46,7 @@ import org.jboss.bqt.client.results.ExpectedResultsHolder;
 import org.jboss.bqt.client.util.ListNestedSortComparator;
 import org.jboss.bqt.client.xml.TagNames;
 import org.jboss.bqt.client.xml.TagNames.Elements;
+import org.jboss.bqt.core.exception.FrameworkRuntimeException;
 import org.jboss.bqt.core.exception.MultiTestFailedException;
 import org.jboss.bqt.core.exception.QueryTestFailedException;
 import org.jboss.bqt.core.util.ExceptionUtil;
@@ -399,7 +402,17 @@ public class XMLCompareResults {
 				throw new QueryTestFailedException(
 						eMsg
 								+ "Actual exception message " + actualExceptionMsg + " does not start with the expected exception of " + expectedExceptionMsg); //$NON-NLS-1$				
-			}			
+			}
+		} else if (expectedResults.isExceptionRegex()) {
+			try {
+				Pattern p = Pattern.compile(expectedExceptionMsg, Pattern.DOTALL);
+				if (!p.matcher(actualExceptionMsg).find()) {
+					throw new QueryTestFailedException(eMsg + "Actual exception message " + actualExceptionMsg
+							+ " does not match regex pattern " + expectedExceptionMsg);
+				}
+			} catch (PatternSyntaxException e) {
+				throw new FrameworkRuntimeException(eMsg + "Invalid exception message regex pattern: " + e.getMessage());
+			}
 		} else {
 			if (!expectedExceptionMsg.equals(actualExceptionMsg)) {
 

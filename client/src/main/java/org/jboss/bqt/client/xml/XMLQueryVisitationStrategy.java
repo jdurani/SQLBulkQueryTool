@@ -322,8 +322,12 @@ public class XMLQueryVisitationStrategy {
                     	expectedResults.setExceptionStartsWith(true);
                     } else if (exceptionElement.getChild(TagNames.Elements.MESSAGE_CONTAINS) != null ) {
                         msg = exceptionElement.getChild(TagNames.Elements.MESSAGE_CONTAINS).getTextTrim(); 
-                        expectedResults.setExceptionContains(true);
-                    }
+						expectedResults.setExceptionContains(true);
+					} else if (exceptionElement.getChild(TagNames.Elements.MESSAGE_REGEX) != null) {
+						msg = exceptionElement.getChild(TagNames.Elements.MESSAGE_REGEX).getTextTrim();
+						expectedResults.setExceptionRegex(true);
+					}
+
                     expectedResults.setExceptionMsg(StringUtils.remove(msg, '\r'));
                 }
             }

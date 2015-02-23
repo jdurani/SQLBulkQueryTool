@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <queryResults name="Query4" value="Select ID, SYMBOL, NAME From PRODUCT">
+    <failureMessage>CompareResults Error: TestResult resulted in unexpected exception Column "NAME" not found; SQL statement:
+Select ID, SYMBOL, NAME From PRODUCT [42122-124]</failureMessage>
+    <actualException>
+      <exceptionType>JdbcSQLException</exceptionType>
+      <message>Column "NAME" not found; SQL statement:
+Select ID, SYMBOL, NAME From PRODUCT [42122-124]</message>
+      <class>org.h2.jdbc.JdbcSQLException</class>
+      <stackTrace>org.h2.jdbc.JdbcSQLException: Column "NAME" not found; SQL statement:
+Select ID, SYMBOL, NAME From PRODUCT [42122-124]
+	at org.h2.message.Message.getSQLException(Message.java:111)
+	at org.h2.message.Message.getSQLException(Message.java:122)
+	at org.h2.message.Message.getSQLException(Message.java:75)
+	at org.h2.expression.ExpressionColumn.optimize(ExpressionColumn.java:128)
+	at org.h2.command.dml.Select.prepare(Select.java:715)
+	at org.h2.command.Parser.prepareCommand(Parser.java:236)
+	at org.h2.engine.Session.prepareLocal(Session.java:416)
+	at org.h2.engine.Session.prepareCommand(Session.java:377)
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1053)
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:158)
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:147)
+	at org.jboss.bqt.framework.AbstractQuery.execute(AbstractQuery.java:208)
+	at org.jboss.bqt.client.testcase.ProcessResults.executeTest(ProcessResults.java:215)
+	at org.jboss.bqt.client.testcase.ProcessResults.runTestCase(ProcessResults.java:114)
+	at org.jboss.bqt.client.TestClient.runScenario(TestClient.java:195)
+	at org.jboss.bqt.client.TestClient.runTest(TestClient.java:130)
+	at org.jboss.bqt.test.TestIntegrationWithLocalDB.testBQTClientExecutionResultSetModeCompareNo(TestIntegrationWithLocalDB.java:146)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:483)
+	at org.junit.internal.runners.TestMethod.invoke(TestMethod.java:59)
+	at org.junit.internal.runners.MethodRoadie.runTestMethod(MethodRoadie.java:98)
+	at org.junit.internal.runners.MethodRoadie$2.run(MethodRoadie.java:79)
+	at org.junit.internal.runners.MethodRoadie.runBeforesThenTestThenAfters(MethodRoadie.java:87)
+	at org.junit.internal.runners.MethodRoadie.runTest(MethodRoadie.java:77)
+	at org.junit.internal.runners.MethodRoadie.run(MethodRoadie.java:42)
+	at org.junit.internal.runners.JUnit4ClassRunner.invokeTestMethod(JUnit4ClassRunner.java:88)
+	at org.junit.internal.runners.JUnit4ClassRunner.runMethods(JUnit4ClassRunner.java:51)
+	at org.junit.internal.runners.JUnit4ClassRunner$1.run(JUnit4ClassRunner.java:44)
+	at org.junit.internal.runners.ClassRoadie.runUnprotected(ClassRoadie.java:27)
+	at org.junit.internal.runners.ClassRoadie.runProtected(ClassRoadie.java:37)
+	at org.junit.internal.runners.JUnit4ClassRunner.run(JUnit4ClassRunner.java:42)
+	at org.apache.maven.surefire.junit4.JUnit4Provider.execute(JUnit4Provider.java:252)
+	at org.apache.maven.surefire.junit4.JUnit4Provider.executeTestSet(JUnit4Provider.java:141)
+	at org.apache.maven.surefire.junit4.JUnit4Provider.invoke(JUnit4Provider.java:112)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:483)
+	at org.apache.maven.surefire.util.ReflectionUtils.invokeMethodWithArray(ReflectionUtils.java:189)
+	at org.apache.maven.surefire.booter.ProviderFactory$ProviderProxy.invoke(ProviderFactory.java:165)
+	at org.apache.maven.surefire.booter.ProviderFactory.invokeProvider(ProviderFactory.java:85)
+	at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:115)
+	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:75)
+</stackTrace>
+    </actualException>
+    <expectedQueryResults>
+      <select>
+        <dataElement type="INTEGER">ID</dataElement>
+        <dataElement type="VARCHAR">SYMBOL</dataElement>
+        <dataElement type="VARCHAR">COMPANY_NAME</dataElement>
+      </select>
+      <table rowCount="25" columnCount="3">
+        <tableRow>
+          <tableCell>
+            <integer>1002</integer>
+          </tableCell>
+          <tableCell>
+            <string>BA</string>
+          </tableCell>
+          <tableCell>
+            <string>The Boeing Company</string>
+          </tableCell>
+        </tableRow>
+        <tableRow>
+          <tableCell>
+            <integer>1003</integer>
+          </tableCell>
+          <tableCell>
+            <string>MON</string>
+          </tableCell>
+          <tableCell>
+            <string>Monsanto Company</string>
+          </tableCell>
+        </tableRow>
+        <tableRow>
+          <tableCell>
+            <integer>1004</integer>
+          </tableCell>
+          <tableCell>
+            <string>PNRA</string>
+          </tableCell>
+          <tableCell>
+            <string>Panera Bread Company</string>
+          </tableCell>
+        </tableRow>
+        <tableRow>
+          <tableCell>
+            <integer>1005</integer>
+          </tableCell>
+          <tableCell>
+            <string>SY</string>
+          </tableCell>
+          <tableCell>
+            <string>Sybase Incorporated</string>
+          </tableCell>
+        </tableRow>
+        <tableRow>
+          <tableCell>
+            <integer>1006</integer>
+          </tableCell>
+          <tableCell>
+            <string>BTU</string>
+          </tableCell>
+          <tableCell>
+            <string>Peabody Energy</string>
+          </tableCell>
+        </tableRow>
+        <tableRow>
+          <tableCell>
+            <integer>1007</integer>
+          </tableCell>
+          <tableCell>
+            <string>IBM</string>
+          </tableCell>
+          <tableCell>
+            <string>International Business Machines Corporation</string>
+          </tableCell>
+        </tableRow>
+        <tableRow>
+          <tableCell>
+            <integer>1008</integer>
+          </tableCell>
+          <tableCell>
+            <string>DELL</string>
+          </tableCell>
+          <tableCell>
+            <string>Dell Computer Corporation</string>
+          </tableCell>
+        </tableRow>
+        <tableRow>
+          <tableCell>
+            <integer>1010</integer>
+          </tableCell>
+          <tableCell>
+            <string>HPQ</string>
+          </tableCell>
+          <tableCell>
+            <string>Hewlett-Packard Company</string>
+          </tableCell>
+        </tableRow>
+        <tableRow>
+          <tableCell>
+            <integer>1011</integer>
+          </tableCell>
+          <tableCell>
+            <string>GTW</string>
+          </tableCell>
+          <tableCell>
+            <string>Gateway, Incorporated</string>
+          </tableCell>
+        </tableRow>
+        <tableRow>
+          <tableCell>
+            <integer>1012</integer>
+          </tableCell>
+          <tableCell>
+            <string>GE</string>
+          </tableCell>
+          <tableCell>
+            <string>General Electric Company</string>
+          </tableCell>
+        </tableRow>
+        <tableRow>
+          <tableCell>
+            <integer>1013</integer>
+          </tableCell>
+          <tableCell>
+            <string>MRK</string>
+          </tableCell>
+          <tableCell>
+            <string>Merck and Company Incorporated</string>
+          </tableCell>
+        </tableRow>
+        <tableRow>
+          <tableCell>
+            <integer>1014</integer>
+          </tableCell>
+          <tableCell>
+            <string>DIS</string>
+          </tableCell>
+          <tableCell>
+            <string>Walt Disney Company</string>
+          </tableCell>
+        </tableRow>
+        <tableRow>
+          <tableCell>
+            <integer>1015</integer>
+          </tableCell>
+          <tableCell>
+            <string>MCD</string>
+          </tableCell>
+          <tableCell>
+            <string>McDonalds Corporation</string>
+          </tableCell>
+        </tableRow>
+        <tableRow>
+          <tableCell>
+            <integer>1016</integer>
+          </tableCell>
+          <tableCell>
+            <string>DOW</string>
+          </tableCell>
+          <tableCell>
+            <string>Dow Chemical Company</string>
+          </tableCell>
+        </tableRow>
+        <tableRow>
+          <tableCell>
+            <integer>1018</integer>
+          </tableCell>
+          <tableCell>
+            <string>GM</string>
+          </tableCell>
+          <tableCell>
+            <string>General Motors Corporation</string>
+          </tableCell>
+        </tableRow>
+        <tableRow>
+          <tableCell>
+            <integer>1024</integer>
+          </tableCell>
+          <tableCell>
+            <string>SBGI</string>
+          </tableCell>
+          <tableCell>
+            <string>Sinclair Broadcast Group Incorporated</string>
+          </tableCell>
+        </tableRow>
+        <tableRow>
+          <tableCell>
+            <integer>1025</integer>
+          </tableCell>
+          <tableCell>
+            <string>COLM</string>
+          </tableCell>
+          <tableCell>
+            <string>Columbia Sportsware Company</string>
+          </tableCell>
+        </tableRow>
+        <tableRow>
+          <tableCell>
+            <integer>1026</integer>
+          </tableCell>
+          <tableCell>
+            <string>COLB</string>
+          </tableCell>
+          <tableCell>
+            <string>Columbia Banking System Incorporated</string>
+          </tableCell>
+        </tableRow>
+        <tableRow>
+          <tableCell>
+            <integer>1028</integer>
+          </tableCell>
+          <tableCell>
+            <string>BSY</string>
+          </tableCell>
+          <tableCell>
+            <string>British Sky Broadcasting Group PLC</string>
+          </tableCell>
+        </tableRow>
+        <tableRow>
+          <tableCell>
+            <integer>1029</integer>
+          </tableCell>
+          <tableCell>
+            <string>CSVFX</string>
+          </tableCell>
+          <tableCell>
+            <string>Columbia Strategic Value Fund</string>
+          </tableCell>
+        </tableRow>
+        <tableRow>
+          <tableCell>
+            <integer>1030</integer>
+          </tableCell>
+          <tableCell>
+            <string>CMTFX</string>
+          </tableCell>
+          <tableCell>
+            <string>Columbia Technology Fund</string>
+          </tableCell>
+        </tableRow>
+        <tableRow>
+          <tableCell>
+            <integer>1031</integer>
+          </tableCell>
+          <tableCell>
+            <string>F</string>
+          </tableCell>
+          <tableCell>
+            <string>Ford Motor Company</string>
+          </tableCell>
+        </tableRow>
+        <tableRow>
+          <tableCell>
+            <integer>1033</integer>
+          </tableCell>
+          <tableCell>
+            <string>FCZ</string>
+          </tableCell>
+          <tableCell>
+            <string>Ford Motor Credit Company</string>
+          </tableCell>
+        </tableRow>
+        <tableRow>
+          <tableCell>
+            <integer>1034</integer>
+          </tableCell>
+          <tableCell>
+            <string>SAP</string>
+          </tableCell>
+          <tableCell>
+            <string>SAP AG</string>
+          </tableCell>
+        </tableRow>
+        <tableRow>
+          <tableCell>
+            <integer>1036</integer>
+          </tableCell>
+          <tableCell>
+            <string>TM</string>
+          </tableCell>
+          <tableCell>
+            <string>Toyota Motor Corporation</string>
+          </tableCell>
+        </tableRow>
+      </table>
+    </expectedQueryResults>
+  </queryResults>
+</root>
+

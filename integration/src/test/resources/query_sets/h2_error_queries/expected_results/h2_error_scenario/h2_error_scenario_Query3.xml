@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <query><![CDATA[Select TRANSACTION_ID, ACCOUNT_ID, PRODUCT_ID, PURCHASE_DATE, SHARES_COUNT From HOLDINGS]]></query>
+  <queryResults name="h2_error_scenario_Query1">
+    <exception>
+      <exceptionType>JdbcSQLException</exceptionType>
+      <message>Table "NONEXISTING" not found; SQL statement:
+Select ACCOUNT_ID, NAME, STATUS, TYPE, DATEOPENED, DATECLOSED From NONEXISTING [42102-124]</message>
+      <class>org.h2.jdbc.JdbcSQLException</class>
+    </exception>
+  </queryResults>
+</root>

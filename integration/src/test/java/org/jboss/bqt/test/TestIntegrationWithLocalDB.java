@@ -24,6 +24,11 @@ package org.jboss.bqt.test;
 import static org.junit.Assert.*;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import junit.framework.Assert;
 
 import org.jboss.bqt.client.TestClient;
 import org.jboss.bqt.core.util.FileUtils;
@@ -31,6 +36,10 @@ import org.jboss.bqt.core.util.UnitTestUtil;
 import org.jboss.bqt.framework.ConfigPropertyNames;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 
 @SuppressWarnings("nls")
@@ -91,7 +100,82 @@ public class TestIntegrationWithLocalDB {
 		
 	
 	}	
-	
+
+	/**
+	 * Compare failure messages in XML error files created in COMPARE mode.
+	 *
+	 * @param expectedErrorXml expected .err XML file
+	 * @param errorXml actual .err XML file
+	 * @throws SAXException one of the files is not valid XML
+	 * @throws IOException one of the files cannot be read or does not exist
+	 */
+	private void compareErrorFiles(File expectedErrorXml, File errorXml) throws SAXException, IOException {
+		try {
+			Document expectedDoc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(expectedErrorXml);
+			Document actualDoc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(errorXml);
+
+			// list of messages inside the error file, same number = can compare
+			NodeList nListExpected = expectedDoc.getElementsByTagName("failureMessage");
+			NodeList nListActual = actualDoc.getElementsByTagName("failureMessage");
+			assertTrue("Different number of failure messages", nListExpected.getLength() == nListActual.getLength());
+
+			for (int i = 0; i < nListExpected.getLength(); i++) {
+				Node nodeExpected = nListExpected.item(i);
+				Node nodeActual = nListActual.item(i);
+				assertEquals("Different failure message", nodeExpected.getTextContent(),
+						nodeActual.getTextContent());
+			}
+		} catch (ParserConfigurationException e) {
+			throw new Error(e);
+		}
+	}
+
+	/**
+	 * Negative test-case to ensure that:
+	 * <li>the error XML files are created, well-formed and contains correct failure messages</li>
+	 * <li>the comparison engine is correctly detecting multiple test-case failures</li>
+	 *
+	 * @throws SAXException in case of malformed XML
+	 * @throws IOException error reading the file, or the file does not exist
+	 */
+	@Test
+	public void testBQTClientExecutionResultSetModeCompareNo() throws SAXException, IOException {
+		// different scenario
+		System.setProperty(ConfigPropertyNames.CONFIG_FILE,
+				UnitTestUtil.getTestDataPath() + File.separator + "localconfig_error.properties");
+
+		System.setProperty("result.mode", "compare");
+
+		TestClient tc = new TestClient();
+		tc.runTest();
+
+		// list of actual error files
+		String outputdir = System.getProperty("output.dir");
+		File compareErrors = new File(
+				outputdir + File.separator + "h2_error_scenario" + File.separator + "errors_for_compare");
+
+		File[] errorFiles = FileUtils.findAllFilesInDirectoryHavingExtension(compareErrors.getAbsolutePath(), ".err");
+		Arrays.sort(errorFiles);
+
+		// list of expected error files
+		File expectedFailures = new File(
+				UnitTestUtil.getTestDataPath() + File.separator + "query_sets" + File.separator + "h2_error_queries"
+				+ File.separator + "expected_failures");
+
+		File[] expectedErrorFiles = FileUtils.findAllFilesInDirectoryHavingExtension(expectedFailures.getAbsolutePath(),
+				".err");
+		Arrays.sort(expectedErrorFiles);
+
+		// loaded and same number, we can compare one by one
+		assertTrue("No error files created", errorFiles != null && errorFiles.length > 0);
+		assertTrue("No expected error files", expectedErrorFiles != null && expectedErrorFiles.length > 0);
+		assertEquals("Different number of error files", expectedErrorFiles.length, errorFiles.length);
+
+		for (int i = 0; i < expectedErrorFiles.length; i++) {
+			compareErrorFiles(expectedErrorFiles[i], errorFiles[i]);
+		}
+	}
+
 	@Test
 	public void testBQTClientExecutionResultSetModeNone() {
 		

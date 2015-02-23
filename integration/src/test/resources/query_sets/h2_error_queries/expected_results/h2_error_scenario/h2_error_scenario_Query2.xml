@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root>
   <query><![CDATA[Select SSN, FIRSTNAME, LASTNAME, ST_ADDRESS, APT_NUMBER, CITY, STATE, ZIPCODE, PHONE From CUSTOMER]]></query>
-  <queryResults name="h2_scenario_Query2" exectime="1">
+  <queryResults name="h2_error_scenario_Query2" exectime="1">
     <select>
       <dataElement type="CHAR">SSN</dataElement>
       <dataElement type="VARCHAR">FIRSTNAME</dataElement>
@@ -25,7 +25,7 @@
           <string>Smith</string>
         </tableCell>
         <tableCell>
-          <string>1234 Main Street</string>
+          <string>1234 Another Street</string>
         </tableCell>
         <tableCell>
           <string>Apartment 56</string>
@@ -37,7 +37,7 @@
           <string>New York</string>
         </tableCell>
         <tableCell>
-          <string>10174</string>
+          <string unprintable="true" hexValue="313031003734"/>
         </tableCell>
         <tableCell>
           <string>(646)555-1776</string>
@@ -425,7 +425,7 @@
           <string>Massachusetts</string>
         </tableCell>
         <tableCell>
-          <string>02136 </string>
+          <string>02136</string>
         </tableCell>
         <tableCell>
           <string>(617)555-3546</string>

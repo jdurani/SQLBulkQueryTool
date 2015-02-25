@@ -80,8 +80,8 @@ public class Compare extends QueryScenario {
 		
 		List<ExpectedResultsReader> readers = this.getExpectedResultsReaders(testCase);
 		
-		ArgCheck.isNotNull(readers);
-		ArgCheck.isTrue(readers.size() > 0, "No Expected Results Readers");
+		ArgCheck.isNotNull(readers); // TODO - This class is from teiid-common-core.jar archive, probably better to remove this dependency (method just throws an exception)
+		ArgCheck.isTrue(readers.size() > 0, "No Expected Results Readers"); // TODO - same as above
 		
 		TestResult tr = testCase.getTestResult();
 		Throwable resultException = tr.getException();
@@ -108,7 +108,7 @@ public class Compare extends QueryScenario {
 					} else 	if (! es.isExceptionExpected()) {
 						this.getErrorWriter().generateErrorFile(testCase, es, transaction, testException);
 					}	
-				}
+				} // TODO - if exception is thrown here - bqt ends
 		  		 		 
 		 }	
 	}

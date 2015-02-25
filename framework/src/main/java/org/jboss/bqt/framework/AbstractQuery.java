@@ -97,7 +97,7 @@ public abstract class AbstractQuery implements TransactionAPI {
 		try {
 			this.setConnection(this.connStrategy.getConnection());
 		} catch (FrameworkException e) {
-			throw new FrameworkRuntimeException(e.getMessage());
+			throw new FrameworkRuntimeException(e);
 		}
 
 	}

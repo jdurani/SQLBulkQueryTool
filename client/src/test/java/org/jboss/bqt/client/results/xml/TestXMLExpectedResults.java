@@ -36,8 +36,6 @@ import org.jboss.bqt.client.QueryTest;
 import org.jboss.bqt.client.api.ExpectedResults;
 import org.jboss.bqt.client.api.ExpectedResultsReader;
 import org.jboss.bqt.client.api.QueryScenario;
-import org.jboss.bqt.client.results.xml.XMLCompareResults;
-import org.jboss.bqt.client.results.xml.XMLExpectedResultsReader;
 import org.jboss.bqt.core.exception.QueryTestFailedException;
 import org.jboss.bqt.core.util.UnitTestUtil;
 import org.jboss.bqt.framework.ConfigPropertyLoader;
@@ -45,7 +43,6 @@ import org.jboss.bqt.framework.ConfigPropertyNames;
 import org.jboss.bqt.framework.TestCase;
 import org.jboss.bqt.framework.TestResult;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**

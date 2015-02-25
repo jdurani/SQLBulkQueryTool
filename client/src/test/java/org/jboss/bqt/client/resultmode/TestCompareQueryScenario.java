@@ -23,19 +23,14 @@
 package org.jboss.bqt.client.resultmode;
 
 import static org.junit.Assert.assertEquals;
-
 import static org.junit.Assert.assertNotNull;
-
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
 
 import java.io.File;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
-import org.jboss.bqt.client.ClientPlugin;
 import org.jboss.bqt.client.QueryTest;
 import org.jboss.bqt.client.api.QueryScenario;
 import org.jboss.bqt.core.exception.FrameworkRuntimeException;
@@ -45,7 +40,6 @@ import org.jboss.bqt.framework.ConfigPropertyNames;
 import org.jboss.bqt.framework.TestCase;
 import org.jboss.bqt.framework.TestResult;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**

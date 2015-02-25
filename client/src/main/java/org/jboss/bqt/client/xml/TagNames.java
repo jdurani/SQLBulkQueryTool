@@ -21,8 +21,8 @@
  */
 package org.jboss.bqt.client.xml;
 
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Constants used in XML messaging.

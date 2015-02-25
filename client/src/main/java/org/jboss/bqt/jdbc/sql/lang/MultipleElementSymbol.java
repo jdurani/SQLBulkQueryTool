@@ -22,7 +22,8 @@
 
 package org.jboss.bqt.jdbc.sql.lang;
 
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * <p>This is a subclass of Symbol representing multiple output columns.</p>

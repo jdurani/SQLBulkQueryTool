@@ -105,6 +105,21 @@ public interface TestProperties {
 	 * 
 	 */
 	public static final String PROP_RESULT_MODE = "bqt.result.mode";
+	
+	/**
+	 * Contains string representation of allowed divergence during comparison of BigDecimal values.
+	 */
+	public static final String ALLOWED_DIVERGENCE = "bqt.compare.big.decimal.allowed.divergence";
+	
+	/**
+	 * Estimated time for one query.
+	 */
+	public static final String TIME_FOR_ONE_QUERY = "bqt.scenario.time.for.one.query";
+	
+	/**
+	 * "Ping-query" for scenario.
+	 */
+	public static final String PING_QUERY = "bqt.scenario.ping.query";
 
 	/**
 	 * All test options will produce the following basic information at the end

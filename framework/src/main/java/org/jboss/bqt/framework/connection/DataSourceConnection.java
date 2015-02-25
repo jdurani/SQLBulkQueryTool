@@ -31,7 +31,6 @@ import javax.sql.XADataSource;
 
 import org.jboss.bqt.core.exception.FrameworkException;
 import org.jboss.bqt.core.exception.FrameworkRuntimeException;
-import org.jboss.bqt.core.exception.QueryTestFailedException;
 import org.jboss.bqt.core.util.PropertiesUtils;
 import org.jboss.bqt.framework.FrameworkPlugin;
 
@@ -131,6 +130,8 @@ public class DataSourceConnection extends ConnectionStrategy {
 			validate();
 			try {
 				xaConnection = createConnection();
+			} catch (SQLException ex){
+				throw translaceSQLException(ex);
 			} catch (Exception e) {
 				throw new FrameworkException(e);
 			}

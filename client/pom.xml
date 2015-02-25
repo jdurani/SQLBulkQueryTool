@@ -7,7 +7,6 @@
   </parent>
 
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.jboss.bqt</groupId>
 	<artifactId>bqt-client</artifactId>
 	<name>BQT Client</name>
 	<description>The client code used for executing the framework</description>
@@ -30,15 +29,15 @@
         <dependency>
             <groupId>org.jboss.bqt</groupId>
             <artifactId>bqt-core</artifactId>
-            <type>test-jar</type>
             <version>${project.version}</version>
+            <type>test-jar</type>
         </dependency>
         
 		<dependency>
 		  <groupId>org.jboss.teiid</groupId>
 		  <artifactId>teiid-client</artifactId>
 		  <version>8.2.0.Final</version>
-		</dependency>        
+		</dependency>
         
         <dependency>
             <groupId>commons-lang</groupId>
@@ -60,24 +59,23 @@
 	      <artifactId>mockito-all</artifactId>
 	    </dependency>		
 
+		
 		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-api</artifactId>
 		</dependency>
-        <!--
-            Logging (require SLF4J API for compiling, but use Log4J and its SLF4J
-            binding for testing)
-        -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <scope>provided</scope>
-        </dependency>   				
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-slf4j-impl</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+		</dependency>	
 
 	</dependencies>	
 

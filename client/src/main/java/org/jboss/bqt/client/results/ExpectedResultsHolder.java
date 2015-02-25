@@ -28,7 +28,6 @@ import java.util.List;
 import org.jboss.bqt.client.QueryTest;
 import org.jboss.bqt.client.api.ExpectedResults;
 import org.jboss.bqt.client.xml.TagNames;
-import org.jboss.bqt.client.xml.TagNames.Elements;
 import org.jboss.bqt.core.util.ExceptionUtil;
 
 /**

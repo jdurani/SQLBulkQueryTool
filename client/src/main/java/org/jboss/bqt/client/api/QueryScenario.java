@@ -42,11 +42,11 @@ import org.jboss.bqt.client.util.BQTUtil;
 import org.jboss.bqt.core.exception.FrameworkException;
 import org.jboss.bqt.core.exception.FrameworkRuntimeException;
 import org.jboss.bqt.core.exception.QueryTestFailedException;
+import org.jboss.bqt.core.util.ArgCheck;
 import org.jboss.bqt.core.util.ReflectionHelper;
 import org.jboss.bqt.framework.TestCase;
 import org.jboss.bqt.framework.TestCaseLifeCycle;
 import org.jboss.bqt.framework.TransactionAPI;
-import org.jboss.bqt.core.util.ArgCheck;
 
 /**
  * The QueryScenario manages all the information required to run one scenario of

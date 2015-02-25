@@ -37,7 +37,6 @@ import org.jboss.bqt.framework.ConfigPropertyNames;
 import org.jboss.bqt.framework.TestCase;
 import org.jboss.bqt.framework.TestResult;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;

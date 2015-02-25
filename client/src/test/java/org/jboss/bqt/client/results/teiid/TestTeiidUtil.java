@@ -22,18 +22,15 @@
 
 package org.jboss.bqt.client.results.teiid;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.jboss.bqt.core.exception.FrameworkException;
 import org.jboss.bqt.core.util.UnitTestUtil;
 import org.jboss.bqt.core.xml.JdomHelper;
 import org.jboss.bqt.framework.ConfigPropertyLoader;
-import org.jdom.JDOMException;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;

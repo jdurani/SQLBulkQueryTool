@@ -115,6 +115,9 @@ ARGS="${ARGS} -Dqueryset.artifacts.dir=${QUERYSETDIR}"
 ARGS="${ARGS} -Dresult.mode=${RMODE}"
 ARGS="${ARGS} -Doutput.dir=${OUTPUTDIR}"
 ARGS="${ARGS} -Dconfig=${CONFIG}"
+ARGS="${ARGS} -Dlog.dir=${LOG_DIR}"
+ARGS="${ARGS} -Dallowed.divergence=${ALLOWED_DIVERGENCE}"
+ARGS="${ARGS} -Dlog4j.configurationFile=${ROOTDIR}/config/log4j2-client.xml"
 
 JAVA_OPTS=" "
 

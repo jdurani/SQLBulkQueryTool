@@ -30,6 +30,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -42,15 +43,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.jboss.bqt.client.api.QueryScenario;
 import org.jboss.bqt.framework.TestResult;
-
-import org.apache.commons.lang.StringUtils;
 
 public class TestResultsSummary {
 
 	private static final String OVERALL_SUMMARY_FILE = "Summary_totals.txt";
 	private static final String OVERALL_SUMMARY_ERROR_FILE = "Summary_errors.txt";
+	private static final String CONNECTION_EXCEPTION_SUMMARY_ERROR_FILE = "Summary_connection_exception_errors.txt";
 	private static final SimpleDateFormat FILE_NAME_DATE_FORMATER = new SimpleDateFormat(
 			"yyyyMMdd_HHmmss"); //$NON-NLS-1$
 
@@ -212,7 +213,7 @@ public class TestResultsSummary {
 
 			overallsummary
 					.write(pad("Scenario", 42, ' ') +
-							"\t" + "Pass" + "\t" + "Fail" + "\t" + "Total \n\n"); //$NON-NLS-1$
+							"\t" + "Pass" + "\t" + "Fail" + "\t" + "Total" + "\t" + "Skipped" + "\n\n"); //$NON-NLS-1$
 
 			overallsummary.flush();
 
@@ -520,7 +521,79 @@ public class TestResultsSummary {
 		}
 	}
 
-	public void printTotals() throws Exception {
+	public void printServerConnectionException(Exception ex) throws IOException{
+		String scenarioName = scenario.getQueryScenarioIdentifier();
+		Writer outputWriter = null;
+		try {
+			outputWriter = getConnectionExceptionSummaryStream(scenario.getOutputDir()); //$NON-NLS-1$
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw e;
+		}
+		
+		try{
+			outputWriter.write(pad(scenarioName, 42, ' '));
+			outputWriter.write("\t");
+			ex.printStackTrace(new PrintWriter(outputWriter));
+			outputWriter.write(System.getProperty("line.separator"));
+			outputWriter.write("-------------------------------------");
+			outputWriter.write(System.getProperty("line.separator"));
+			
+			outputWriter.flush();
+		} catch (IOException ioex){
+			ioex.printStackTrace();
+			try{
+				outputWriter.close();
+			} catch (IOException e){
+				// ignore
+			}
+			throw ioex;
+		}
+	}
+	
+	private static Writer getConnectionExceptionSummaryStream(String outputDir)
+			throws IOException {
+		boolean exists = false;
+		File summaryFile = new File(outputDir, CONNECTION_EXCEPTION_SUMMARY_ERROR_FILE);
+		exists = summaryFile.exists();
+		FileWriter fstream = new FileWriter(summaryFile, true);
+		BufferedWriter out = new BufferedWriter(fstream);
+
+		if (!exists) {
+
+			try {
+				summaryFile.createNewFile();
+			} catch (IOException e) {
+				ClientPlugin.LOGGER.error("Failed to create overall connection-exception-summary-errors file at: " + summaryFile.getAbsolutePath()); //$NON-NLS-1$
+				throw new IOException(
+						"Failed to create overall summary file at: " + summaryFile.getAbsolutePath() + ": " + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+			printOverallConnectionExceptionSummaryErrosHeadings(out);
+		}
+
+		return out;
+	}
+	
+	private static void printOverallConnectionExceptionSummaryErrosHeadings(Writer overallsummary) {
+
+		try {
+			overallsummary.write("================== \n"); //$NON-NLS-1$ //TODO
+			overallsummary.write("TestResult Summary Connection Errors \n"); //$NON-NLS-1$
+			overallsummary.write("================== \n"); //$NON-NLS-1$
+
+			overallsummary
+					.write(pad("Scenario", 42, ' ') +
+							"\tError\n\n"); //$NON-NLS-1$
+
+			overallsummary.flush();
+
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+
+	}
+	
+	public void printTotals(int expectedQueryCount) throws Exception {
 		// String outputDir = scenario.getResultsGenerator().getOutputDir();
 		String scenario_name = scenario.getQueryScenarioIdentifier();
 		String querysetname = scenario.getQuerySetName();
@@ -571,7 +644,7 @@ public class TestResultsSummary {
 
 		try {
 			overallsummary.write(pad(scenario_name, 42, ' ') + " \t"
-					+ total_pass + "\t" + total_fail + "\t" + total_queries
+					+ total_pass + "\t" + total_fail + "\t" + total_queries + "\t" + (expectedQueryCount - total_queries)  
 					+ "\n");
 			overallsummary.flush();
 

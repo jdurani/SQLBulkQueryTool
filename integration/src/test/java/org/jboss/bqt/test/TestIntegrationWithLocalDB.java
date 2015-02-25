@@ -39,7 +39,7 @@ public class TestIntegrationWithLocalDB {
 	
 
 	@BeforeClass
-    public static void beforeEach() throws Exception {  		
+    public static void beforeEach() throws Exception {
 		System.setProperty("project.data.path", UnitTestUtil.getTestDataPath());
 		
 		System.setProperty("output.dir", UnitTestUtil.getTestOutputPath() + File.separator + "sqltest" );
@@ -72,10 +72,10 @@ public class TestIntegrationWithLocalDB {
 
 		assertFalse("No expected results should have been generated for these types of queriest", other.exists());
 	}
-
+	
 	@Test
 	public void testBQTClientExecutionResultSetModeCompare() {
-		
+		System.setProperty("allowed.divergence", "0.00001");
 		System.setProperty("result.mode", "compare" );
 		
 		TestClient tc = new TestClient();
@@ -88,8 +88,6 @@ public class TestIntegrationWithLocalDB {
 		File[] errorFiles = FileUtils.findAllFilesInDirectory(compareErrors.getAbsolutePath());
 		
 		assertTrue("Compare Has Error Files", (errorFiles == null || errorFiles.length == 0) );
-		
-	
 	}	
 	
 	@Test

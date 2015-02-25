@@ -72,12 +72,12 @@
 
 		<slf4j.api.version>1.6.1</slf4j.api.version>
 		<slf4j.log4j.version>1.6.1</slf4j.log4j.version>
-		<log4j.version>1.2.16</log4j.version>
-        
-        <mockito.all.version>1.8.4</mockito.all.version>
-        
+		<log4j2.version>2.1</log4j2.version>
+
+		<mockito.all.version>1.8.4</mockito.all.version>
+
 		<apache.ant.version>1.7.0</apache.ant.version>
-        <apache.commons.version>2.6</apache.commons.version>
+		<apache.commons.version>2.6</apache.commons.version>
 		<maven.surefire.report.plugin.version>2.4.3</maven.surefire.report.plugin.version>
 		<maven.surefire.plugin.version>2.8</maven.surefire.plugin.version>
 		<maven.surefire.plugin.junit.version>2.8</maven.surefire.plugin.junit.version>
@@ -89,7 +89,7 @@
 		<maven.deploy.plugin.version>2.5</maven.deploy.plugin.version>
 		<maven.surefire.plugin.version>2.8</maven.surefire.plugin.version>
 
-        <java.version>1.6</java.version>
+		<java.version>1.6</java.version>
 		<rootDir>${project.basedir}</rootDir>
 		<debug.argline></debug.argline>
 
@@ -99,6 +99,7 @@
 		<module>core</module>
 		<module>framework</module>
 		<module>client</module>
+		<module>gui</module>
 	</modules>
 
 	<dependencies>
@@ -133,6 +134,12 @@
 				<artifactId>bqt-client</artifactId>
 				<version>${project.version}</version>
 			</dependency>
+			
+			<dependency>
+				<groupId>org.jboss.bqt</groupId>
+				<artifactId>bqt-gui</artifactId>
+				<version>${project.version}</version>
+			</dependency>
 
 			<!-- Declare all dependency versions and default scopes here, but not 
 				optional. Each module should declare it's direct dependency and possibily 
@@ -149,13 +156,13 @@
 				<artifactId>junit</artifactId>
 				<version>4.4</version>
 			</dependency>
-			
-            <dependency>
-                <groupId>org.mockito</groupId>
-                <artifactId>mockito-all</artifactId>
-                <version>${mockito.all.version}</version>
-                <scope>test</scope>
-            </dependency>
+
+			<dependency>
+				<groupId>org.mockito</groupId>
+				<artifactId>mockito-all</artifactId>
+				<version>${mockito.all.version}</version>
+				<scope>test</scope>
+			</dependency>
 
 			<dependency>
 				<groupId>javax</groupId>
@@ -163,62 +170,68 @@
 				<version>6.0</version>
 			</dependency>
 
-
-			<dependency>
-				<groupId>log4j</groupId>
-				<artifactId>log4j</artifactId>
-				<version>${log4j.version}</version>
-			</dependency>
-
 			<dependency>
 				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-api</artifactId>
 				<version>${slf4j.api.version}</version>
 			</dependency>
+
+
 			<dependency>
-				<groupId>org.slf4j</groupId>
-				<artifactId>slf4j-log4j12</artifactId>
-				<version>${slf4j.log4j.version}</version>
+				<groupId>org.apache.logging.log4j</groupId>
+				<artifactId>log4j-api</artifactId>
+				<version>${log4j2.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>org.apache.logging.log4j</groupId>
+				<artifactId>log4j-slf4j-impl</artifactId>
+				<version>${log4j2.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.logging.log4j</groupId>
+				<artifactId>log4j-core</artifactId>
+				<version>${log4j2.version}</version>
+			</dependency>
+
 
 			<dependency>
 				<groupId>jdom</groupId>
 				<artifactId>jdom</artifactId>
 				<version>1.0</version>
 			</dependency>
-	        
-            <dependency>
-                <groupId>hsqldb</groupId>
-                <artifactId>hsqldb</artifactId>
-                <version>${jdbc.hsqldb.version}</version>
-                <scope>test</scope>
-            </dependency>	 
-          
-            <dependency>
-                <groupId>com.h2database</groupId>
-                <artifactId>h2</artifactId>
-                <version>${jdbc.h2.version}</version>
-                <scope>test</scope>
-            </dependency>                 
-	</dependencies>
-</dependencyManagement>  
 
-<build>
-    <plugins>
-    <!-- Specify the compiler options and settings -->
-         <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-compiler-plugin</artifactId>
-            <version>${maven.compiler.plugin.version}</version>
-                <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
-                    <showDeprecation>false</showDeprecation>
-                    <showWarnings>false</showWarnings>
-                </configuration>            
-      </plugin>
-    </plugins>
-</build>
+			<dependency>
+				<groupId>hsqldb</groupId>
+				<artifactId>hsqldb</artifactId>
+				<version>${jdbc.hsqldb.version}</version>
+				<scope>test</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>com.h2database</groupId>
+				<artifactId>h2</artifactId>
+				<version>${jdbc.h2.version}</version>
+				<scope>test</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<plugins>
+			<!-- Specify the compiler options and settings -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${maven.compiler.plugin.version}</version>
+				<configuration>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
+					<showDeprecation>false</showDeprecation>
+					<showWarnings>false</showWarnings>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 
 	<profiles>
 		<!-- ################################################################### 

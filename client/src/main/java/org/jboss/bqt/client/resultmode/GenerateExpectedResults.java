@@ -25,15 +25,12 @@ import java.util.List;
 import java.util.Properties;
 
 import org.jboss.bqt.client.TestProperties;
-import org.jboss.bqt.client.api.ExpectedResults;
 import org.jboss.bqt.client.api.ExpectedResultsWriter;
 import org.jboss.bqt.client.api.QueryScenario;
 import org.jboss.bqt.client.api.QueryWriter;
 import org.jboss.bqt.core.exception.FrameworkException;
-import org.jboss.bqt.core.exception.QueryTestFailedException;
 import org.jboss.bqt.core.util.ArgCheck;
 import org.jboss.bqt.framework.TestCase;
-import org.jboss.bqt.framework.TestResult;
 import org.jboss.bqt.framework.TransactionAPI;
 
 /**

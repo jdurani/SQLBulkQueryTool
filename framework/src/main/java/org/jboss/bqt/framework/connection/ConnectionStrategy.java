@@ -22,6 +22,7 @@
 package org.jboss.bqt.framework.connection;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Properties;
 
 import javax.sql.XAConnection;
@@ -91,6 +92,26 @@ public abstract class ConnectionStrategy {
 		this.env.setProperty(key, value);
 	}
 
+	/**
+	 * Translates an {@link SQLException} to {@link FrameworkException}. An error code
+	 * ({@link FrameworkException#getCode()}, {@link FrameworkException#setCode()}) will be 
+	 * set for the new exception.
+	 * <ul>
+	 * <li>{@link FrameworkException.ErrorCodes#SERVER_CONNECTION_EXCEPTION} - if SQLState start with "08"</li>
+	 * <li>{@link FrameworkException.ErrorCodes#DB_CONNECTION_EXCEPTION} - otherwise</li>
+	 * </ul>    
+	 * @param sqlEx an SQLEception
+	 * @return
+	 */
+	protected FrameworkException translaceSQLException(SQLException sqlEx){
+		String state = sqlEx.getSQLState();
+		// SQL-99 error states
+		if(state != null && state.startsWith("08")){ //$NON-NLS-1$
+			return new FrameworkException(sqlEx, FrameworkException.ErrorCodes.SERVER_CONNECTION_EXCEPTION, "Server not available.");
+		}
+		return new FrameworkException(sqlEx, FrameworkException.ErrorCodes.DB_CONNECTION_EXCEPTION, "Error while establishing connection.");
+	}
+	
 	/**
 	 * @throws QueryTestFailedException
 	 */

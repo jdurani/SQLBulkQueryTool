@@ -23,7 +23,6 @@
 package org.jboss.bqt.client.results.teiid;
 
 import java.io.File;
-import java.sql.SQLException;
 import java.util.Properties;
 
 import org.jboss.bqt.client.ClientPlugin;
@@ -33,11 +32,8 @@ import org.jboss.bqt.client.api.ExpectedResultsWriter;
 import org.jboss.bqt.client.api.QueryScenario;
 import org.jboss.bqt.client.results.ExpectedResultsHolder;
 import org.jboss.bqt.client.xml.TagNames;
-import org.jboss.bqt.client.xml.TagNames.Elements;
 import org.jboss.bqt.core.exception.FrameworkException;
 import org.jboss.bqt.core.exception.FrameworkRuntimeException;
-import org.jboss.bqt.core.exception.QueryTestFailedException;
-import org.jboss.bqt.core.util.TestResultSetUtil;
 import org.jboss.bqt.framework.AbstractQuery;
 import org.jboss.bqt.framework.TestCase;
 import org.jboss.bqt.framework.TransactionAPI;

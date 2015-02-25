@@ -22,6 +22,7 @@
 package org.jboss.bqt.framework.connection;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Properties;
 
 import javax.naming.InitialContext;
@@ -62,6 +63,8 @@ public class JEEConnection extends ConnectionStrategy {
 			Connection conn = source.getConnection();
 			return conn;
 
+		} catch (SQLException ex){
+			throw translaceSQLException(ex);
 		} catch (Exception e) {
 			throw new FrameworkException(e);
 		}

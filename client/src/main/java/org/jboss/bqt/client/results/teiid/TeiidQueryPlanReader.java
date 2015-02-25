@@ -34,7 +34,6 @@ import org.jboss.bqt.client.api.ExpectedResultsReader;
 import org.jboss.bqt.client.api.QueryScenario;
 import org.jboss.bqt.core.exception.FrameworkRuntimeException;
 import org.jboss.bqt.core.exception.QueryTestFailedException;
-import org.jboss.bqt.core.util.TestResultSetUtil;
 import org.jboss.bqt.framework.AbstractQuery;
 import org.jboss.bqt.framework.ActualTest;
 import org.jboss.bqt.framework.TestCase;

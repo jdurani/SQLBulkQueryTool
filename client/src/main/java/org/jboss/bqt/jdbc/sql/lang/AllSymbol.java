@@ -22,7 +22,9 @@
 
 package org.jboss.bqt.jdbc.sql.lang;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * <p>This is a subclass of Symbol representing *, which contains all of

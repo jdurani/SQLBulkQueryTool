@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <query><![CDATA[SELECT VAL FROM BIGDECIMALS]]></query>
+  <queryResults name="h2_big_decimal_scenario_Query3" exectime="0">
+    <select>
+      <dataElement type="DECIMAL">VAL</dataElement>
+    </select>
+    <table rowCount="1" columnCount="1">
+      <tableRow>
+        <tableCell>
+          <bigdecimal>4.00</bigdecimal>
+        </tableCell>
+      </tableRow>
+      <tableRow>
+        <tableCell>
+          <bigdecimal>-4.00</bigdecimal>
+        </tableCell>
+      </tableRow>
+    </table>
+  </queryResults>
+</root>
+

@@ -39,7 +39,6 @@ import org.jboss.bqt.core.exception.QueryTestFailedException;
 import org.jboss.bqt.framework.AbstractQuery;
 import org.jboss.bqt.framework.ActualTest;
 import org.jboss.bqt.framework.TestCase;
-import org.jboss.bqt.framework.TestResult;
 import org.jboss.bqt.framework.TransactionAPI;
 import org.jdom.JDOMException;
 import org.teiid.core.util.ArgCheck;

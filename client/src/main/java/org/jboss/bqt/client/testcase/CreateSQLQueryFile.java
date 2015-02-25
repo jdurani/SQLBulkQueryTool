@@ -33,8 +33,8 @@ import org.jboss.bqt.core.exception.FrameworkRuntimeException;
 import org.jboss.bqt.framework.AbstractQuery;
 import org.jboss.bqt.framework.DatabaseMetaDataReader;
 import org.jboss.bqt.framework.TestCase;
-import org.jboss.bqt.framework.TestResult;
 import org.jboss.bqt.framework.TestCaseLifeCycle;
+import org.jboss.bqt.framework.TestResult;
 import org.jboss.bqt.framework.TransactionAPI;
 
 

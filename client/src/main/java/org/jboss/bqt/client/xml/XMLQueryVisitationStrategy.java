@@ -1389,7 +1389,7 @@ public class XMLQueryVisitationStrategy {
      * @exception JDOMException if there is an error producing the message.
      * @throws SQLException 
      */
-    private Element produceObject(Object object, Element parent) throws JDOMException, SQLException {
+    private Element produceObject(Object object, Element parent) throws JDOMException, SQLException { //TODO - write results
 
          // ----------------------
         // Create the Object element ...

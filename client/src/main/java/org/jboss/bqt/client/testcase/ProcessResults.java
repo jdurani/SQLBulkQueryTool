@@ -22,6 +22,8 @@
 
 package org.jboss.bqt.client.testcase;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
 
@@ -31,13 +33,17 @@ import org.jboss.bqt.client.QueryTest;
 import org.jboss.bqt.client.TestProperties;
 import org.jboss.bqt.client.TestResultsSummary;
 import org.jboss.bqt.client.api.QueryScenario;
+import org.jboss.bqt.core.exception.FrameworkException;
 import org.jboss.bqt.core.exception.FrameworkRuntimeException;
 import org.jboss.bqt.core.exception.QueryTestFailedException;
 import org.jboss.bqt.framework.AbstractQuery;
+import org.jboss.bqt.framework.ConfigPropertyLoader;
+import org.jboss.bqt.framework.FrameworkPlugin;
 import org.jboss.bqt.framework.TestCase;
 import org.jboss.bqt.framework.TestCaseLifeCycle;
 import org.jboss.bqt.framework.TestResult;
 import org.jboss.bqt.framework.TransactionAPI;
+import org.jboss.bqt.framework.connection.ConnectionStrategyFactory;
 import org.jboss.bqt.framework.util.AssertResults;
 
 /**
@@ -73,20 +79,54 @@ public class ProcessResults implements TestCaseLifeCycle {
 	
 	public void runTestCase() {
 		
+		Exception scenarioFailException = null;
+		boolean next = true;
+		
+		//------- ping -------
+		scenarioFailException = pingDS(scenario.getQueryScenarioIdentifier());
+		next = scenarioFailException == null;
+		//------- end ping -------
+		
+		//------- scenario limit -------
+		//only one limit per scenario
+		String timeForOneQueryProp = ConfigPropertyLoader.getInstance().getProperty(TestProperties.TIME_FOR_ONE_QUERY);
+		int timeForOneQuery;
+		if(timeForOneQueryProp == null || timeForOneQueryProp.isEmpty()){
+			timeForOneQuery = -1;
+			FrameworkPlugin.LOGGER.warn("Time for one query is not set [scenario: {}].", scenario.getQueryScenarioIdentifier());
+		} else {
+			try{
+				timeForOneQuery = Integer.parseInt(timeForOneQueryProp);
+			} catch (NumberFormatException ex){
+				FrameworkPlugin.LOGGER.warn("Unparsable time for one query [scenario: {}, time: {}].", scenario.getQueryScenarioIdentifier(), timeForOneQueryProp);
+				timeForOneQuery = -1;
+			}
+		}
+		
+		//Get number of queries
+		int numOfQueries = 0;
+		if(timeForOneQuery > 0){
+			for(String qsid : scenario.getQuerySetIDs()){
+				numOfQueries += scenario.getQueries(qsid).size();
+			}
+		}
+		//------- end scenario limit -------
 		Iterator<String> qsetIt = scenario.getQuerySetIDs().iterator();
 		
 		TestResultsSummary summary = this.scenario.getTestResultsSummary();
 
 		FrameworkRuntimeException fre = null;
+		
 		try {
 
+			long expectedEndTime = timeForOneQuery < 0 ? -1l : (((long)timeForOneQuery) * numOfQueries + System.currentTimeMillis());
 			// iterate over the query set ID's, which there
 			// should be 1 for each file to be processed
-			while (qsetIt.hasNext()) {
+			while (qsetIt.hasNext() && next) {
 				String querySetID = null;
 				querySetID = qsetIt.next();
 
-				ClientPlugin.LOGGER.info("Start TestResult:  QuerySetID [" + querySetID + "]");
+				ClientPlugin.LOGGER.info("Start TestResult:  QuerySetID [{}]", querySetID);
 
 				final List<QueryTest> queryTests = scenario.getQueries(querySetID);
 
@@ -95,7 +135,7 @@ public class ProcessResults implements TestCaseLifeCycle {
 
 				long beginTS = System.currentTimeMillis();
 
-				while (queryTestIt.hasNext()) {
+				while (queryTestIt.hasNext() && next) {
 					QueryTest q = queryTestIt.next();
 					
 					TestResult testResult = new TestResult(q.getQuerySetID(), q.getQueryID());
@@ -103,16 +143,22 @@ public class ProcessResults implements TestCaseLifeCycle {
 					TestCase testcase = new TestCase(q);
 					testcase.setTestResult(testResult);
 					
-					ClientPlugin.LOGGER.debug("Test: QuerySetID [" + testResult.getQuerySetID() + "-" + testResult.getQueryID() +"]");
+					ClientPlugin.LOGGER.debug("Test: QuerySetID [{} - {}]", testResult.getQuerySetID(), testResult.getQueryID());
 
 					testResult.setResultMode(this.scenario.getResultsMode());
 					testResult.setStatus(TestResult.RESULT_STATE.TEST_PRERUN);
 					
-					try {			
+					try {
 						abQuery.before(testcase);
+
+						if(expectedEndTime >=0 
+								&& expectedEndTime < System.currentTimeMillis()){ //TODO - test it
+							next = false;
+							throw new FrameworkRuntimeException(FrameworkException.ErrorCodes.SCENARIO_ABORTED,
+									"Scenario aborted - maximum time exceeded.");
+						}
 						
 						executeTest(testcase);
-						
 					} catch (QueryTestFailedException qtfe) {
 						// dont set on testResult, handled in transactionAPI
 						
@@ -121,7 +167,16 @@ public class ProcessResults implements TestCaseLifeCycle {
 							rme.printStackTrace();
 						}
 						abQuery.setApplicationException(rme);
-
+						
+						if(rme instanceof FrameworkRuntimeException){
+							String code = ((FrameworkRuntimeException) rme).getCode();
+							if(FrameworkException.ErrorCodes.SERVER_CONNECTION_EXCEPTION.equals(code)
+									|| FrameworkException.ErrorCodes.DB_CONNECTION_EXCEPTION.equals(code)
+									|| FrameworkException.ErrorCodes.SCENARIO_ABORTED.equals(code)){
+								next = false;
+								scenarioFailException = rme;
+							}
+						}
 					} finally {
 						abQuery.after();
 					}
@@ -129,12 +184,17 @@ public class ProcessResults implements TestCaseLifeCycle {
 					after(testcase);
 					
 					trans.cleanup();
+					if(Thread.currentThread().isInterrupted()){
+						ClientPlugin.LOGGER.info("Thread has been interrupted.");
+						next = false;
+						scenarioFailException = new FrameworkRuntimeException(FrameworkException.ErrorCodes.BQT_INTERRUPTED, "BQT thread has been interrupted.");
+					}
 				
 				}
 
 				long endTS = System.currentTimeMillis();
 
-				ClientPlugin.LOGGER.info("End TestResult: QuerySetID [" + querySetID + "]");
+				ClientPlugin.LOGGER.info("End TestResult: QuerySetID [{}]", querySetID);
 
 				try {
 					summary.printResults(querySetID, beginTS, endTS);
@@ -147,8 +207,11 @@ public class ProcessResults implements TestCaseLifeCycle {
 
 		} finally {
 			try {
-				summary.printTotals();
-				summary.cleanup();	
+				summary.printTotals(numOfQueries);
+				if(scenarioFailException != null){
+					summary.printServerConnectionException(scenarioFailException);
+				}
+				summary.cleanup();
 			} catch (Exception e) {
 				if (fre == null) {
 					throw new FrameworkRuntimeException(e);
@@ -156,6 +219,9 @@ public class ProcessResults implements TestCaseLifeCycle {
 				throw fre;
 
 			}
+		}
+		if(scenarioFailException != null){
+			throw new FrameworkRuntimeException(scenarioFailException);
 		}
 	}
 	
@@ -272,5 +338,40 @@ public class ProcessResults implements TestCaseLifeCycle {
 		}
 
 	}
+	
+	private Exception pingDS(String scenario){
+		String pingQuery = ConfigPropertyLoader.getInstance().getProperty(TestProperties.PING_QUERY);
+		if(pingQuery == null || pingQuery.isEmpty()){
+			FrameworkPlugin.LOGGER.warn("Ping-query not set [scenario: {}]", scenario);
+			return null;
+		}
+		Connection con;
+		try{
+			con = ConnectionStrategyFactory.createConnectionStrategy().getConnection();
+		} catch (FrameworkException ex){
+			return new FrameworkRuntimeException(ex);
+		}
+		try{
+			FrameworkPlugin.LOGGER.debug("Trying ping-query {} [scenario {}]", pingQuery, scenario);
+			con.prepareStatement(pingQuery).execute();
+		} catch (SQLException ex){
+			return new FrameworkRuntimeException(ex, FrameworkException.ErrorCodes.PING_QUERY_FAILED,
+					"Ping-query did not succeed [scenario : " + scenario + ", query: " + pingQuery + "].");
+		} finally {
+			try{
+				con.close();
+			} catch (SQLException ex){
+				//ignore
+			}
+		}
+		return null;
+	}
 
 }
+
+
+
+
+
+
+

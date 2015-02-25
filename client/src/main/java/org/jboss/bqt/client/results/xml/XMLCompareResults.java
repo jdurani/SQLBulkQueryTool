@@ -22,6 +22,7 @@
 
 package org.jboss.bqt.client.results.xml;
 
+import java.math.BigDecimal;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.ResultSet;
@@ -43,10 +44,11 @@ import org.jboss.bqt.client.api.ExpectedResults;
 import org.jboss.bqt.client.results.ExpectedResultsHolder;
 import org.jboss.bqt.client.util.ListNestedSortComparator;
 import org.jboss.bqt.client.xml.TagNames;
-import org.jboss.bqt.client.xml.TagNames.Elements;
 import org.jboss.bqt.core.exception.QueryTestFailedException;
 import org.jboss.bqt.core.util.ExceptionUtil;
 import org.jboss.bqt.core.util.ObjectConverterUtil;
+import org.jboss.bqt.framework.ConfigPropertyLoader;
+import org.jboss.bqt.framework.ConfigPropertyNames;
 import org.jboss.bqt.framework.TestCase;
 import org.jboss.bqt.framework.TestResult;
 
@@ -55,6 +57,8 @@ public class XMLCompareResults {
 	
 	private static double exceed_percent = -0.99999;
 	private static long exec_minumin_time = -1;
+	private static BigDecimal allowedDivergence = null;
+	private static boolean allowedDivergenceIsZero = false;
 
 	private XMLCompareResults(Properties props) {
 		
@@ -267,7 +271,7 @@ public class XMLCompareResults {
 
 		return firstBatchResponseTime;
 	}
-
+	
 	/**
 	 * Added primarily for public access to the compare code for testing.
 	 * @param testCase 
@@ -469,6 +473,22 @@ public class XMLCompareResults {
 		// DEBUG:
 		// debugOut.println("================== Compariing Rows ===================");
 
+		
+		if(allowedDivergence == null){ // we do not allow different divergence for different queries
+			String allowedDivergenceStr = ConfigPropertyLoader.getInstance().getProperty(TestProperties.ALLOWED_DIVERGENCE);
+			if(allowedDivergenceStr == null || allowedDivergenceStr.isEmpty()){
+				allowedDivergence = BigDecimal.ZERO;
+				allowedDivergenceIsZero = true;
+			} else {
+				try{
+					allowedDivergence = new BigDecimal(allowedDivergenceStr);
+					allowedDivergenceIsZero = allowedDivergence.compareTo(BigDecimal.ZERO) == 0;
+				} catch (NumberFormatException ex){
+					allowedDivergence = BigDecimal.ZERO;
+					allowedDivergenceIsZero = true;
+				}
+			}
+		}
 		// Loop through rows
 		for (int row = 0; row < actualRowCount; row++) {
 
@@ -534,7 +554,7 @@ public class XMLCompareResults {
 							byte[] ba = ObjectConverterUtil
 									.convertToByteArray(b.getBinaryStream());
 
-							actualValue = String.valueOf(ba.length);
+							actualValue = String.valueOf(ba.length); //TODO ??? why value of length?
 
 							// actualValue =
 							// ObjectConverterUtil.convertToString(b.getBinaryStream());
@@ -559,7 +579,32 @@ public class XMLCompareResults {
 						expectedValue = expectedValue.toString();
 					}
 				}
-
+				
+				if(expectedValue instanceof BigDecimal
+						&& actualValue instanceof BigDecimal){
+					BigDecimal expV = (BigDecimal)expectedValue;
+					BigDecimal actV = (BigDecimal)actualValue;
+					boolean fail = false;
+					if(expV.compareTo(actV) != 0){
+						if(allowedDivergenceIsZero){
+							fail = true; //not equals and divergence is zero;
+						} else {
+							fail =     expV.add(allowedDivergence).compareTo(actV) < 0
+									|| expV.subtract(allowedDivergence).compareTo(actV) > 0;
+						}
+					}
+					if(fail){
+						throw new QueryTestFailedException(eMsg
+								+ "Value mismatch at row " + (row + 1) //$NON-NLS-1$
+								+ " and column " + (col + 1) //$NON-NLS-1$
+								+ ": expected = [" //$NON-NLS-1$
+								+ expV + "], actual = [" //$NON-NLS-1$
+								+ actV + "] {allowed divergence: " + allowedDivergence + "}"); //$NON-NLS-1$ $NON-NLS-2$
+					} else {
+						continue; // column has been compared
+					}
+				}
+				
 				// Compare values with equals
 				if (!expectedValue.equals(actualValue)) {
 					// DEBUG:

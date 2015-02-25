@@ -32,7 +32,6 @@ import org.jboss.bqt.core.util.UnitTestUtil;
 import org.jboss.bqt.framework.ConfigPropertyLoader;
 import org.jboss.bqt.framework.ConfigPropertyNames;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**

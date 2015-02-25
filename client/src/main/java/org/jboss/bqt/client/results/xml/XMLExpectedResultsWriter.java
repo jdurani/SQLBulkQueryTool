@@ -39,8 +39,6 @@ import org.jboss.bqt.client.api.QueryScenario;
 import org.jboss.bqt.client.results.ExpectedResultsHolder;
 import org.jboss.bqt.client.xml.TagNames;
 import org.jboss.bqt.client.xml.XMLQueryVisitationStrategy;
-import org.jboss.bqt.client.xml.TagNames.Attributes;
-import org.jboss.bqt.client.xml.TagNames.Elements;
 import org.jboss.bqt.core.exception.FrameworkException;
 import org.jboss.bqt.core.util.ExceptionUtil;
 import org.jboss.bqt.core.util.FileUtils;

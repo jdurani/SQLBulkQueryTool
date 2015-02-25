@@ -34,6 +34,14 @@ import org.jboss.bqt.core.util.ExceptionUtil;
  */
 public class FrameworkException extends Exception {
 
+	public static interface ErrorCodes {
+		public static final String SERVER_CONNECTION_EXCEPTION = "10001";
+		public static final String DB_CONNECTION_EXCEPTION = "10002";
+		public static final String PING_QUERY_FAILED = "10003";
+		public static final String SCENARIO_ABORTED = "20001";
+		public static final String BQT_INTERRUPTED = "20002";
+	}
+	
 	private static final long serialVersionUID = -3033427629587497938L;
 	protected String code;
 	private transient String originalType;

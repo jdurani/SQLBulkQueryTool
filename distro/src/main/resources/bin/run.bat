@@ -68,6 +68,9 @@ ARGS=%ARGS% -Doutput.dir=%OUTPUTDIR%
 ARGS=%ARGS% -Dconfig=%CONFIG%
 ARGS=%ARGS% -Dhost.name=%HOST%
 ARGS=%ARGS% -Dhost.port=%PORT%
+ARGS=%ARGS% -Dlog.idr=%LOG_DIRT%
+ARGS=%ARGS% -Dallowed.divergence=%ALLOWED_DIVERGENCE%
+ARGS=%ARGS% -Dlog4j.configurationFile=%DIRNAME%\config\log4j2-client.xml
 
 rem *** Uncomment to enable query plans ***
 rem ARGS=%ARGS% -Dbqt.query.plan=true

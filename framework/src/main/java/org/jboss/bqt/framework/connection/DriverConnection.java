@@ -27,7 +27,6 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 import org.jboss.bqt.core.exception.FrameworkException;
-import org.jboss.bqt.core.exception.QueryTestFailedException;
 import org.jboss.bqt.core.exception.FrameworkRuntimeException;
 import org.jboss.bqt.framework.FrameworkPlugin;
 
@@ -131,6 +130,8 @@ public class DriverConnection extends ConnectionStrategy {
 				conn = DriverManager.getConnection(url);
 			}
 
+		} catch (SQLException ex){
+			throw translaceSQLException(ex);
 		} catch (Throwable t) {
 			t.printStackTrace();
 			throw new FrameworkException(t.getMessage());

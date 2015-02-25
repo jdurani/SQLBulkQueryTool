@@ -37,7 +37,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.jboss.bqt.core.exception.FrameworkException;
-import org.jboss.bqt.core.xml.JdomHelper;
 import org.teiid.core.util.FileUtils;
 
 /**

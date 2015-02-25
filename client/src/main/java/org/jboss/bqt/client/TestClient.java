@@ -31,6 +31,7 @@ import java.util.Properties;
 import org.jboss.bqt.client.api.ExpectedResultsReader;
 import org.jboss.bqt.client.api.QueryReader;
 import org.jboss.bqt.client.api.QueryScenario;
+import org.jboss.bqt.core.exception.FrameworkException;
 import org.jboss.bqt.core.exception.FrameworkRuntimeException;
 import org.jboss.bqt.core.util.ArgCheck;
 import org.jboss.bqt.core.util.FileUtils;
@@ -121,7 +122,19 @@ public class TestClient {
 
 			List<File> scenarios = getScenarios();
 			for (File f:scenarios) {
-				runScenario(f);
+				try{
+					runScenario(f);
+				} catch (FrameworkRuntimeException ex){
+					String code = ex.getCode();
+					if(FrameworkException.ErrorCodes.SERVER_CONNECTION_EXCEPTION.equals(code)
+							|| FrameworkException.ErrorCodes.BQT_INTERRUPTED.equals(code)){
+						throw ex;   // server is not available - running next scenario does not make sense
+									// or BQT has been interrupted
+					} else {
+						// server is available, but something went wrong (no DB, ping did not succeed, ...); next scenario may pass
+						ex.printStackTrace();
+					}
+				}
 				
 				// reset for reloading cause there are points that call setProperty(..)
 				// on the ConfigurationProperties
@@ -134,10 +147,10 @@ public class TestClient {
 
 
 		} catch (Throwable t) {
-			t.printStackTrace();
+			throw new RuntimeException(t);
+		} finally {
+			ConfigPropertyLoader.reset();
 		}
-	
-		ConfigPropertyLoader.reset();
 
 	}
 	
@@ -186,12 +199,13 @@ public class TestClient {
 		
 		testCase.setup(tc);
 		
-		testCase.runTestCase();
-		
-		testCase.cleanup();
-		
-		ClientPlugin.LOGGER.info("Completed scenario: " + scenario.getQueryScenarioIdentifier());
-
+		try{
+			testCase.runTestCase(); //a RuntimeException could be thrown
+		} finally {
+			testCase.cleanup();
+			
+			ClientPlugin.LOGGER.info("Completed scenario: " + scenario.getQueryScenarioIdentifier());
+		}
 	}
 	
 	protected QueryScenario getScenario() {

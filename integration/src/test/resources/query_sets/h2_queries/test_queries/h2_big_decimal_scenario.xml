@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <!-- exact value -->
+  <query name="Query1">SELECT VAL FROM BIGDECIMALS</query>
+  <!-- expected 4 returned 4.00000 -->
+  <query name="Query2">SELECT VAL FROM BIGDECIMALS</query>
+  <!-- expected 4.00 returned 4.00000 -->
+  <query name="Query3">SELECT VAL FROM BIGDECIMALS</query>
+  <!-- expected 4.000000000 returned 4.00000 -->
+  <query name="Query4">SELECT VAL FROM BIGDECIMALS</query>
+  <!-- expected 3.99999 returned 4.00000 : allowed divergence = 0.00001 -->
+  <query name="Query5">SELECT VAL FROM BIGDECIMALS</query>
+  <!-- expected 4.00001 returned 4.00000 : allowed divergence = 0.00001-->
+  <query name="Query6">SELECT VAL FROM BIGDECIMALS</query>
+</root>
+

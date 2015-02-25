@@ -91,12 +91,12 @@ public class ExclusionManager {
 	 */
 	public ExclusionManager(ConfigPropertyLoader p) {
 		String includePatternProperty = p.getProperty(TestProperties.PROP_SCENARIO_INCLUDE);
-		if (includePatternProperty != null && includePatternProperty.length() > 0) {
+		if (includePatternProperty != null && !includePatternProperty.isEmpty()) {
 			setIncludePattern(includePatternProperty);
 		}
 
 		String excludePatternProperty = p.getProperty(TestProperties.PROP_SCENARIO_EXCLUDE);
-		if (excludePatternProperty != null && excludePatternProperty.length() > 0) {
+		if (excludePatternProperty != null && !excludePatternProperty.isEmpty()) {
 			setExcludePattern(excludePatternProperty);
 		}
 	}

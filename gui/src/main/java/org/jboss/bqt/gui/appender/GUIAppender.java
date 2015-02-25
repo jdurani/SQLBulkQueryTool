@@ -15,8 +15,15 @@ import org.apache.logging.log4j.core.config.plugins.PluginAttribute;
 import org.apache.logging.log4j.core.config.plugins.PluginElement;
 import org.apache.logging.log4j.core.config.plugins.PluginFactory;
 import org.apache.logging.log4j.core.layout.PatternLayout;
-import org.jboss.bqt.gui.panels.GUIRunnerPanel;
+import org.jboss.bqt.gui.panels.GUIRunnerPanel.BQTProperties;
 
+/**
+ * Log Appender. The user can dynamically change an output stream for this appender.
+ * This class is thread safe.
+ * 
+ * @author jdurani
+ *
+ */
 @SuppressWarnings("serial")
 @Plugin(name = "GUI", category = "Core", elementType = "appender", printObject = true)
 public final class GUIAppender extends AbstractAppender {
@@ -27,6 +34,14 @@ public final class GUIAppender extends AbstractAppender {
 	
 	private static String fileName;
 	
+	/**
+	 * Create a new instance.
+	 * 
+	 * @param name name of the appender
+	 * @param fileName name of file for the second file output stream
+	 * @param filter filter
+	 * @param layout layout
+	 */
 	protected GUIAppender(String name, String fileName, Filter filter,
 			Layout<? extends Serializable> layout) {
 		super(name, filter, layout, false);
@@ -37,8 +52,9 @@ public final class GUIAppender extends AbstractAppender {
      * Create a Console Appender.
      * @param layout The layout to use (required).
      * @param filter The Filter or null.
+     * @param fileName The name of the file (default bqt.log).
      * @param name The name of the Appender (required).
-     * @return The ConsoleAppender.
+     * @return The GUIAppender.
      */
 	@PluginFactory
     public static GUIAppender createAppender(
@@ -74,6 +90,18 @@ public final class GUIAppender extends AbstractAppender {
 		}
 	}
 	
+	/**
+	 * <p>
+	 * Clears previously set output stream. The output stream will not
+	 * be closed.
+	 * </p>
+	 * <p>
+	 * Along with the output stream, the second file output stream will be cleared too.
+	 * As the second stream is managed by this class, it will be closed.
+	 * </p>
+	 * 
+	 * @see GUIAppender#setOutputStream(OutputStream)
+	 */
 	public static void clearOutputStream(){
 		synchronized (LOCK) {
 			OUTPUT_STREAM = null;
@@ -82,6 +110,9 @@ public final class GUIAppender extends AbstractAppender {
 		}
 	}
 	
+	/**
+	 * Close the file output stream.
+	 */
 	private static void closeFileOutputStream(){		
 		try{
 			FILE_OUTPUT_STREAM.close();
@@ -89,12 +120,31 @@ public final class GUIAppender extends AbstractAppender {
 		} catch (IOException ignore2){}
 	}
 	
+	/**
+	 * <p>
+	 * Sets the output stream for this class. Along with setting, a new
+	 * file output stream will be opened. If the file output stream is already opened,
+	 * old stream will be closed.
+	 * </p>
+	 * <p>
+	 * The name of file depends on system's property {@link BQTProperties#LOG_DIR} and
+	 * appender's property {@code fileName}.
+	 * </p>
+	 * <pre>
+	 * String logDir = System.getProperty(BQTProperties.LOG_DIR, ".");
+	 * File logFile = new File(logDir, fileName);
+	 * </pre>
+	 * 
+	 * @param os output stream
+	 * 
+	 * @see GUIAppender#clearOutputStream()
+	 */
 	public static void setOutputStream(OutputStream os){
 		synchronized (LOCK) {
 			OUTPUT_STREAM = os;
 			closeFileOutputStream();
 			try{
-				String logDir = System.getProperty(GUIRunnerPanel.BQTProperties.LOG_DIR, ".");
+				String logDir = System.getProperty(BQTProperties.LOG_DIR, ".");
 				File logFile = new File(logDir, fileName);
 				if(!logFile.exists()){
 					File parentDir = logFile.getParentFile();

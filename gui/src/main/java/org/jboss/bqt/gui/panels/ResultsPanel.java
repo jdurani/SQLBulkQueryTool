@@ -3,6 +3,11 @@ package org.jboss.bqt.gui.panels;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+/**
+ * The panel for Results.
+ * @author jdurani
+ *
+ */
 @SuppressWarnings("serial")
 public class ResultsPanel extends JPanel {
 

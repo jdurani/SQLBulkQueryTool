@@ -19,9 +19,17 @@ import javax.swing.text.StyledDocument;
 
 import org.jboss.bqt.gui.panels.GUIRunnerPanel;
 
+/**
+ * This frame shows log of running BQT.
+ * 
+ * @author jdurani
+ */
 @SuppressWarnings("serial")
 public class BQTLogFrame extends JFrame {
 
+	/**
+	 * BQT status.
+	 */
 	public static enum Status {DONE, IN_PROGRESS, FAILED}
 	
 	private static final Color DONE_COLOR = new Color(34, 139, 34);
@@ -43,6 +51,11 @@ public class BQTLogFrame extends JFrame {
 
 	private final GUIRunnerPanel parent;
 	
+	/**
+	 * Creates a new instance. 
+	 * 
+	 * @param parent parent window 
+	 */
 	public BQTLogFrame(GUIRunnerPanel parent) {
 		super();
 		this.parent = parent;
@@ -53,6 +66,9 @@ public class BQTLogFrame extends JFrame {
 		setLocationRelativeTo(null);
 	}
 
+	/**
+	 * Initializes this window.
+	 */
 	private void init() {
 		logPane = new JTextPane();
 		logPane.setEditable(false);
@@ -84,6 +100,9 @@ public class BQTLogFrame extends JFrame {
 		logAreaStream = new JTextPaneOutputStream();
 	}
 
+	/**
+	 * Initializes styles. Every log level will have different color.
+	 */
 	private void initStyles(){
 		doc = logPane.getStyledDocument();
 		Style trace = doc.addStyle("trace", null);
@@ -101,6 +120,14 @@ public class BQTLogFrame extends JFrame {
 		StyleConstants.setForeground(def, DEFAULT_COLOR);
 	}
 	
+	/**
+	 * Disposes this widow. If BQT is still running (progress is {@link Status#IN_PROGRESS})
+	 * then it will call {@link GUIRunnerPanel#cancelActualJob(boolean)}. If the method returns
+	 * true, then this window will be disposed.
+	 * 
+	 * @see #setStatus(Status)
+	 * @see JFrame#dispose()
+	 */
 	@Override
 	public void dispose() {
 		if(actualStataus == Status.IN_PROGRESS){
@@ -112,6 +139,11 @@ public class BQTLogFrame extends JFrame {
 		}
 	}
 	
+	/**
+	 * Sets status of BQT.  
+	 * 
+	 * @param status status to be set
+	 */
 	public void setStatus(Status status) {
 		statusLabel.setText(status.toString());
 		switch(status){
@@ -131,11 +163,23 @@ public class BQTLogFrame extends JFrame {
 		repaint();
 	}
 	
+	/**
+	 * Returns an {@link OutputStream} which prints bytes to this {@link JTextPane}.
+	 * 
+	 * @return
+	 */
 	public OutputStream getLogAreaStream() {
 		return logAreaStream;
 	}
 
-	public class JTextPaneOutputStream extends OutputStream {
+	/**
+	 * Private {@link OutputStream} which prints the output to our {@link JTextPane}
+	 * ({@link BQTLogFrame#logPane}).
+	 * 
+	 * @author jdurani
+	 *
+	 */
+	private class JTextPaneOutputStream extends OutputStream {
 
 		public void write(byte b[], int off, int len) throws IOException {
 			if (b == null) {

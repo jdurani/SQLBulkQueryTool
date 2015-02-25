@@ -34,6 +34,9 @@ import org.jboss.bqt.core.util.ExceptionUtil;
  */
 public class FrameworkException extends Exception {
 
+	/**
+	 * Error codes.
+	 */
 	public static interface ErrorCodes {
 		public static final String SERVER_CONNECTION_EXCEPTION = "10001";
 		public static final String DB_CONNECTION_EXCEPTION = "10002";

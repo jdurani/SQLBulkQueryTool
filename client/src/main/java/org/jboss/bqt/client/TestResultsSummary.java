@@ -521,6 +521,12 @@ public class TestResultsSummary {
 		}
 	}
 
+	/**
+	 * This method prints an exception to the {@code Summary_connection_exception_errors} file.
+	 * 
+	 * @param ex the exception that occurred while connection to the JDV server
+	 * @throws IOException
+	 */
 	public void printServerConnectionException(Exception ex) throws IOException{
 		String scenarioName = scenario.getQueryScenarioIdentifier();
 		Writer outputWriter = null;
@@ -551,6 +557,13 @@ public class TestResultsSummary {
 		}
 	}
 	
+	/**
+	 * Returns stream for writing the server-connection-exception.
+	 * 
+	 * @param outputDir
+	 * @return
+	 * @throws IOException
+	 */
 	private static Writer getConnectionExceptionSummaryStream(String outputDir)
 			throws IOException {
 		boolean exists = false;
@@ -574,6 +587,11 @@ public class TestResultsSummary {
 		return out;
 	}
 	
+	/**
+	 * Prints head of the server-connection-exception file.
+	 * 
+	 * @param overallsummary
+	 */
 	private static void printOverallConnectionExceptionSummaryErrosHeadings(Writer overallsummary) {
 
 		try {
@@ -593,6 +611,13 @@ public class TestResultsSummary {
 
 	}
 	
+	/**
+	 * Prints summary to the {@code Summary_totals}, {@code Summary_errors} and {@code Summary_<quert_set>_<scenario_name>}
+	 * files.
+	 *  
+	 * @param expectedQueryCount expected number of queries that should run
+	 * @throws Exception
+	 */
 	public void printTotals(int expectedQueryCount) throws Exception {
 		// String outputDir = scenario.getResultsGenerator().getOutputDir();
 		String scenario_name = scenario.getQueryScenarioIdentifier();

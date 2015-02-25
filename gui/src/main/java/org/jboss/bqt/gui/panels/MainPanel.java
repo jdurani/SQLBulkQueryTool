@@ -11,12 +11,18 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 
+/**
+ * The main panel of this application.
+ * 
+ * @author jdurani
+ *
+ */
 @SuppressWarnings("serial")
 public class MainPanel extends JPanel {
 
-	private static final String RUNNER_PANEL= "runner";
-	private static final String JENKINS_PANEL= "jenkins";
-	private static final String RESULTS_PANEL= "results";
+	private static final int RUNNER_PANEL= 1;
+	private static final int JENKINS_PANEL= 2;
+	private static final int RESULTS_PANEL= 3;
 	
 	private GUIRunnerPanel runnerPanel;
 	private ResultsPanel resultsPanel;
@@ -36,16 +42,22 @@ public class MainPanel extends JPanel {
 	private JButton jenkinsButton;
 	private JButton exitButton;
 	
+	/**
+	 * Creates a new instance.
+	 */
 	public MainPanel() {
 		super();
 		init();
 	}
 	
+	/**
+	 * Initializes this panel.
+	 */
 	private void init(){
 		initMenuPanel();
 		
 		defaultPanel = new JPanel();
-		defaultPane = new JScrollPane(defaultPanel);
+		defaultPane = getScrollPane(defaultPanel);
 		
 		actualPane = defaultPane;
 		
@@ -61,15 +73,18 @@ public class MainPanel extends JPanel {
 		setLayout(gl);
 	}
 	
+	/**
+	 * Initializes menu-panel related part of this panel.
+	 */
 	private void initMenuPanel(){
 		runnerButton = new JButton("Runner");
-		runnerButton.addActionListener(new ShowRunnerPanelActionListener());
+		runnerButton.addActionListener(new ShowPanelActionListener(RUNNER_PANEL));
 		
 		resultsButton = new JButton("Results");
-		resultsButton.addActionListener(new ShowResultsPanelActionListener());
+		resultsButton.addActionListener(new ShowPanelActionListener(RESULTS_PANEL));
 		
 		jenkinsButton = new JButton("Jenkins");
-		jenkinsButton.addActionListener(new ShowJenkinsPanelActionListener());
+		jenkinsButton.addActionListener(new ShowPanelActionListener(JENKINS_PANEL));
 		
 		exitButton = new JButton("Exit");
 		exitButton.addActionListener(new ExitActionListener());
@@ -95,65 +110,94 @@ public class MainPanel extends JPanel {
 		gl.linkSize(runnerButton, resultsButton, jenkinsButton, exitButton);
 		menuPanel.setLayout(gl);
 	}
-		
-	private void showPanel(final String panelName){
+	
+	/**
+	 * Shows required panel.
+	 * 
+	 * @param panel one of {@link #RUNNER_PANEL}, {@link #JENKINS_PANEL}, {@link #RESULTS_PANEL}
+	 */
+	private void showPanel(final int panel){
 		JScrollPane toSet;
-		if(RUNNER_PANEL == panelName){
-			if(runnerPane == null){
-				runnerPanel = new GUIRunnerPanel();
-				runnerPane = new JScrollPane(runnerPanel);
-			}
-			toSet = runnerPane;
-		} else if(RESULTS_PANEL == panelName){
-			if(resultsPane == null){
-				resultsPanel = new ResultsPanel();
-				resultsPane = new JScrollPane(resultsPanel);
-			}
-			toSet = resultsPane;
-		} else if(JENKINS_PANEL == panelName){
-			if(jenkinsPane == null){
-				jenkinsPanel = new JenkinsPanel();
-				jenkinsPane = new JScrollPane(jenkinsPanel);
-			}
-			toSet = jenkinsPane;
-		} else {
-			toSet = defaultPane;
+		switch(panel){
+			case RUNNER_PANEL:
+				if(runnerPane == null){
+					runnerPanel = new GUIRunnerPanel();
+					runnerPane = getScrollPane(runnerPanel);
+				}
+				toSet = runnerPane;
+				break;
+			case JENKINS_PANEL:
+				if(jenkinsPane == null){
+					jenkinsPanel = new JenkinsPanel();
+					jenkinsPane = getScrollPane(jenkinsPanel);
+				}
+				toSet = jenkinsPane;
+				break;
+			case RESULTS_PANEL:
+				if(resultsPane == null){
+					resultsPanel = new ResultsPanel();
+					resultsPane = getScrollPane(resultsPanel);
+				}
+				toSet = resultsPane;
+				break;
+			default:
+				toSet = defaultPane;
 		}
 		GroupLayout gl = (GroupLayout)getLayout();
 		gl.replace(actualPane, toSet);
 		actualPane = toSet;
 	}
 	
+	/**
+	 * Returns new scroll pane.
+	 * 
+	 * @param view the view for JScrollPane
+	 * @return
+	 */
+	private JScrollPane getScrollPane(JPanel view){
+		JScrollPane pane = new JScrollPane(view);
+		pane.getVerticalScrollBar().setUnitIncrement(10);
+		pane.getHorizontalScrollBar().setUnitIncrement(10);
+		return pane;
+	}
+	
+	/**
+	 * Returns true, if all dependent panels could be disposed.
+	 * 
+	 * @return
+	 */
 	public boolean couldDispose(){
 		return (runnerPanel == null ? true : runnerPanel.couldDispose()) 
 				&& (jenkinsPanel == null ? true : jenkinsPanel.couldDispose()) 
 				&& (resultsPanel == null ? true : resultsPanel.couldDispose());
 	}
 	
-	private class ShowResultsPanelActionListener implements ActionListener {
+	/**
+	 * Shows required panel.
+	 * 
+	 * @author jdurani
+	 * @see #showPanel(int)
+	 */
+	private class ShowPanelActionListener implements ActionListener {
+		
+		private final int requiredPanelID;
+		
+		private ShowPanelActionListener(int requiredPanelID) {
+			this.requiredPanelID = requiredPanelID;
+		}
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			showPanel(RESULTS_PANEL);
+			showPanel(requiredPanelID);
 		}
 	}
 	
-	private class ShowJenkinsPanelActionListener implements ActionListener {
-		
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			showPanel(JENKINS_PANEL);
-		}
-	}
-	
-	private class ShowRunnerPanelActionListener implements ActionListener {
-		
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			showPanel(RUNNER_PANEL);
-		}
-	}
-	
+	/**
+	 * Exit application action.
+	 * 
+	 * @author jdurani
+	 *
+	 */
 	private class ExitActionListener implements ActionListener {
 		
 		@Override

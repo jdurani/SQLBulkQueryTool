@@ -30,39 +30,58 @@ import org.jboss.bqt.gui.appender.GUIAppender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Panel for starting BQT via GUI.
+ * 
+ * @author jdurani
+ *
+ */
 @SuppressWarnings("serial")
 public class GUIRunnerPanel extends JPanel {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(GUIRunnerPanel.class);
 	
+	/**
+	 * Default values for GUI tool. Contains also property names.
+	 */
 	private static interface GUIDefaults{
+		//name of property which should contain path to properties file
+		static final String GUI_DEFAULT_PATHS_PROP = "bqt.gui.default.paths";
+		
 		//properties
-		public static final String GUI_DEFAULT_PATHS_PROP = "bqt.gui.default.paths";
+		static final String HOST_PROP = "bqt.gui.default.host";
+		static final String PORT_PROP = "bqt.gui.default.port";
+		static final String USER_NAME_PROP= "bqt.gui.default.username";
+		static final String PASSWORD_PROP = "bqt.gui.default.password";
 		
-		public static final String HOST_PROP = "bqt.gui.default.host";
-		public static final String PORT_PROP = "bqt.gui.default.port";
-		public static final String USER_NAME_PROP= "bqt.gui.default.username";
-		public static final String PASSWORD_PROP = "bqt.gui.default.password";
-		
-		public static final String LOG_DIR_PROP = "bqt.gui.default.log.dir";
-		public static final String SCENARIOS_DIR_PROP = "bqt.gui.default.scenarios.dir";
-		public static final String OUTPUT_DIR_PROP = "bqt.gui.default.output.dir";
-		public static final String CONFIG_PROP = "bqt.gui.default.config";
-		public static final String ARTIFACTS_DIR_PROP = "bqt.gui.default.artifacts.dir";
+		static final String LOG_DIR_PROP = "bqt.gui.default.log.dir";
+		static final String SCENARIOS_DIR_PROP = "bqt.gui.default.scenarios.dir";
+		static final String OUTPUT_DIR_PROP = "bqt.gui.default.output.dir";
+		static final String CONFIG_PROP = "bqt.gui.default.config";
+		static final String ARTIFACTS_DIR_PROP = "bqt.gui.default.artifacts.dir";
+
+		static final String INCLUDE_GUI_DEF_PROP = "bqt.gui.default.include";
+		static final String EXCLUDE_GUI_DEF_PROP = "bqt.gui.default.exclude";
 		
 		//defaults
-		public static final String HOST = "localhost";
-		public static final String PORT = "31000";
-		public static final String USER_NAME= "user";
-		public static final String PASSWORD = "user";
+		static final String HOST = "localhost";
+		static final String PORT = "31000";
+		static final String USER_NAME= "user";
+		static final String PASSWORD = "user";
 		
-		public static final String LOG_DIR = "";
-		public static final String SCENARIOS_DIR = "";
-		public static final String OUTPUT_DIR = "";
-		public static final String CONFIG = "";
-		public static final String ARTIFACTS_DIR = "";
+		static final String LOG_DIR = "";
+		static final String SCENARIOS_DIR = "";
+		static final String OUTPUT_DIR = "";
+		static final String CONFIG = "";
+		static final String ARTIFACTS_DIR = "";
+		
+		static final String INCLUDE = "";
+		static final String EXCLUDE = "";
 	}
 	
+	/**
+	 * BQT tool properties.
+	 */
 	public static interface BQTProperties { 
 		//keys for properties for bqt-distro
 		public static final String SCENARIO_FILE_PROP = "scenario.file";
@@ -76,6 +95,10 @@ public class GUIRunnerPanel extends JPanel {
 		public static final String PASSWORD_PROP = "password";
 		public static final String SUPPORT_OLD_PROP_FORMAT_PROP= "support.pre1.0.scenario";
 		public static final String LOG_DIR= "log.dir";
+		
+		//include exclude options
+		public static final String INCLUDE_PROP = "bqt.scenario.include";
+		public static final String EXCLUDE_PROP = "bqt.scenario.exclude";
 		
 		//result modes
 		public static final String RESULT_MODE_SQL = "SQL";
@@ -114,6 +137,11 @@ public class GUIRunnerPanel extends JPanel {
 	private JLabel artifactsDirLabel;
 	private JButton artifactsDirBrowseButton;
 	
+	private JTextField include;
+	private JLabel includeLabel;
+	private JTextField exclude;
+	private JLabel excludeLabel;
+
 	private JCheckBox pre1Supported;
 	
 	private JButton startButton;
@@ -122,16 +150,23 @@ public class GUIRunnerPanel extends JPanel {
 	private BQTRunner runningInstance;
 	private BQTLogFrame logFrame = null;
 	
+	/**
+	 * Creates a new instance.
+	 */
 	public GUIRunnerPanel() {
 		super();
 		init();
 	}
 	
+	/**
+	 * Initializes this panel.
+	 */
 	private void init(){
 		initResultModes();
 		initConnectionProperties();
 		initLogDir();
 		initBqtConfig();
+		initIncludeExclude();
 		initPre1Support();
 		initOptionButtons();
 		
@@ -183,6 +218,11 @@ public class GUIRunnerPanel extends JPanel {
 					.addGroup(gl.createSequentialGroup()
 						.addComponent(artifactsDir)
 						.addComponent(artifactsDirBrowseButton))))
+			.addGroup(gl.createParallelGroup()
+				.addComponent(includeLabel)
+				.addComponent(include)
+				.addComponent(excludeLabel)
+				.addComponent(exclude))
 			.addComponent(pre1Supported)
 			.addGroup(gl.createSequentialGroup()
 				.addComponent(startButton)
@@ -230,6 +270,12 @@ public class GUIRunnerPanel extends JPanel {
 					.addComponent(artifactsDir)
 					.addComponent(artifactsDirBrowseButton)))
 			.addGap(groupsGap)
+			.addGroup(gl.createSequentialGroup()
+				.addComponent(includeLabel)
+				.addComponent(include)
+				.addComponent(excludeLabel)
+				.addComponent(exclude))
+			.addGap(groupsGap)
 			.addComponent(pre1Supported)
 			.addGap(groupsGap)
 			.addGroup(gl.createParallelGroup(Alignment.CENTER)
@@ -242,6 +288,20 @@ public class GUIRunnerPanel extends JPanel {
 		initDefaultPaths();
 	}
 	
+	/**
+	 * Initializes include/exclude related part of this panel; 
+	 */
+	private void initIncludeExclude(){
+		include = new JTextField();
+		exclude = new JTextField();
+		
+		includeLabel = new JLabel("Include scenarios");
+		excludeLabel = new JLabel("Exclude scenarios");
+	}
+	
+	/**
+	 * Sets default values for every field.
+	 */
 	private void initDefaultPaths(){
 		File def = new File(System.getProperty(GUIDefaults.GUI_DEFAULT_PATHS_PROP, ""));
 		Properties props = new Properties();
@@ -271,8 +331,14 @@ public class GUIRunnerPanel extends JPanel {
 		outputDir.setText(props.getProperty(GUIDefaults.OUTPUT_DIR_PROP, GUIDefaults.OUTPUT_DIR));
 		config.setText(props.getProperty(GUIDefaults.CONFIG_PROP, GUIDefaults.CONFIG));
 		artifactsDir.setText(props.getProperty(GUIDefaults.ARTIFACTS_DIR_PROP, GUIDefaults.ARTIFACTS_DIR));
+		
+		include.setText(props.getProperty(GUIDefaults.INCLUDE_GUI_DEF_PROP, GUIDefaults.INCLUDE));
+		exclude.setText(props.getProperty(GUIDefaults.EXCLUDE_GUI_DEF_PROP, GUIDefaults.EXCLUDE));
 	}
 	
+	/**
+	 * Initializes buttons. 
+	 */
 	private void initOptionButtons(){
 		startButton = new JButton("Start");
 		startButton.addActionListener(new StartBQTActionListener(this));
@@ -281,11 +347,17 @@ public class GUIRunnerPanel extends JPanel {
 		cancelButton.addActionListener(new CancelBQTActionListener());
 	}
 	
+	/**
+	 * Initializes pre-1-support check box. 
+	 */
 	private void initPre1Support(){
 		pre1Supported = new JCheckBox("Support old names");
 		pre1Supported.setSelected(true);
 	}
 	
+	/**
+	 * Initializes bqt-config related part of this panel. 
+	 */
 	private void initBqtConfig(){
 		scenarios = new JTextField();
 		scenariosLabel = new JLabel("Scenario (directory or file)");
@@ -304,18 +376,35 @@ public class GUIRunnerPanel extends JPanel {
 		artifactsDirBrowseButton = getBrowseButton(JFileChooser.DIRECTORIES_ONLY, artifactsDir);
 	}
 	
+	/**
+	 * Initializes log-dir related part of this panel. 
+	 */
 	private void initLogDir(){
 		logDir = new JTextField();
 		logDirLabel = new JLabel("Log direcotry");
 		logDirBrowseButton = getBrowseButton(JFileChooser.DIRECTORIES_ONLY, logDir);
 	}
 	
+	/**
+	 * Returns a new button with text {@code Browse} which will show {@link JFileChooser}.
+	 * Path of selected file will be set as text to {@code textFiel}.
+	 * 
+	 * @param selectionMode selection mode for {@link JFileChooser}
+	 * @param textField text field, where the path of selected file will be shown
+	 * @return browse button
+	 * 
+	 * @see {@link JFileChooser#setFileSelectionMode(int)}
+	 * 
+	 */
 	private JButton getBrowseButton(int selectionMode, JTextField textField){
 		JButton button = new JButton("Browse");
 		button.addActionListener(new BrowseActionListener(textField, selectionMode));
 		return button;
 	}
 	
+	/**
+	 * Initializes connection-properties related part of this panel.
+	 */
 	private void initConnectionProperties(){
 		userName = new JTextField();
 		password = new JTextField();
@@ -328,6 +417,9 @@ public class GUIRunnerPanel extends JPanel {
 		portLabel = new JLabel("Port");
 	}
 	
+	/**
+	 * Initializes result-mode related part of this panel;
+	 */
 	private void initResultModes(){
 		resultModes = new JComboBox();
 		resultModes.addItem(BQTProperties.RESULT_MODE_NONE);
@@ -340,6 +432,14 @@ public class GUIRunnerPanel extends JPanel {
 		resultModesLabel = new JLabel("Result mode");
 	}
 	
+	/**
+	 * Determines, if this panel could be disposed. If BQT is not running
+	 * method return {@code true}. Otherwise method returns same results as
+	 * method {@link #cancelActualJob(boolean)}.
+	 * 
+	 * @return true, if this panel could be disposed, false otherwise
+	 * @see #cancelActualJob(boolean)
+	 */
 	public boolean couldDispose(){
 		if(runningInstance == null){
 			if(logFrame != null){
@@ -350,6 +450,20 @@ public class GUIRunnerPanel extends JPanel {
 		return cancelActualJob(true);
 	}
 	
+	/**
+	 * <p>
+	 * This method shows a confirm dialog. If the user confirm that he want to cancel
+	 * actual job, then actual BQT-job will be canceled and method will return {@code true}.
+	 * Otherwise method will not cancel actual job and {@code false} will be returned.
+	 * </p>
+	 * <p>
+	 * Method supposes that the BQT-job is running.
+	 * </p>
+	 * 
+	 * @param disposeLogFrame If the BQT-job is running and a BQT-log-frame is visible,
+	 * 		then the frame will be disposed.
+	 * @return true, if actual job has been canceled, false otherwise
+	 */
 	public boolean cancelActualJob(boolean disposeLogFrame){
 		int result = JOptionPane.showConfirmDialog(null, "BQT is still running. Do you want to interrupt it?");
 		if(result == JOptionPane.YES_OPTION){
@@ -366,6 +480,11 @@ public class GUIRunnerPanel extends JPanel {
 		
 	}
 	
+	/**
+	 * Action for the Browse button.
+	 * @author jdurani
+	 *
+	 */
 	private static class BrowseActionListener implements ActionListener {
 		
 		private final JTextField textField;
@@ -392,6 +511,11 @@ public class GUIRunnerPanel extends JPanel {
 		}
 	}
 	
+	/**
+	 * Action for the Start-BQT button
+	 * @author jdurani
+	 *
+	 */
 	private class StartBQTActionListener implements ActionListener {
 		
 		private final GUIRunnerPanel panel;
@@ -411,6 +535,11 @@ public class GUIRunnerPanel extends JPanel {
 		}
 	}
 	
+	/**
+	 * Action for the Cancel-BQT button.
+	 * @author jdurani
+	 *
+	 */
 	private class CancelBQTActionListener implements ActionListener {
 		
 		@Override
@@ -421,6 +550,12 @@ public class GUIRunnerPanel extends JPanel {
 		}
 	}
 	
+	/**
+	 * Swing worker, which sets all required properties for BQT and runs BQT-job.
+	 *  
+	 * @author jdurani
+	 *
+	 */
 	private class BQTRunner extends SwingWorker<Void, Void> {
 		
 		private final GUIRunnerPanel panel;
@@ -473,20 +608,38 @@ public class GUIRunnerPanel extends JPanel {
 			}
 		}
 		
+		/**
+		 * Returns all required properties.
+		 * @return
+		 */
 		private Properties getProperties(){
 			Properties props = new Properties();
 			props.setProperty(BQTProperties.HOST_NAME_PROP, host.getText());
 			props.setProperty(BQTProperties.HOST_PORT_PROP, port.getText());
 			props.setProperty(BQTProperties.USERNAME_PROP, userName.getText());
 			props.setProperty(BQTProperties.PASSWORD_PROP, password.getText());
-			System.setProperty(BQTProperties.LOG_DIR, logDir.getText());
+			System.setProperty(BQTProperties.LOG_DIR, logDir.getText()); // we need it only for GUIAppender
 			props.setProperty(BQTProperties.SCENARIO_FILE_PROP, scenarios.getText());
 			props.setProperty(BQTProperties.RESULT_MODE_PROP, resultModes.getSelectedItem().toString());
 			props.setProperty(BQTProperties.QUERYSET_ARTIFACTS_DIR_PROP, artifactsDir.getText());
 			props.setProperty(BQTProperties.OUTPUT_DIR_PROP, outputDir.getText());
 			props.setProperty(BQTProperties.CONFIG_PROP, config.getText());
 			props.setProperty(BQTProperties.SUPPORT_OLD_PROP_FORMAT_PROP, Boolean.toString(pre1Supported.isSelected()));
+			props.setProperty(BQTProperties.INCLUDE_PROP, include.getText());
+			props.setProperty(BQTProperties.EXCLUDE_PROP, exclude.getText());
 			return props;
 		}
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+

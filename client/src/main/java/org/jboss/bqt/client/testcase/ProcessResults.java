@@ -318,7 +318,7 @@ public class ProcessResults implements TestCaseLifeCycle {
 			if (testcase.getTestResult().getResultMode().equalsIgnoreCase(TestProperties.RESULT_MODES.NONE) && 
 					! this.scenario.isNone()) {
 				if (testcase.getTestResult().getStatus() == TestResult.RESULT_STATE.TEST_EXCEPTION) {
-						this.scenario.getErrorWriter().generateErrorFile(testcase, null, (TransactionAPI) null, testcase.getTestResult().getException());
+						this.scenario.getErrorWriter().generateErrorFile(testcase, null, (TransactionAPI) null, null);
 				}
 			} else {
 				this.scenario.handleTestResult(testcase, trans);

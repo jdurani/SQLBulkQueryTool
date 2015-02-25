@@ -101,22 +101,29 @@ public final class TagNames {
 		public static final String TABLE_CELL = "tableCell"; //$NON-NLS-1$
 		public static final String NULL = "null"; //$NON-NLS-1$
 		public static final String EXCEPTION = "exception"; //$NON-NLS-1$
-		public static final String ACTUAL_EXCEPTION = "actual_exception"; //$NON-NLS-1$
-		public static final String EXPECTED_EXCEPTION = "expected_exception"; //$NON-NLS-1$
+		public static final String ACTUAL_EXCEPTION = "actualException"; //$NON-NLS-1$
+		public static final String EXPECTED_EXCEPTION = "expectedException"; //$NON-NLS-1$
 		public static final String EXCEPTION_TYPE = "exceptionType"; //$NON-NLS-1$
+		public static final String STACK_TRACE = "stackTrace"; //$NON-NLS-1$
 		public static final String MESSAGE = "message"; //$NON-NLS-1$
-		public static final String MESSAGE_CONTAINS = "message-contains"; //$NON-NLS-1$
-		public static final String MESSAGE_STARTSWITH = "message-startswith"; //$NON-NLS-1$
+		public static final String MESSAGE_CONTAINS = "messageContains"; //$NON-NLS-1$
+		public static final String MESSAGE_STARTSWITH = "messageStartswith"; //$NON-NLS-1$
+		public static final String MESSAGE_REGEX = "messageRegex"; //$NON-NLS-1$
 		public static final String DATA_ELEMENT = "dataElement"; //$NON-NLS-1$
 		public static final String QUERY_RESULTS = "queryResults"; //$NON-NLS-1$
-		public static final String ACTUAL_QUERY_RESULTS = "actual_queryResults"; //$NON-NLS-1$
-		public static final String EXPECTED_QUERY_RESULTS = "expected_queryResults"; //$NON-NLS-1$
+		public static final String ACTUAL_QUERY_RESULTS = "actualQueryResults"; //$NON-NLS-1$
+		public static final String EXPECTED_QUERY_RESULTS = "expectedQueryResults"; //$NON-NLS-1$
 		public static final String QUERY = "query"; //$NON-NLS-1$
 		public static final String SELECT = "select"; //$NON-NLS-1$
 		public static final String ROOT_ELEMENT = "root"; //$NON-NLS-1$
 		public static final String SQL = "sql"; //$NON-NLS-1$
 		public static final String PARM = "parm"; //$NON-NLS-1$
 		public static final String PAYLOAD = "payload"; //$NON-NLS-1$
+
+		/**
+		 * Message describing the comparison failure - the difference between expected and actual results.
+		 */
+		public static final String FAILURE_MESSAGE = "failureMessage";
 	}
 
 	/**
@@ -133,6 +140,9 @@ public final class TagNames {
 		public static final String STAR = "star"; //$NON-NLS-1$
 		public static final String UPDATE_CNT = "updatecnt"; //$NON-NLS-1$
 		public static final String EXECUTION_TIME = "exectime"; //$NON-NLS-1$
+
+		public static final String UNPRINTABALE = "unprintable";
+		public static final String HEXVALUE = "hexValue";
 	}
 
 	/**

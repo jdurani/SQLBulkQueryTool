@@ -35,6 +35,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import org.apache.commons.lang.StringUtils;
 import org.jboss.bqt.client.ClientPlugin;
@@ -44,8 +46,10 @@ import org.jboss.bqt.client.api.ExpectedResults;
 import org.jboss.bqt.client.results.ExpectedResultsHolder;
 import org.jboss.bqt.client.util.ListNestedSortComparator;
 import org.jboss.bqt.client.xml.TagNames;
+import org.jboss.bqt.client.xml.TagNames.Elements;
+import org.jboss.bqt.core.exception.FrameworkRuntimeException;
+import org.jboss.bqt.core.exception.MultiTestFailedException;
 import org.jboss.bqt.core.exception.QueryTestFailedException;
-import org.jboss.bqt.core.util.ExceptionUtil;
 import org.jboss.bqt.core.util.ObjectConverterUtil;
 import org.jboss.bqt.framework.ConfigPropertyLoader;
 import org.jboss.bqt.framework.ConfigPropertyNames;
@@ -113,9 +117,9 @@ public class XMLCompareResults {
 
 			if (!expResults.isExceptionExpected()) {
 				
-				throw new QueryTestFailedException(
+				throw new QueryTestFailedException(testcase.getTestResult().getException(),
 				eMsg
-						+ "TestResult resulted in unexpected exception " + testcase.getTestResult().getExceptionMsg()); //$NON-NLS-1$
+						+ "TestResult resulted in unexpected exception " + testcase.getTestResult().getFailureMessage()); //$NON-NLS-1$
 				
 			}
 //		case TestResult.RESULT_STATE.TEST_EXPECTED_EXCEPTION:
@@ -163,6 +167,11 @@ public class XMLCompareResults {
 			
 			convertResults(resultSet, testcase.getTestResult().getUpdateCount(), actualResults);
 
+			if (expResults.isExceptionExpected()) {
+				throw new QueryTestFailedException(eMsg + expectedResults.getExceptionClassName()
+						+ " expected but not thrown, returned " + actualResults.getRows().size() + " rows.");
+			}
+
 			if (expectedResults.getRows().size() > 0) {
 				compareResults(testcase, actualResults, expectedResults, eMsg, isOrdered);
 			} else if (actualResults.getRows() != null
@@ -195,7 +204,7 @@ public class XMLCompareResults {
 		actualResults.setExceptionClassName(actualException.getClass()
 				.getName());
 		
-		actualResults.setExceptionMsg(ExceptionUtil.getExceptionMessage(actualException));
+		actualResults.setExceptionMsg(actualException.getMessage());
 		
 		return actualResults;
 	}
@@ -236,7 +245,7 @@ public class XMLCompareResults {
 					columnTypes.add(rsMetadata.getColumnTypeName(col));
 				}
 			} catch (SQLException qre) {
-				throw new QueryTestFailedException(
+				throw new QueryTestFailedException(qre,
 						"Can't get results metadata: " + qre.getMessage()); //$NON-NLS-1$
 			}
 	
@@ -257,7 +266,7 @@ public class XMLCompareResults {
 					}
 				}
 			} catch (SQLException qre) {
-				throw new QueryTestFailedException(
+				throw new QueryTestFailedException(qre,
 						"Can't get results: " + qre.getMessage()); //$NON-NLS-1$
 			}
 		}
@@ -331,7 +340,7 @@ public class XMLCompareResults {
 							+ msg) ; //$NON-NLS-1$
 					
 					testCase.getTestResult().setException(f);
-					testCase.getTestResult().setExceptionMessage(msg);							
+					testCase.getTestResult().setFailureMessage(msg);
 					testCase.getTestResult().setStatus(TestResult.RESULT_STATE.TEST_EXECUTION_TIME_EXCEEDED_EXCEPTION);
 				}			
 		
@@ -397,7 +406,17 @@ public class XMLCompareResults {
 				throw new QueryTestFailedException(
 						eMsg
 								+ "Actual exception message " + actualExceptionMsg + " does not start with the expected exception of " + expectedExceptionMsg); //$NON-NLS-1$				
-			}			
+			}
+		} else if (expectedResults.isExceptionRegex()) {
+			try {
+				Pattern p = Pattern.compile(expectedExceptionMsg, Pattern.DOTALL);
+				if (!p.matcher(actualExceptionMsg).find()) {
+					throw new QueryTestFailedException(eMsg + "Actual exception message " + actualExceptionMsg
+							+ " does not match regex pattern " + expectedExceptionMsg);
+				}
+			} catch (PatternSyntaxException e) {
+				throw new FrameworkRuntimeException(eMsg + "Invalid exception message regex pattern: " + e.getMessage());
+			}
 		} else {
 			if (!expectedExceptionMsg.equals(actualExceptionMsg)) {
 
@@ -426,6 +445,135 @@ public class XMLCompareResults {
 			}
 		}
 		return true;
+	}
+
+	private static void compareResultColumn(Object actualValue, Object expectedValue, int row, int col,
+			final String eMsg) throws QueryTestFailedException {
+
+		// DEBUG:
+		// debugOut.println(" Col: " +(col +1) + ": expectedValue:[" +
+		// expectedValue + "] actualValue:[" + actualValue +
+		// "]");
+
+		// Compare these values
+		if ((expectedValue == null && actualValue != null) || (actualValue == null && expectedValue != null)) {
+			// Compare nulls
+			throw new QueryTestFailedException(eMsg + "Value mismatch at row " + (row + 1) //$NON-NLS-1$
+					+ " and column " + (col + 1) //$NON-NLS-1$
+					+ ": expected = [" //$NON-NLS-1$
+					+ (expectedValue != null ? expectedValue : "null") + "], actual = [" //$NON-NLS-1$
+					+ (actualValue != null ? actualValue : "null") + "]"); //$NON-NLS-1$
+
+		}
+
+		if (expectedValue == null && actualValue == null) {
+			return;
+		}
+
+		if (actualValue instanceof Blob || actualValue instanceof Clob || actualValue instanceof SQLXML) {
+
+			if (actualValue instanceof Clob) {
+				Clob c = (Clob) actualValue;
+				try {
+					actualValue = ObjectConverterUtil.convertToString(c.getAsciiStream());
+
+				} catch (Throwable e) {
+					// TODO Auto-generated catch block
+					throw new QueryTestFailedException(e);
+				}
+			} else if (actualValue instanceof Blob) {
+				Blob b = (Blob) actualValue;
+				try {
+					byte[] ba = ObjectConverterUtil.convertToByteArray(b.getBinaryStream());
+
+					actualValue = String.valueOf(ba.length);
+
+					// actualValue =
+					// ObjectConverterUtil.convertToString(b.getBinaryStream());
+
+				} catch (Throwable e) {
+					// TODO Auto-generated catch block
+					throw new QueryTestFailedException(e);
+				}
+			} else if (actualValue instanceof SQLXML) {
+				SQLXML s = (SQLXML) actualValue;
+				try {
+					actualValue = ObjectConverterUtil.convertToString(s.getBinaryStream());
+
+				} catch (Throwable e) {
+					// TODO Auto-generated catch block
+					throw new QueryTestFailedException(e);
+				}
+			}
+
+			if (!(expectedValue instanceof String)) {
+				expectedValue = expectedValue.toString();
+			}
+		}
+		
+		if(expectedValue instanceof BigDecimal
+						&& actualValue instanceof BigDecimal){
+			BigDecimal expV = (BigDecimal)expectedValue;
+			BigDecimal actV = (BigDecimal)actualValue;
+			boolean fail = false;
+			if(expV.compareTo(actV) != 0){
+				if(allowedDivergenceIsZero){
+					fail = true; //not equals and divergence is zero;
+				} else {
+					fail =     expV.add(allowedDivergence).compareTo(actV) < 0
+							|| expV.subtract(allowedDivergence).compareTo(actV) > 0;
+				}
+			}
+			if(fail){
+				throw new QueryTestFailedException(eMsg
+						+ "Value mismatch at row " + (row + 1) //$NON-NLS-1$
+						+ " and column " + (col + 1) //$NON-NLS-1$
+						+ ": expected = [" //$NON-NLS-1$
+						+ expV + "], actual = [" //$NON-NLS-1$
+						+ actV + "] {allowed divergence: " + allowedDivergence + "}"); //$NON-NLS-1$ $NON-NLS-2$
+			} else {
+				return; // column has been compared
+			}
+		}
+		
+		// Compare values with equals
+		if (!expectedValue.equals(actualValue)) {
+			// DEBUG:
+
+			if (expectedValue instanceof java.sql.Date) {
+				expectedValue = expectedValue.toString();
+				actualValue = actualValue.toString();
+
+			} else if (expectedValue instanceof java.sql.Time) {
+				expectedValue = expectedValue.toString();
+				actualValue = actualValue.toString();
+
+			}
+
+			if (expectedValue instanceof String) {
+				final String expectedString = (String) expectedValue;
+
+				if (!(actualValue instanceof String)) {
+					throw new QueryTestFailedException(eMsg + "Value (types) mismatch at row " + (row + 1) //$NON-NLS-1$
+							+ " and column " + (col + 1) //$NON-NLS-1$
+							+ ": expected = [" //$NON-NLS-1$
+							+ expectedValue + ", (String) ], actual = [" //$NON-NLS-1$
+							+ actualValue + ", (" + actualValue.getClass().getName() + ") ]"); //$NON-NLS-1$
+				}
+
+				// Check for String difference
+				assertStringsMatch(expectedString, (String) actualValue, (row + 1), (col + 1), eMsg);
+
+			} else {
+
+				throw new QueryTestFailedException(eMsg + "Value mismatch at row " + (row + 1) //$NON-NLS-1$
+						+ " and column " + (col + 1) //$NON-NLS-1$
+						+ ": expected = [" //$NON-NLS-1$
+						+ expectedValue + "], actual = [" //$NON-NLS-1$
+						+ actualValue + "]"); //$NON-NLS-1$
+
+			}
+		}
 	}
 
 	/**
@@ -472,7 +620,6 @@ public class XMLCompareResults {
 
 		// DEBUG:
 		// debugOut.println("================== Compariing Rows ===================");
-
 		
 		if(allowedDivergence == null){ // we do not allow different divergence for different queries
 			String allowedDivergenceStr = ConfigPropertyLoader.getInstance().getProperty(TestProperties.ALLOWED_DIVERGENCE);
@@ -489,6 +636,9 @@ public class XMLCompareResults {
 				}
 			}
 		}
+		
+		MultiTestFailedException multiException = new MultiTestFailedException();
+		
 		// Loop through rows
 		for (int row = 0; row < actualRowCount; row++) {
 
@@ -511,146 +661,20 @@ public class XMLCompareResults {
 				// Get expected value
 				Object expectedValue = expectedRecord.get(col);
 
-				// DEBUG:
-				// debugOut.println(" Col: " +(col +1) + ": expectedValue:[" +
-				// expectedValue + "] actualValue:[" + actualValue +
-				// "]");
-
-				// Compare these values
-				if ((expectedValue == null && actualValue != null)
-						|| (actualValue == null && expectedValue != null)) {
-					// Compare nulls
-					throw new QueryTestFailedException(
-							eMsg + "Value mismatch at row " + (row + 1) //$NON-NLS-1$
-									+ " and column " + (col + 1) //$NON-NLS-1$
-									+ ": expected = [" //$NON-NLS-1$
-									+ (expectedValue != null ? expectedValue
-											: "null") + "], actual = [" //$NON-NLS-1$
-									+ (actualValue != null ? actualValue
-											: "null") + "]"); //$NON-NLS-1$
-
-				}
-
-				if (expectedValue == null && actualValue == null) {
-					continue;
-				}
-
-				if (actualValue instanceof Blob || actualValue instanceof Clob
-						|| actualValue instanceof SQLXML) {
-
-					if (actualValue instanceof Clob) {
-						Clob c = (Clob) actualValue;
-						try {
-							actualValue = ObjectConverterUtil.convertToString(c
-									.getAsciiStream());
-
-						} catch (Throwable e) {
-							// TODO Auto-generated catch block
-							throw new QueryTestFailedException(e);
-						}
-					} else if (actualValue instanceof Blob) {
-						Blob b = (Blob) actualValue;
-						try {
-							byte[] ba = ObjectConverterUtil
-									.convertToByteArray(b.getBinaryStream());
-
-							actualValue = String.valueOf(ba.length); //TODO ??? why value of length?
-
-							// actualValue =
-							// ObjectConverterUtil.convertToString(b.getBinaryStream());
-
-						} catch (Throwable e) {
-							// TODO Auto-generated catch block
-							throw new QueryTestFailedException(e);
-						}
-					} else if (actualValue instanceof SQLXML) {
-						SQLXML s = (SQLXML) actualValue;
-						try {
-							actualValue = ObjectConverterUtil.convertToString(s
-									.getBinaryStream());
-
-						} catch (Throwable e) {
-							// TODO Auto-generated catch block
-							throw new QueryTestFailedException(e);
-						}
-					}
-
-					if (!(expectedValue instanceof String)) {
-						expectedValue = expectedValue.toString();
-					}
-				}
-				
-				if(expectedValue instanceof BigDecimal
-						&& actualValue instanceof BigDecimal){
-					BigDecimal expV = (BigDecimal)expectedValue;
-					BigDecimal actV = (BigDecimal)actualValue;
-					boolean fail = false;
-					if(expV.compareTo(actV) != 0){
-						if(allowedDivergenceIsZero){
-							fail = true; //not equals and divergence is zero;
-						} else {
-							fail =     expV.add(allowedDivergence).compareTo(actV) < 0
-									|| expV.subtract(allowedDivergence).compareTo(actV) > 0;
-						}
-					}
-					if(fail){
-						throw new QueryTestFailedException(eMsg
-								+ "Value mismatch at row " + (row + 1) //$NON-NLS-1$
-								+ " and column " + (col + 1) //$NON-NLS-1$
-								+ ": expected = [" //$NON-NLS-1$
-								+ expV + "], actual = [" //$NON-NLS-1$
-								+ actV + "] {allowed divergence: " + allowedDivergence + "}"); //$NON-NLS-1$ $NON-NLS-2$
-					} else {
-						continue; // column has been compared
-					}
-				}
-				
-				// Compare values with equals
-				if (!expectedValue.equals(actualValue)) {
-					// DEBUG:
-					
-
-					if (expectedValue instanceof java.sql.Date) {
-						expectedValue = expectedValue.toString();
-						actualValue = actualValue.toString();
-						
-					} else if (expectedValue instanceof java.sql.Time) {
-						expectedValue = expectedValue.toString();
-						actualValue = actualValue.toString();
-						
-					}
-
-					if (expectedValue instanceof String) {
-						final String expectedString = (String) expectedValue;
-
-						if (!(actualValue instanceof String)) {
-							throw new QueryTestFailedException(eMsg
-									+ "Value (types) mismatch at row " + (row + 1) //$NON-NLS-1$
-									+ " and column " + (col + 1) //$NON-NLS-1$
-									+ ": expected = [" //$NON-NLS-1$
-									+ expectedValue + ", (String) ], actual = [" //$NON-NLS-1$
-									+ actualValue + ", (" + actualValue.getClass().getName()+ ") ]"); //$NON-NLS-1$
-						} 
-											
-							// Check for String difference
-							assertStringsMatch(  expectedString,
-									(String) actualValue, (row + 1), (col + 1),
-									eMsg);
-
-					} else {
-
-						throw new QueryTestFailedException(eMsg
-								+ "Value mismatch at row " + (row + 1) //$NON-NLS-1$
-								+ " and column " + (col + 1) //$NON-NLS-1$
-								+ ": expected = [" //$NON-NLS-1$
-								+ expectedValue + "], actual = [" //$NON-NLS-1$
-								+ actualValue + "]"); //$NON-NLS-1$
-
-					}
+				try {
+					compareResultColumn(actualValue, expectedValue, row, col, eMsg);
+				} catch (QueryTestFailedException e) {
+					multiException.addFailure(e);
 				}
 
 			} // end loop through columns
 		} // end loop through rows
+
+		if (multiException.getTotalFailures() == 1) {
+			throw multiException.getFailures().get(0);
+		} else if (multiException.getTotalFailures() > 1) {
+			throw multiException;
+		}
 	}
 
 	private static void compareIdentifiers(List actualIdentifiers,
@@ -710,14 +734,14 @@ public class XMLCompareResults {
 	private static final int MISMATCH_OFFSET = 20;
 	private static final int MAX_MESSAGE_SIZE = 50;
 
-	private static void assertStringsMatch(final String expectedStr,
-			final String actualStr, final int row, final int col,
+	private static void assertStringsMatch(final String expected,
+			final String actual, final int row, final int col,
 			final String eMsg) throws QueryTestFailedException {
 		// TODO: Replace stripCR() with XMLUnit comparison for XML results.
 		// stripCR() is a workaround for comparing XML Queries
 		// that have '\r'.
-		String expected = stripCR(expectedStr).trim();
-		String actual = stripCR(actualStr).trim();
+		//String expected = stripCR(expectedStr).trim(); // DISABLED, should not do any trimming
+		//String actual = stripCR(actualStr).trim();
 
 		String locationText = ""; //$NON-NLS-1$
 		int mismatchIndex = -1;
@@ -752,7 +776,7 @@ public class XMLCompareResults {
 						- MISMATCH_OFFSET, mismatchIndex + MISMATCH_OFFSET);
 			}
 
-			String message = eMsg + " String mismatch at row " + row + //$NON-NLS-1$
+			String message = eMsg + "String mismatch at row " + row + //$NON-NLS-1$
 					" and column " + col + //$NON-NLS-1$
 					". Expected: {0} but was: {1}" + locationText; //$NON-NLS-1$
 			message = MessageFormat.format(message, new Object[] {

@@ -144,7 +144,17 @@ public class XMLFileType implements FileType {
 		return   testResult.getQuerySetID() + "_" + testResult.getQueryID() + ".err";
 
 	}
-	
+
+	/**
+	 * Returns the path to SET_QUERY_messages.txt file.
+	 * @see org.jboss.bqt.client.FileType#getErrorMessagesFileName(org.jboss.bqt.client.api.QueryScenario,
+	 *      org.jboss.bqt.framework.TestResult)
+	 */
+	@Override
+	public String getErrorMessagesFileName(@SuppressWarnings("unused") QueryScenario scenario, TestResult testResult) {
+		return testResult.getQuerySetID() + "_" + testResult.getQueryID() + "_messages.txt";
+	}
+
 	private ExpectedResultsWriter createExpectedResultsWriter(QueryScenario scenario, Properties props, String fileName) {
 		Collection<Object> args = new ArrayList<Object>(2);
 		args.add(scenario);

@@ -22,12 +22,15 @@
 package org.jboss.bqt.client.xml;
 
 import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Properties;
 
 import org.jboss.bqt.client.ClientPlugin;
@@ -41,6 +44,7 @@ import org.jboss.bqt.core.exception.FrameworkRuntimeException;
 import org.jboss.bqt.core.exception.QueryTestFailedException;
 import org.jboss.bqt.core.util.ExceptionUtil;
 import org.jboss.bqt.core.util.FileUtils;
+import org.jboss.bqt.core.util.StringHelper;
 import org.jboss.bqt.core.xml.JdomHelper;
 import org.jboss.bqt.framework.AbstractQuery;
 import org.jboss.bqt.framework.TestCase;
@@ -49,6 +53,7 @@ import org.jboss.bqt.framework.TransactionAPI;
 import org.jdom.Attribute;
 import org.jdom.Document;
 import org.jdom.Element;
+import org.jdom.IllegalDataException;
 import org.jdom.JDOMException;
 import org.jdom.input.JDOMParseException;
 import org.jdom.output.XMLOutputter;
@@ -87,7 +92,7 @@ public class XMLErrorWriter extends ErrorWriter {
 	}
 	
 	@Override
-	public 	String generateErrorFile(final TestResult testResult, final Throwable error)
+	public 	String generateErrorFile(final TestResult testResult, final List<Throwable> failures)
 				throws FrameworkException {
 
 		String errorFileName = null;
@@ -100,16 +105,16 @@ public class XMLErrorWriter extends ErrorWriter {
 			ClientPlugin.LOGGER.warn("**** Generate Error File: " + errorFile.getAbsolutePath());
 
 			generateErrorResults(testResult,
-					 (String) null, errorFile, (ResultSet) null, (File) null, error);
+					 (String) null, errorFile, (ResultSet) null, (File) null, failures);
 		
 		return errorFileName;
 	}
 
 	@Override
-	public String generateErrorFile(TestCase testCase, ExpectedResults expectedResults, TransactionAPI transaction, Throwable ex) throws QueryTestFailedException, FrameworkException {
+	public String generateErrorFile(TestCase testCase, ExpectedResults expectedResults, TransactionAPI transaction, List<Throwable> failures) throws QueryTestFailedException, FrameworkException {
 
 		if (expectedResults == null) {
-			return generateErrorFile(testCase.getTestResult(), testCase.getTestResult().getException());
+			return generateErrorFile(testCase.getTestResult(), failures);
 		}
 
 		
@@ -132,7 +137,7 @@ public class XMLErrorWriter extends ErrorWriter {
 			ClientPlugin.LOGGER.warn("**** E 2 Generate Error File");
 		
 			generateErrorResults(testResult, testResult.getQuery(), errorFile,
-					resultSet, expectedResults.getExpectedResultsFile() , ex);
+					resultSet, expectedResults.getExpectedResultsFile() , failures);
 
 		} catch (SQLException sqle) {
 			throw new QueryTestFailedException(sqle);
@@ -158,7 +163,7 @@ public class XMLErrorWriter extends ErrorWriter {
 		 */
 		private void generateErrorResults(TestResult testResult,
 				String sql, File resultsFile, ResultSet actualResult,
-				File expectedResultFile, Throwable ex)
+				File expectedResultFile, List<Throwable> failures)
 				throws FrameworkException {
 			OutputStream outputStream;
 			try {
@@ -184,13 +189,27 @@ public class XMLErrorWriter extends ErrorWriter {
 				resultElement.setAttribute(new Attribute(TagNames.Attributes.VALUE,
 						(sql != null ? sql : "NULL")));
 
+				if (failures != null) {
+					for (Throwable failure : failures) {
+						Element failureEl = new Element(TagNames.Elements.FAILURE_MESSAGE);
+						try {
+							failureEl.setText(failure.getMessage());
+						} catch(IllegalDataException e) {
+							// unprintable characters, replace them
+							failureEl.setText(StringHelper.replaceXmlUnprintable(failure.getMessage()));
+						}
+						resultElement.addContent(failureEl);
+					}
+				}
+
 				// ---------------------
 				// Actual Exception
 				// ---------------------
 				// create a JDOM element from the actual exception object
 				// produce xml for the actualException and this to the
 				// exceptionElement
-				if (ex != null) {
+				Throwable actualError = testResult.getException();
+				if (actualError != null) {
 					
 					ClientPlugin.LOGGER.warn("**** E 3 Generate Error File");
 
@@ -198,7 +217,7 @@ public class XMLErrorWriter extends ErrorWriter {
 							TagNames.Elements.ACTUAL_EXCEPTION);
 
 					actualExceptionElement = XMLQueryVisitationStrategy
-							.jdomException(ex, actualExceptionElement);
+							.jdomException(actualError, actualExceptionElement);
 					resultElement.addContent(actualExceptionElement);
 				} else if (actualResult != null) {
 					ClientPlugin.LOGGER.warn("**** E 4 Generate Error File");
@@ -235,9 +254,9 @@ public class XMLErrorWriter extends ErrorWriter {
 						expectedResult = jstrat.parseXMLResultsFile(expectedResultFile,
 								expectedResult);
 						ClientPlugin.LOGGER.warn("**** E 5 Expected: " + expectedResult);
-						
-						if (testResult.isSuccess()) {
-							
+
+						if (expectedResult.getChild(TagNames.Elements.CLASS) == null) { // exception-class element not found
+
 							expectedResult
 							.setName(TagNames.Elements.EXPECTED_QUERY_RESULTS);
 							
@@ -313,5 +332,50 @@ public class XMLErrorWriter extends ErrorWriter {
 			}
 		}
 
+	/**
+	 * Creates file with all failure messages, for cases when there were more than one failure detected.
+	 * @see org.jboss.bqt.client.api.ErrorWriter#generateErrorMessagesFile(org.jboss.bqt.framework.TestResult,
+	 *      java.util.List)
+	 */
+	@Override
+	public String generateErrorMessagesFile(TestResult testResult, List<Throwable> failures) throws FrameworkException {
+		String messagesFileName = getQueryScenario().getFileType().getErrorMessagesFileName(getQueryScenario(),
+				testResult);
+
+		File messagesFile = new File(getErrorDirectory(), messagesFileName);
+		ClientPlugin.LOGGER.warn("**** Generate Additional Error Messages File: " + messagesFile.getAbsolutePath());
+
+		generateErrorMessages(messagesFile, failures);
+
+		return messagesFileName;
+	}
+
+	/**
+	 * Writes list of failure messages to specified file.
+	 * @param messagesFile file with write permissions
+	 * @param failures list of failures-exceptions
+	 * @throws FrameworkException in case of any I/O error, possibly missing permissions or disk access failure
+	 */
+	private void generateErrorMessages(File messagesFile, List<Throwable> failures) throws FrameworkException {
+		BufferedWriter bw = null;
+		try {
+			bw = new BufferedWriter(new FileWriter(messagesFile));
+
+			for (Throwable failure : failures) {
+				bw.write(failure.getMessage() + '\n');
+			}
+		} catch (IOException e) {
+			throw new FrameworkException("Failed to output error results to " + messagesFile.getPath() + ": "
+					+ e.getMessage());
+		} finally {
+			if (bw != null) {
+				try {
+					bw.close();
+				} catch (IOException e) {
+					ClientPlugin.LOGGER.error("Cannot close the Additional Error Messages File: " + e.getMessage());
+				}
+			}
+		}
+	}
 
 }

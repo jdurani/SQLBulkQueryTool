@@ -119,9 +119,15 @@ public class TestClient {
 		PRE1_SUPPORTED = PropertiesUtils.getBooleanProperty(System.getProperties(), 
 				TestProperties.PRE1_0_SCENARIO_SUPPORT.SUPPORT_PRE1_0_SCENARIO, false);
 		try {
+			ExclusionManager em = new ExclusionManager(CONFIG);
 
 			List<File> scenarios = getScenarios();
 			for (File f:scenarios) {
+				// if the scenario is excluded or not included by the properties, skip it
+				if (!em.isScenarioActive(f)) {
+					continue;
+				}
+
 				try{
 					runScenario(f);
 				} catch (FrameworkRuntimeException ex){

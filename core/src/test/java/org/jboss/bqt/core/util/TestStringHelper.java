@@ -22,35 +22,53 @@
 
 package org.jboss.bqt.core.util;
 
-import junit.framework.TestCase;
+import junit.framework.Assert;
 
+import org.jboss.bqt.core.exception.FrameworkRuntimeException;
 import org.junit.Test;
 
 /**
- * @version 	1.0
- * @author
+ * Test class for StringHelper - generic string helper functions.
  */
-public class TestStringHelper extends TestCase {
+public class TestStringHelper {
 
-    /**
-     * Constructor for TestStringUtil.
-     * @param name
-     */
-    public TestStringHelper(String name) {
-        super(name);
-    }
+	// ********* T E S T S U I T E M E T H O D S *********
 
-	//  ********* T E S T   S U I T E   M E T H O D S  *********
+	/**
+	 * Tests {@link org.jboss.bqt.core.util.StringHelper}
+	 */
+	@Test
+	public void testSingleParameter() {
 
-    /**
-     * Tests {@link org.jboss.bqt.core.util.StringHelper}
-     * @throws Exception 
-     */
-    @Test
-    public void testSingleParameter() throws Exception {
-    	
-    	String value = StringHelper.createString("Test {0} replaced", "value");
-    	assertEquals("Test value replaced", value); //$NON-NLS-1$
-    }
- 
+		String value = StringHelper.createString("Test {0} replaced", "value");
+		Assert.assertEquals("Test value replaced", value); //$NON-NLS-1$
+	}
+
+	/**
+	 * Tests encoding String as hexadecimal number.
+	 */
+	@Test
+	public void testEncodeHex() {
+		Assert.assertEquals("68656c6c6f207376c49b7465", StringHelper.encodeHex("hello světe"));
+		Assert.assertEquals("", StringHelper.encodeHex(""));
+	}
+
+	/**
+	 * Tests decoding String as hexadecimal number.
+	 */
+	@Test
+	public void testDecodeHex() {
+		Assert.assertEquals("hello světe", StringHelper.decodeHex("68656c6c6f207376c49b7465"));
+		Assert.assertEquals("", StringHelper.decodeHex(""));
+	}
+
+	/**
+	 * Tests exception when invalid hexadecimal string passed.
+	 * @throws FrameworkRuntimeException for invalid hexadecimal input
+	 */
+	@Test(expected = FrameworkRuntimeException.class)
+	public void testDecodeHexError() throws FrameworkRuntimeException {
+		StringHelper.decodeHex("68656cs6c6f207376g49b7465");
+	}
+
 }

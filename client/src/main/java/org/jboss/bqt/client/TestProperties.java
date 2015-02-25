@@ -71,6 +71,16 @@ public interface TestProperties {
 	public static final String PROP_SCENARIO_FILE = "bqt.scenario.file";
 	
 	/**
+	 * Full regex pattern of scenarios to include in the test run (by default, all are included).
+	 */
+	public static final String PROP_SCENARIO_INCLUDE = "bqt.scenario.include";
+
+	/**
+	 * Full regex pattern of scenarios to exclude from the test run (by default, none are excluded).
+	 */
+	public static final String PROP_SCENARIO_EXCLUDE = "bqt.scenario.exclude";
+
+	/**
 	 * PROP_TESTRUN_DIR will indicate the root location for everything 
 	 * written out for a give scenario.
 	 */

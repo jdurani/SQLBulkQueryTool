@@ -360,7 +360,7 @@ public class TestResultsSummary {
 
 				String msg = 
 					StringUtils.remove(
-					StringUtils.remove(stat.getExceptionMsg(), '\r'),
+					StringUtils.remove(stat.getFailureMessage(), '\r'),
 										'\n');
 				
 //				removeChars(stat.getExceptionMsg(),
@@ -804,7 +804,7 @@ public class TestResultsSummary {
 					Long.toString((stat.getEndTS() - stat.getBeginTS() / 1000)));
 			// Long.toString(stat.getEndTS()));
 			if (stat.getStatus() == TestResult.RESULT_STATE.TEST_EXCEPTION) {
-				addTableData(htmlCode, stat.getExceptionMsg());
+				addTableData(htmlCode, stat.getFailureMessage());
 				if (stat.getErrorfile() != null
 						&& !stat.getErrorfile().equals("null")) { //$NON-NLS-1$
 					addTableDataLink(htmlCode, stat.getErrorfile(), ""); //$NON-NLS-1$ 
@@ -866,7 +866,7 @@ public class TestResultsSummary {
 
 		for (Iterator resultItr = queryResults.iterator(); resultItr.hasNext();) {
 			TestResult result = (TestResult) resultItr.next();
-			if ( result.getException() != null || result.getExceptionMsg() != null) {
+			if ( result.getException() != null || result.getFailureMessage() != null) {
 				// dont include errors in time calculations;
 				continue;		
 			}
@@ -926,7 +926,7 @@ public class TestResultsSummary {
 
 		outputStream
 				.println((stat.getStatus() != TestResult.RESULT_STATE.TEST_SUCCESS ? stat
-						.getExceptionMsg() : "")); //$NON-NLS-1$
+						.getFailureMessage() : "")); //$NON-NLS-1$
 	}
 
 	private static String getFormattedTimestamp(SimpleDateFormat format,

@@ -92,6 +92,7 @@ public class ExceptionUtil {
 		return ""; //$NON-NLS-1$
 	}
 	
+	@Deprecated
 	public static String getExceptionMessage(Throwable exception) {
 		return getInnerMostdMessage(exception);
 //		return getLinkedMessages(exception, 0);

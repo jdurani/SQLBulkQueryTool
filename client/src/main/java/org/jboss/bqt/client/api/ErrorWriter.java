@@ -22,6 +22,7 @@
 
 package org.jboss.bqt.client.api;
 
+import java.util.List;
 import java.util.Properties;
 
 import org.jboss.bqt.client.TestProperties;
@@ -73,24 +74,34 @@ public abstract class ErrorWriter {
 	 * @param expectedResults , pass in null when generating error on no expected results are available, as 
 	 * 			would be when resultmode = GENERATE 
 	 * @param transaction is the current transaction being processed
-	 * @param exception that will be written in the error file
+	 * @param failures that will be written in the error file
 	 * @return String name for the error file
 	 * @throws QueryTestFailedException could be seen if problems occur accessing resultSet
 	 * @throws FrameworkException could be seen if problems occur creating error file
 	 */
 	
 	public abstract String generateErrorFile(final TestCase testCase, ExpectedResults expectedResults,
-			final TransactionAPI transaction, Throwable exception) throws QueryTestFailedException, FrameworkException;
+			final TransactionAPI transaction, List<Throwable> failures) throws QueryTestFailedException, FrameworkException;
 
 	
 	/**
 	 * Call to generate an error file based on an error that occurred.  
 	 * @param testResult is the TestResult being run
-	 * @param error
+	 * @param failures
 	 * @return String name for the error file
 	 * @throws FrameworkException could be seen if problems occur creating error file
 	 */
-	public abstract String generateErrorFile(final TestResult testResult, final Throwable error)
+	public abstract String generateErrorFile(final TestResult testResult, final List<Throwable> failures)
 			throws FrameworkException;
-	
+
+	/**
+	 * Call to generate a file containing all error messages, in case the test resulted in more than one failure.
+	 * @param testResult test result being run
+	 * @param failures list of exceptions-failures to print out
+	 * @return name of the error messages file
+	 * @throws FrameworkException when any I/O error occurs, possibly file permissions / disk access errors
+	 */
+	public abstract String generateErrorMessagesFile(TestResult testResult, List<Throwable> failures)
+			throws FrameworkException;
+
 }

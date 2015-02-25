@@ -24,7 +24,9 @@ package org.jboss.bqt.client.xml;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.Serializable;
+import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Blob;
@@ -51,13 +53,14 @@ import org.jboss.bqt.client.xml.QueryResults.ColumnInfo;
 import org.jboss.bqt.core.exception.TransactionRuntimeException;
 import org.jboss.bqt.core.util.ExceptionUtil;
 import org.jboss.bqt.core.util.ObjectConverterUtil;
+import org.jboss.bqt.core.util.StringHelper;
 import org.jboss.bqt.core.xml.SAXBuilderHelper;
 import org.jboss.bqt.jdbc.sql.lang.ElementSymbol;
 import org.jboss.bqt.jdbc.sql.lang.Select;
 import org.jdom.Attribute;
-import org.jdom.CDATA;
 import org.jdom.Document;
 import org.jdom.Element;
+import org.jdom.IllegalDataException;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
@@ -322,8 +325,12 @@ public class XMLQueryVisitationStrategy {
                     	expectedResults.setExceptionStartsWith(true);
                     } else if (exceptionElement.getChild(TagNames.Elements.MESSAGE_CONTAINS) != null ) {
                         msg = exceptionElement.getChild(TagNames.Elements.MESSAGE_CONTAINS).getTextTrim(); 
-                        expectedResults.setExceptionContains(true);
-                    }
+						expectedResults.setExceptionContains(true);
+					} else if (exceptionElement.getChild(TagNames.Elements.MESSAGE_REGEX) != null) {
+						msg = exceptionElement.getChild(TagNames.Elements.MESSAGE_REGEX).getTextTrim();
+						expectedResults.setExceptionRegex(true);
+					}
+
                     expectedResults.setExceptionMsg(StringUtils.remove(msg, '\r'));
                 }
             }
@@ -425,25 +432,62 @@ public class XMLQueryVisitationStrategy {
         // ---------------------------
         // Add the Message element ...
         // ---------------------------
- 
-        Element messageElement = new Element(TagNames.Elements.MESSAGE);       
-        
-        messageElement.addContent(
-        		new CDATA(ExceptionUtil.getExceptionMessage(ex)));
-        		
- //       		StringUtils.remove( ExceptionUtil.getExceptionMessage(ex), '\r'));  
-        		
-        exceptionElement.addContent(messageElement);
+
+		Element messageElement = new Element(TagNames.Elements.MESSAGE);
+		messageElement.setText(ex.getMessage());
+		exceptionElement.addContent(messageElement);
 
         // -------------------------
         // Add the Class element ...
         // -------------------------
         Element classElement = new Element(TagNames.Elements.CLASS);
         classElement.setText(ex.getClass().getName());
-        exceptionElement.addContent(classElement);
+		exceptionElement.addContent(classElement);
 
-        return exceptionElement;
-    }
+		// ------------------------------
+		// Add the StackTrace element ...
+		// ------------------------------
+		StringWriter sw = new StringWriter();
+		ex.printStackTrace(new PrintWriter(sw));
+
+		Element stackTraceElement = new Element(TagNames.Elements.STACK_TRACE);
+		stackTraceElement.setText(sw.toString());
+		exceptionElement.addContent(stackTraceElement);
+
+		return exceptionElement;
+	}
+
+	/**
+	 * Fills expected-result XML data element with specified String value. The method will take care about possible
+	 * unprintable characters.
+	 * @param data string to save
+	 * @param element XML element
+	 */
+	private static void fillDataElement(String data, Element element) {
+		try {
+			element.setText(data);
+		} catch (IllegalDataException e) {
+			element.setAttribute(TagNames.Attributes.UNPRINTABALE, TagNames.Values.TRUE);
+			element.setAttribute(TagNames.Attributes.HEXVALUE, StringHelper.encodeHex(data));
+		}
+	}
+
+	/**
+	 * Parses expected-result XML data element. The method may load and convert unprintable hexadecimal value.
+	 * @param element XML element to read
+	 * @return read string
+	 */
+	private static String parseDataElement(Element element) {
+		if (TagNames.Values.TRUE.equals(element.getAttributeValue(TagNames.Attributes.UNPRINTABALE))) {
+			String hexValue = element.getAttributeValue(TagNames.Attributes.HEXVALUE);
+			if (hexValue == null) {
+				hexValue = "";
+			}
+			return StringHelper.decodeHex(hexValue);
+		}
+
+		return element.getText();
+	}
 
     /**
      * Consume an XML message and update the specified QueryResults instance.
@@ -857,7 +901,7 @@ public class XMLQueryVisitationStrategy {
         // Process the element ...
         // -----------------------
 
-        return cellElement.getText();
+    	return parseDataElement(cellElement);
     }
 
     /**
@@ -875,13 +919,14 @@ public class XMLQueryVisitationStrategy {
         // -----------------------
         Character result;
         try {
-            if ( cellElement.getTextTrim().length() == 0 ) {
-                return null;
-            }
-            result = new Character(cellElement.getTextTrim().charAt(0));
+			String content = parseDataElement(cellElement);
+			if (content.length() == 0) {
+				return null;
+			}
+			result = new Character(content.charAt(0));
         } catch ( NumberFormatException e ) {
             throw new JDOMException("Unable to parse the value for " + cellElement.getName() + //$NON-NLS-1$
-                                    " element: " + cellElement.getTextTrim(), e); //$NON-NLS-1$
+                                    " element: " + cellElement.getText(), e); //$NON-NLS-1$
         }
         return result;
     }
@@ -979,7 +1024,7 @@ public class XMLQueryVisitationStrategy {
 //        }
 //        return result;
         
-    	return cellElement.getText();
+    	return parseDataElement(cellElement);
         // ----------------------
         // Create the Object element ...
         // ----------------------
@@ -1434,7 +1479,7 @@ public class XMLQueryVisitationStrategy {
         	result = object.toString();
         }
         
-        objectElement.setText(result);
+        fillDataElement(result, objectElement);
 
     
         if ( parent != null ) {
@@ -1453,12 +1498,11 @@ public class XMLQueryVisitationStrategy {
      * @exception JDOMException if there is an error producing the message.
      */
     private Element produceMsg(String object, Element parent) throws JDOMException {
-
         // ----------------------
         // Create the String element ...
         // ----------------------
         Element stringElement = new Element(TagNames.Elements.STRING);
-        stringElement.setText(object);
+        fillDataElement(object, stringElement);
         if ( parent != null ) {
             stringElement = parent.addContent(stringElement);
         }
@@ -1480,15 +1524,10 @@ public class XMLQueryVisitationStrategy {
         // Create the Character element ...
         // ----------------------
         Element charElement = new Element(TagNames.Elements.CHAR);
-               
-        String v = object.toString();
-        if (v != null && v.length() != 0) {
-            
-	    String toReplace = new String( new Character( (char)0x0).toString() );
-	    v.replaceAll(toReplace," ");
-	    charElement.setText(v.trim());
 
-        }
+		String content = object.toString();
+		fillDataElement(content, charElement);
+
         if ( parent != null ) {
             charElement = parent.addContent(charElement);
         }
@@ -1804,7 +1843,7 @@ public class XMLQueryVisitationStrategy {
         // ---------------------------
         Element messageElement = new Element(TagNames.Elements.MESSAGE);
         
-        messageElement.setText(StringUtils.remove(ExceptionUtil.getExceptionMessage(exception), '\r'));
+        messageElement.setText(StringUtils.remove(exception.getMessage(), '\r'));
          
         exceptionElement.addContent(messageElement);
 

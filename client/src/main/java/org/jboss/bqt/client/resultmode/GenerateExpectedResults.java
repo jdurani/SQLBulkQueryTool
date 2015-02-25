@@ -21,6 +21,7 @@
  */
 package org.jboss.bqt.client.resultmode;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -78,9 +79,11 @@ public class GenerateExpectedResults extends QueryScenario {
 		 for (ExpectedResultsWriter writer : resultsWriters) {
 			 try {
 				 writer.generateExpectedResultFile(testCase, transaction);
-				} catch (FrameworkException fe) {					
-					this.getErrorWriter().generateErrorFile(testCase.getTestResult(), fe);
-				}
+			} catch (FrameworkException fe) {
+				ArrayList<Throwable> failures = new ArrayList<Throwable>(1);
+				failures.add(fe);
+				getErrorWriter().generateErrorFile(testCase.getTestResult(), failures);
+			}
 
 		 }
 	

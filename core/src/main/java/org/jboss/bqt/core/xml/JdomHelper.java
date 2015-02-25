@@ -48,6 +48,7 @@ import org.jdom.ProcessingInstruction;
 import org.jdom.Text;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
+import org.jdom.output.Format.TextMode;
 import org.jdom.output.XMLOutputter;
 
 public class JdomHelper {
@@ -1209,6 +1210,7 @@ public class JdomHelper {
 
 	public static Format getFormat(String indent, boolean newlines) {
 		Format format = Format.getPrettyFormat();
+		format.setTextMode(TextMode.TRIM_FULL_WHITE);
 		format.setIndent(indent);
 		if (newlines) {
 			format.setLineSeparator("\n"); //$NON-NLS-1$

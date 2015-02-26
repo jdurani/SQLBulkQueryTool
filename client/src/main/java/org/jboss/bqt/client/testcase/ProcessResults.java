@@ -105,10 +105,8 @@ public class ProcessResults implements TestCaseLifeCycle {
 		
 		//Get number of queries
 		int numOfQueries = 0;
-		if(timeForOneQuery > 0){
-			for(String qsid : scenario.getQuerySetIDs()){
-				numOfQueries += scenario.getQueries(qsid).size();
-			}
+		for(String qsid : scenario.getQuerySetIDs()){
+			numOfQueries += scenario.getQueries(qsid).size();
 		}
 		//------- end scenario limit -------
 		Iterator<String> qsetIt = scenario.getQuerySetIDs().iterator();
@@ -152,7 +150,7 @@ public class ProcessResults implements TestCaseLifeCycle {
 						abQuery.before(testcase);
 
 						if(expectedEndTime >=0 
-								&& expectedEndTime < System.currentTimeMillis()){ //TODO - test it
+								&& expectedEndTime < System.currentTimeMillis()){
 							next = false;
 							throw new FrameworkRuntimeException(FrameworkException.ErrorCodes.SCENARIO_ABORTED,
 									"Scenario aborted - maximum time exceeded.");

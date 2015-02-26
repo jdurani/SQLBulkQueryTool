@@ -29,11 +29,15 @@ public abstract class LogFactory {
 
     static {
         try {
-            loadClassStrict("org.apache.logging.log4j.core.Logger");
+            loadClassStrict("org.apache.logging.log4j.core.Logger"); //log4j 2.1
             LOGFACTORY = new SLF4JLoggerFactory();
-
         } catch (ClassNotFoundException cnfe) {
-            LOGFACTORY = new JdkLoggerFactory();
+        	try{
+        		loadClassStrict("org.apache.log4j.Logger"); //log4j 1.2.x
+        		LOGFACTORY = new SLF4JLoggerFactory();
+        	} catch (ClassNotFoundException ex){
+        		LOGFACTORY = new JdkLoggerFactory();
+        	}
         }
     }
     

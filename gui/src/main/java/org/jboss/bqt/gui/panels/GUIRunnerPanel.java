@@ -583,6 +583,7 @@ public class GUIRunnerPanel extends JPanel {
 		
 		@Override
 		protected void done() {
+			GUIAppender.clearOutputStream();
 			runningInstance = null;
 			try{
 				LOGGER.debug("Checking result.");

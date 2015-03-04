@@ -1854,6 +1854,16 @@ public class XMLQueryVisitationStrategy {
         classElement.setText(exception.getClass().getName());
         exceptionElement.addContent(classElement);
 
+		// ------------------------------
+		// Add the StackTrace element ...
+		// ------------------------------
+		StringWriter sw = new StringWriter();
+		object.printStackTrace(new PrintWriter(sw));
+
+		Element stackTraceElement = new Element(TagNames.Elements.STACK_TRACE);
+		stackTraceElement.setText(sw.toString());
+		exceptionElement.addContent(stackTraceElement);
+
         if ( parent != null ) {
             exceptionElement = parent.addContent(exceptionElement);
         }

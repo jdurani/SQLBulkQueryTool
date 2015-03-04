@@ -434,7 +434,7 @@ public class XMLQueryVisitationStrategy {
         // ---------------------------
 
 		Element messageElement = new Element(TagNames.Elements.MESSAGE);
-		messageElement.setText(ex.getMessage());
+		messageElement.setText(ExceptionUtil.getExceptionMessage(ex));
 		exceptionElement.addContent(messageElement);
 
         // -------------------------
@@ -1843,7 +1843,7 @@ public class XMLQueryVisitationStrategy {
         // ---------------------------
         Element messageElement = new Element(TagNames.Elements.MESSAGE);
         
-        messageElement.setText(StringUtils.remove(exception.getMessage(), '\r'));
+        messageElement.setText(StringUtils.remove(ExceptionUtil.getExceptionMessage(exception), '\r'));
          
         exceptionElement.addContent(messageElement);
 

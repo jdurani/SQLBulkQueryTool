@@ -50,6 +50,7 @@ import org.jboss.bqt.client.xml.TagNames.Elements;
 import org.jboss.bqt.core.exception.FrameworkRuntimeException;
 import org.jboss.bqt.core.exception.MultiTestFailedException;
 import org.jboss.bqt.core.exception.QueryTestFailedException;
+import org.jboss.bqt.core.util.ExceptionUtil;
 import org.jboss.bqt.core.util.ObjectConverterUtil;
 import org.jboss.bqt.framework.ConfigPropertyLoader;
 import org.jboss.bqt.framework.ConfigPropertyNames;
@@ -204,7 +205,7 @@ public class XMLCompareResults {
 		actualResults.setExceptionClassName(actualException.getClass()
 				.getName());
 		
-		actualResults.setExceptionMsg(actualException.getMessage());
+		actualResults.setExceptionMsg(ExceptionUtil.getExceptionMessage(actualException));
 		
 		return actualResults;
 	}

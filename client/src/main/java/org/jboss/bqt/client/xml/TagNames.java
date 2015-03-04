@@ -106,8 +106,8 @@ public final class TagNames {
 		public static final String EXCEPTION_TYPE = "exceptionType"; //$NON-NLS-1$
 		public static final String STACK_TRACE = "stackTrace"; //$NON-NLS-1$
 		public static final String MESSAGE = "message"; //$NON-NLS-1$
-		public static final String MESSAGE_CONTAINS = "messageContains"; //$NON-NLS-1$
-		public static final String MESSAGE_STARTSWITH = "messageStartswith"; //$NON-NLS-1$
+		public static final String MESSAGE_CONTAINS = "message-contains"; //$NON-NLS-1$
+		public static final String MESSAGE_STARTSWITH = "message-startswith"; //$NON-NLS-1$
 		public static final String MESSAGE_REGEX = "messageRegex"; //$NON-NLS-1$
 		public static final String DATA_ELEMENT = "dataElement"; //$NON-NLS-1$
 		public static final String QUERY_RESULTS = "queryResults"; //$NON-NLS-1$

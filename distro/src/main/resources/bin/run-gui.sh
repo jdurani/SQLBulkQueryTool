@@ -5,14 +5,12 @@ ROOTDIR=`cd "$DIRNAME/.."; pwd`
 
 DEF_PATHS=${1}
 
-if [ "x${DEF_PATHS}" == "x" ]; then
-  DEF_PATHS="gui-defaults.properties"
-fi
+DEF_PATHS="gui-defaults.properties"
 
-CP="${ROOTDIR}:${ROOTDIR}/config/*:${ROOTDIR}/lib/bqt-qui*:${ROOTDIR}/lib/*"
+CP="${ROOTDIR}:${ROOTDIR}/config/*:${ROOTDIR}/lib/*"
 
 ARGS="-Dlog4j.configurationFile=${ROOTDIR}/config/log4j2-gui.xml"
-ARGS="${ARGS} -Dbqt.gui.default.paths=${DEF_PATHS}"
+ARGS="${ARGS} -Dbqt.gui.default.paths=${ROOTDIR}/config/${DEF_PATHS}"
 
 echo "CP=${CP}"
 

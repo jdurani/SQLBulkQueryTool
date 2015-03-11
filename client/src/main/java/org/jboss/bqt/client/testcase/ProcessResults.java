@@ -273,7 +273,7 @@ public class ProcessResults implements TestCaseLifeCycle {
 					+ test.getQueryID() + "ResultMode: " + (resultModeNone ? "NONE" : scenario.getResultsMode()) + ", numtimes: " +
 					qsql.getRunTimes() + " rowcount: "  + qsql.getRowCnt() + " updatecnt: " + 
 					qsql.getUpdateCnt());
-						
+			ClientPlugin.LOGGER.info("Query: {}", testResult.getQuery());
 			for (int r = 0; r < qsql.getRunTimes(); r++) {
 
 				abQuery.execute(testResult.getQuery(), qsql.getParms(), qsql.getPayLoad());

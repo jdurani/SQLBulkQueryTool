@@ -66,10 +66,10 @@ public class MainPanel extends JPanel {
 		gl.setAutoCreateGaps(true);
 		gl.setHorizontalGroup(gl.createSequentialGroup()
 				.addComponent(menuPanel)
-				.addComponent(actualPane, 400, 800, 1000));
+				.addComponent(actualPane, 400, 800, 2000));
 		gl.setVerticalGroup(gl.createParallelGroup()
 				.addComponent(menuPanel)
-				.addComponent(actualPane, 300, 600, 800));
+				.addComponent(actualPane, 300, 800, 2000));
 		setLayout(gl);
 	}
 	
@@ -154,7 +154,7 @@ public class MainPanel extends JPanel {
 	 * @param view the view for JScrollPane
 	 * @return
 	 */
-	private JScrollPane getScrollPane(JPanel view){
+	public static JScrollPane getScrollPane(JPanel view){
 		JScrollPane pane = new JScrollPane(view);
 		pane.getVerticalScrollBar().setUnitIncrement(10);
 		pane.getHorizontalScrollBar().setUnitIncrement(10);

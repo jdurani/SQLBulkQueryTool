@@ -18,6 +18,7 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
 import org.jboss.bqt.gui.panels.GUIRunnerPanel;
+import org.jboss.bqt.gui.panels.MainPanel;
 
 /**
  * This frame shows log of running BQT.
@@ -75,7 +76,7 @@ public class BQTLogFrame extends JFrame {
 		JPanel logPanePanel = new JPanel(new BorderLayout());
 		logPanePanel.add(logPane);
 		initStyles();
-		JScrollPane pane = new JScrollPane(logPanePanel);
+		JScrollPane pane = MainPanel.getScrollPane(logPanePanel);
 
 		statusLabel = new JLabel("           ");
 		
@@ -200,6 +201,7 @@ public class BQTLogFrame extends JFrame {
 			} catch (BadLocationException e) {
 				e.printStackTrace();
 			}
+			logPane.getCaret().setDot(doc.getLength());
 		}
 
 		@Override
@@ -209,6 +211,7 @@ public class BQTLogFrame extends JFrame {
 			} catch (BadLocationException e) {
 				e.printStackTrace();
 			}
+			logPane.getCaret().setDot(doc.getLength());
 		}
 	}
 

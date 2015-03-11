@@ -283,7 +283,7 @@ public class GUIRunnerPanel extends JPanel {
 				.addComponent(cancelButton)));
 		
 		gl.linkSize(host, port, userName, password);
-		gl.linkSize(SwingConstants.VERTICAL, logDir, scenarios, outputDir, config, artifactsDir);
+		gl.linkSize(SwingConstants.VERTICAL, logDir, scenarios, outputDir, config, artifactsDir, include, exclude);
 		setLayout(gl);
 		initDefaultPaths();
 	}
@@ -364,7 +364,7 @@ public class GUIRunnerPanel extends JPanel {
 		scenariosBrowseButton = getBrowseButton(JFileChooser.FILES_AND_DIRECTORIES, scenarios);
 		
 		outputDir = new JTextField();
-		outputDirLabel = new JLabel("Output direcotry");
+		outputDirLabel = new JLabel("Output directory");
 		outputDirBrowseButton = getBrowseButton(JFileChooser.DIRECTORIES_ONLY, outputDir);
 		
 		config = new JTextField();
@@ -372,7 +372,7 @@ public class GUIRunnerPanel extends JPanel {
 		configBrowseButton = getBrowseButton(JFileChooser.FILES_ONLY, config);
 		
 		artifactsDir = new JTextField();
-		artifactsDirLabel = new JLabel("Artifacts direcotry");
+		artifactsDirLabel = new JLabel("Artifacts directory");
 		artifactsDirBrowseButton = getBrowseButton(JFileChooser.DIRECTORIES_ONLY, artifactsDir);
 	}
 	
@@ -381,7 +381,7 @@ public class GUIRunnerPanel extends JPanel {
 	 */
 	private void initLogDir(){
 		logDir = new JTextField();
-		logDirLabel = new JLabel("Log direcotry");
+		logDirLabel = new JLabel("Log directory");
 		logDirBrowseButton = getBrowseButton(JFileChooser.DIRECTORIES_ONLY, logDir);
 	}
 	
@@ -577,7 +577,7 @@ public class GUIRunnerPanel extends JPanel {
 			GUIAppender.setOutputStream(logFrame.getLogAreaStream());
 			new TestClient().runTest(props);
 			GUIAppender.clearOutputStream();
-			LOGGER.debug("BQT ends.");
+			LOGGER.debug("BQT ended.");
 			return null;
 		}
 		

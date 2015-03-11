@@ -16,7 +16,7 @@ set CP=%DIRNAME%/lib/*;%DIRNAME%/config/*
 
 
 ARGS=-Dlog4j.configurationFile=%DIRNNAME%\config\log4j2-gui.xml
-ARGS=%ARGS% -Dbqt.gui.default.paths=%DEF_PATHS%
+ARGS=%ARGS% -Dbqt.gui.default.paths=%DIRNNAME%\%DEF_PATHS%
 
 
 java -cp %CP% %ARGS% org.jboss.bqt.gui.GUIClient

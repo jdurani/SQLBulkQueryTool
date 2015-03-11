@@ -211,9 +211,9 @@ public abstract class AbstractQuery implements TransactionAPI {
 								
 			}
 
+			FrameworkPlugin.LOGGER.debug("Has result set: {}", result);
 			if (result) {
 				this.internalResultSet = this.internalStatement.getResultSet();
-				
 			} else {
 				
 				this.testCase.getTestResult().setRowCount(0);

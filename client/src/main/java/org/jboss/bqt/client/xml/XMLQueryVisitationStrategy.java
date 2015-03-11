@@ -308,14 +308,14 @@ public class XMLQueryVisitationStrategy {
                     expectedResults.setRows(queryResults.getRecords());
                 }
             } else {
-                //
-                // We've got an exception
-                //
-                expectedResults = new ExpectedResultsHolder( TagNames.Elements.EXCEPTION,  test );
-                expectedResults.setQuery(query);
-
                 final Element exceptionElement = resultElement.getChild(TagNames.Elements.EXCEPTION);
                 if ( exceptionElement != null ) {
+                	//
+                    // We've got an exception
+                    //
+                    expectedResults = new ExpectedResultsHolder( TagNames.Elements.EXCEPTION,  test );
+                    expectedResults.setQuery(query);
+                    
                     expectedResults.setExceptionClassName(exceptionElement.getChild(TagNames.Elements.CLASS).getTextTrim());
                     String msg = null;
                     if (exceptionElement.getChild(TagNames.Elements.MESSAGE) != null) {
@@ -332,6 +332,12 @@ public class XMLQueryVisitationStrategy {
 					}
 
                     expectedResults.setExceptionMsg(StringUtils.remove(msg, '\r'));
+                } else {
+                	//
+                	// No result.
+                	//
+                	expectedResults = new ExpectedResultsHolder( TagNames.Elements.QUERY_RESULTS,  test );
+                    expectedResults.setQuery(query);
                 }
             }
         }

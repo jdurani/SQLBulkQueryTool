@@ -10,6 +10,7 @@ import javax.swing.GroupLayout.Alignment;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.text.BadLocationException;
@@ -45,6 +46,7 @@ public class BQTLogFrame extends JFrame {
 	private static final Color ERROR_COLOR = FAILED_COLOR;
 	
 	private JTextPane logPane;
+	private JScrollPane logScrollPane;
 	private StyledDocument doc;
 	private JLabel statusLabel;
 	private Status actualStataus = Status.DONE;
@@ -76,8 +78,7 @@ public class BQTLogFrame extends JFrame {
 		JPanel logPanePanel = new JPanel(new BorderLayout());
 		logPanePanel.add(logPane);
 		initStyles();
-		JScrollPane pane = MainPanel.getScrollPane(logPanePanel);
-
+		logScrollPane = MainPanel.getScrollPane(logPanePanel);
 		statusLabel = new JLabel("           ");
 		
 		JPanel panel = new JPanel();
@@ -88,12 +89,12 @@ public class BQTLogFrame extends JFrame {
 		gl.setHorizontalGroup(gl.createSequentialGroup()
 			.addGap(10, 10 ,10)
 			.addGroup(gl.createParallelGroup(Alignment.CENTER, true)
-				.addComponent(pane, 800, 800, 2000)
+				.addComponent(logScrollPane, 800, 800, 2000)
 				.addComponent(statusLabel, 100, 100, 100))
 			.addGap(10, 10, 10));
 		gl.setVerticalGroup(gl.createParallelGroup(Alignment.CENTER, true)
 			.addGroup(gl.createSequentialGroup()
-				.addComponent(pane, 600, 600, 2000)
+				.addComponent(logScrollPane, 600, 600, 2000)
 				.addComponent(statusLabel, 30, 30, 30)));
 
 		panel.setLayout(gl);
@@ -181,7 +182,7 @@ public class BQTLogFrame extends JFrame {
 	 *
 	 */
 	private class JTextPaneOutputStream extends OutputStream {
-
+		
 		public void write(byte b[], int off, int len) throws IOException {
 			if (b == null) {
 				throw new NullPointerException();
@@ -201,7 +202,7 @@ public class BQTLogFrame extends JFrame {
 			} catch (BadLocationException e) {
 				e.printStackTrace();
 			}
-			logPane.getCaret().setDot(doc.getLength());
+			setScrollbar();
 		}
 
 		@Override
@@ -211,8 +212,28 @@ public class BQTLogFrame extends JFrame {
 			} catch (BadLocationException e) {
 				e.printStackTrace();
 			}
-			logPane.getCaret().setDot(doc.getLength());
+			setScrollbar();
+		}
+		
+		private void setScrollbar(){
+			JScrollBar vb = logScrollPane.getVerticalScrollBar();
+			int extent = vb.getModel().getExtent();
+			int max = vb.getMaximum();
+			int pos = vb.getValue() + extent;
+			boolean atEnd = pos + 30 >= max;
+			if(atEnd){
+				vb.setValue(max - extent);
+			}
 		}
 	}
 
 }
+
+
+
+
+
+
+
+
+

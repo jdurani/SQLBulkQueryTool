@@ -40,7 +40,7 @@ import org.jboss.bqt.framework.AbstractQuery;
 import org.jboss.bqt.framework.ActualTest;
 import org.jboss.bqt.framework.TestCase;
 import org.jboss.bqt.framework.TransactionAPI;
-import org.jdom.JDOMException;
+import org.jdom2.JDOMException;
 import org.teiid.core.util.ArgCheck;
 
 public class XMLExpectedResultsReader extends ExpectedResultsReader {

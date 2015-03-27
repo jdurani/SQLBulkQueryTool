@@ -50,13 +50,13 @@ import org.jboss.bqt.framework.AbstractQuery;
 import org.jboss.bqt.framework.TestCase;
 import org.jboss.bqt.framework.TestResult;
 import org.jboss.bqt.framework.TransactionAPI;
-import org.jdom.Attribute;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.IllegalDataException;
-import org.jdom.JDOMException;
-import org.jdom.input.JDOMParseException;
-import org.jdom.output.XMLOutputter;
+import org.jdom2.Attribute;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.IllegalDataException;
+import org.jdom2.JDOMException;
+import org.jdom2.input.JDOMParseException;
+import org.jdom2.output.XMLOutputter;
 
 /**
  * @author vhalbert

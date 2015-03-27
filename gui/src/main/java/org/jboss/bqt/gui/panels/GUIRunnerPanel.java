@@ -1,5 +1,7 @@
 package org.jboss.bqt.gui.panels;
 
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -15,17 +17,19 @@ import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.JTextPane;
 import javax.swing.SwingConstants;
 import javax.swing.SwingWorker;
+import javax.swing.ToolTipManager;
 
 import org.jboss.bqt.client.TestClient;
-import org.jboss.bqt.gui.BQTLogFrame;
-import org.jboss.bqt.gui.BQTLogFrame.Status;
 import org.jboss.bqt.gui.appender.GUIAppender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +58,6 @@ public class GUIRunnerPanel extends JPanel {
 		static final String USER_NAME_PROP= "bqt.gui.default.username";
 		static final String PASSWORD_PROP = "bqt.gui.default.password";
 		
-		static final String LOG_DIR_PROP = "bqt.gui.default.log.dir";
 		static final String SCENARIOS_DIR_PROP = "bqt.gui.default.scenarios.dir";
 		static final String OUTPUT_DIR_PROP = "bqt.gui.default.output.dir";
 		static final String CONFIG_PROP = "bqt.gui.default.config";
@@ -69,7 +72,6 @@ public class GUIRunnerPanel extends JPanel {
 		static final String USER_NAME= "user";
 		static final String PASSWORD = "user";
 		
-		static final String LOG_DIR = "";
 		static final String SCENARIOS_DIR = "";
 		static final String OUTPUT_DIR = "";
 		static final String CONFIG = "";
@@ -94,7 +96,6 @@ public class GUIRunnerPanel extends JPanel {
 		public static final String USERNAME_PROP = "username";
 		public static final String PASSWORD_PROP = "password";
 		public static final String SUPPORT_OLD_PROP_FORMAT_PROP= "support.pre1.0.scenario";
-		public static final String LOG_DIR= "log.dir";
 		
 		//include exclude options
 		public static final String INCLUDE_PROP = "bqt.scenario.include";
@@ -120,10 +121,6 @@ public class GUIRunnerPanel extends JPanel {
 	private JTextField port;
 	private JLabel portLabel;
 	
-	private JTextField logDir;
-	private JLabel logDirLabel;
-	private JButton logDirBrowseButton;
-	
 	private JTextField scenarios;
 	private JLabel scenariosLabel;
 	private JButton scenariosBrowseButton;
@@ -148,7 +145,12 @@ public class GUIRunnerPanel extends JPanel {
 	private JButton cancelButton;
 	
 	private BQTRunner runningInstance;
-	private BQTLogFrame logFrame = null;
+	
+	private JTextPane bqtLogPane;
+	private JScrollPane bqtLogScrollPane;
+	
+	private JLabel status;
+	private JLabel statusLabel;
 	
 	/**
 	 * Creates a new instance.
@@ -164,11 +166,12 @@ public class GUIRunnerPanel extends JPanel {
 	private void init(){
 		initResultModes();
 		initConnectionProperties();
-		initLogDir();
 		initBqtConfig();
 		initIncludeExclude();
 		initPre1Support();
 		initOptionButtons();
+		initBqtLogPane();
+		initStatusLabel();
 		
 		GroupLayout gl = new GroupLayout(this);
 		gl.setAutoCreateContainerGaps(true);
@@ -189,11 +192,6 @@ public class GUIRunnerPanel extends JPanel {
 					.addGroup(gl.createParallelGroup()
 						.addComponent(portLabel)
 						.addComponent(port))))
-			.addGroup(gl.createParallelGroup()
-				.addComponent(logDirLabel)
-				.addGroup(gl.createSequentialGroup()
-					.addComponent(logDir)
-					.addComponent(logDirBrowseButton)))
 			.addGroup(gl.createSequentialGroup()
 				.addComponent(resultModesLabel)
 				.addComponent(resultModes, 120, 120, 120))
@@ -226,7 +224,10 @@ public class GUIRunnerPanel extends JPanel {
 			.addComponent(pre1Supported)
 			.addGroup(gl.createSequentialGroup()
 				.addComponent(startButton)
-				.addComponent(cancelButton)));
+				.addComponent(cancelButton)
+				.addComponent(statusLabel)
+				.addComponent(status))
+			.addComponent(bqtLogScrollPane));
 		
 		int fieldHeight = 25;
 		int groupsGap = 25;
@@ -243,11 +244,6 @@ public class GUIRunnerPanel extends JPanel {
 					.addComponent(portLabel)
 					.addComponent(port)))
 			.addGroup(gl.createSequentialGroup()
-				.addGap(groupsGap)
-				.addComponent(logDirLabel)
-				.addGroup(gl.createParallelGroup()
-					.addComponent(logDir, fieldHeight, fieldHeight, fieldHeight)
-					.addComponent(logDirBrowseButton))
 				.addGap(groupsGap)
 				.addGroup(gl.createParallelGroup()
 					.addComponent(resultModesLabel)
@@ -280,12 +276,32 @@ public class GUIRunnerPanel extends JPanel {
 			.addGap(groupsGap)
 			.addGroup(gl.createParallelGroup(Alignment.CENTER)
 				.addComponent(startButton)
-				.addComponent(cancelButton)));
+				.addComponent(cancelButton)
+				.addComponent(statusLabel)
+				.addComponent(status))
+			.addComponent(bqtLogScrollPane));
 		
 		gl.linkSize(host, port, userName, password);
-		gl.linkSize(SwingConstants.VERTICAL, logDir, scenarios, outputDir, config, artifactsDir, include, exclude);
+		gl.linkSize(SwingConstants.VERTICAL, scenarios, outputDir, config, artifactsDir, include, exclude);
 		setLayout(gl);
 		initDefaultPaths();
+	}
+	
+	private static final void setToolTipText(JComponent component, String text){
+		component.setToolTipText(text);
+		ToolTipManager.sharedInstance().registerComponent(component);
+	}
+	
+	private void initStatusLabel(){
+		status = new JLabel("NOT RUNNING");
+		status.setFont(new Font("Arial", Font.BOLD, 20));
+		setToolTipText(status, "BQT status");
+		statusLabel = new JLabel("Status: ");
+	}
+	
+	private void initBqtLogPane(){
+		bqtLogPane = GUIAppender.getTextPane("BQT_GUI");
+		bqtLogScrollPane = new JScrollPane(bqtLogPane);
 	}
 	
 	/**
@@ -294,6 +310,9 @@ public class GUIRunnerPanel extends JPanel {
 	private void initIncludeExclude(){
 		include = new JTextField();
 		exclude = new JTextField();
+		
+		setToolTipText(include, "Include scenario pattern. Same as \"bqt.scenario.include\" property.");
+		setToolTipText(exclude, "Exclude scenario pattern. Same as \"bqt.scenario.exclude\" property.");
 		
 		includeLabel = new JLabel("Include scenarios");
 		excludeLabel = new JLabel("Exclude scenarios");
@@ -325,8 +344,6 @@ public class GUIRunnerPanel extends JPanel {
 		userName.setText(props.getProperty(GUIDefaults.USER_NAME_PROP, GUIDefaults.USER_NAME));
 		password.setText(props.getProperty(GUIDefaults.PASSWORD_PROP, GUIDefaults.PASSWORD));
 		
-		logDir.setText(props.getProperty(GUIDefaults.LOG_DIR_PROP, GUIDefaults.LOG_DIR));
-		
 		scenarios.setText(props.getProperty(GUIDefaults.SCENARIOS_DIR_PROP, GUIDefaults.SCENARIOS_DIR));
 		outputDir.setText(props.getProperty(GUIDefaults.OUTPUT_DIR_PROP, GUIDefaults.OUTPUT_DIR));
 		config.setText(props.getProperty(GUIDefaults.CONFIG_PROP, GUIDefaults.CONFIG));
@@ -341,10 +358,13 @@ public class GUIRunnerPanel extends JPanel {
 	 */
 	private void initOptionButtons(){
 		startButton = new JButton("Start");
-		startButton.addActionListener(new StartBQTActionListener(this));
+		startButton.addActionListener(new StartBQTActionListener());
 		
 		cancelButton = new JButton("Cancel");
 		cancelButton.addActionListener(new CancelBQTActionListener());
+		
+		setToolTipText(startButton, "Start BQT task.");
+		setToolTipText(cancelButton, "Cancel BQT task.");
 	}
 	
 	/**
@@ -353,6 +373,8 @@ public class GUIRunnerPanel extends JPanel {
 	private void initPre1Support(){
 		pre1Supported = new JCheckBox("Support old names");
 		pre1Supported.setSelected(true);
+		
+		setToolTipText(pre1Supported, "If old names of BQT properties are supported. Same as \"support.pre1.0.scenario\" property.");
 	}
 	
 	/**
@@ -374,15 +396,12 @@ public class GUIRunnerPanel extends JPanel {
 		artifactsDir = new JTextField();
 		artifactsDirLabel = new JLabel("Artifacts directory");
 		artifactsDirBrowseButton = getBrowseButton(JFileChooser.DIRECTORIES_ONLY, artifactsDir);
-	}
-	
-	/**
-	 * Initializes log-dir related part of this panel. 
-	 */
-	private void initLogDir(){
-		logDir = new JTextField();
-		logDirLabel = new JLabel("Log directory");
-		logDirBrowseButton = getBrowseButton(JFileChooser.DIRECTORIES_ONLY, logDir);
+		
+		setToolTipText(scenarios, "Path to scenario file. It could be a single file or a directory. Same as \"scenario.file\" property.");
+		setToolTipText(outputDir, "Path to output directory. Same as \"output.dir\" property.");
+		setToolTipText(config, "Path to default config file. Usually <bqt-distro-path>/config/test.properties. Same as \"config\" property.");
+		setToolTipText(artifactsDir, "Path to queries and expected results. "
+				+ "Usually <dataservices-path>/<test-artifacts-dir>/ctc-tests/queries. Same as \"queryset.artifacts.dir\" property.");
 	}
 	
 	/**
@@ -415,6 +434,11 @@ public class GUIRunnerPanel extends JPanel {
 		passwordLabel = new JLabel("Password");
 		hostLabel = new JLabel("Host");
 		portLabel = new JLabel("Port");
+		
+		setToolTipText(userName, "User name for JDV server. Same as \"username\" property.");
+		setToolTipText(password, "Password for JDV server. Same as \"password\" property.");
+		setToolTipText(host, "Host name of JDV server. Same as \"host.name\" property.");
+		setToolTipText(port, "Port of JDV server. Same as \"host.port\" property.");
 	}
 	
 	/**
@@ -429,6 +453,8 @@ public class GUIRunnerPanel extends JPanel {
 		
 		resultModes.setSelectedItem(BQTProperties.RESULT_MODE_COMPARE);
 		
+		setToolTipText(resultModes, "Result mode. Same as \"result.mode\" property.");
+		
 		resultModesLabel = new JLabel("Result mode");
 	}
 	
@@ -442,9 +468,6 @@ public class GUIRunnerPanel extends JPanel {
 	 */
 	public boolean couldDispose(){
 		if(runningInstance == null){
-			if(logFrame != null){
-				logFrame.dispose();
-			}
 			return true;
 		}
 		return cancelActualJob(true);
@@ -470,9 +493,6 @@ public class GUIRunnerPanel extends JPanel {
 			if(runningInstance != null){
 				runningInstance.cancel(true);
 			}
-			if(disposeLogFrame && logFrame != null){
-				logFrame.dispose();
-			}
 			return true;
 		} else {
 			return false;
@@ -480,6 +500,17 @@ public class GUIRunnerPanel extends JPanel {
 		
 	}
 	
+	/**
+	 * Sets text and foreground color for status label.
+	 * @param statusText
+	 * @param bg
+	 */
+	private void setStatus(String statusText, Color bg) {
+		status.setText(statusText);
+		status.setForeground(bg);
+		status.repaint();
+	}
+
 	/**
 	 * Action for the Browse button.
 	 * @author jdurani
@@ -518,18 +549,12 @@ public class GUIRunnerPanel extends JPanel {
 	 */
 	private class StartBQTActionListener implements ActionListener {
 		
-		private final GUIRunnerPanel panel;
-		
-		private StartBQTActionListener(GUIRunnerPanel panel) {
-			this.panel = panel;
-		}
-		
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			if(runningInstance != null){
 				JOptionPane.showMessageDialog(null, "BQT already running!", "BQT running", JOptionPane.ERROR_MESSAGE);
 			} else {
-				runningInstance = new BQTRunner(panel);
+				runningInstance = new BQTRunner();
 				runningInstance.execute();
 			}
 		}
@@ -558,54 +583,45 @@ public class GUIRunnerPanel extends JPanel {
 	 */
 	private class BQTRunner extends SwingWorker<Void, Void> {
 		
-		private final GUIRunnerPanel panel;
-		
-		private BQTRunner(GUIRunnerPanel panel) {
-			this.panel = panel;
-		}
 		
 		@Override
 		protected Void doInBackground() throws Exception {
-			if(logFrame != null){
-				logFrame.dispose();
-			}
-			logFrame = new BQTLogFrame(panel);
-			logFrame.setVisible(true);
 			Properties props = getProperties();
+			bqtLogPane.setText("");
 			LOGGER.info("Starting BQT with properties: {}.",props);
-			logFrame.setStatus(Status.IN_PROGRESS);
-			GUIAppender.setOutputStream(logFrame.getLogAreaStream());
+			setStatus("IN PROGRESS", Color.ORANGE); 
 			new TestClient().runTest(props);
-			GUIAppender.clearOutputStream();
 			LOGGER.debug("BQT ended.");
 			return null;
 		}
 		
 		@Override
 		protected void done() {
-			GUIAppender.clearOutputStream();
 			runningInstance = null;
 			try{
 				LOGGER.debug("Checking result.");
 				get();
-				logFrame.setStatus(Status.DONE);
+				setStatus("   DONE   ", Color.GREEN);
 				LOGGER.debug("Result OK.");
 			} catch (ExecutionException ex){
+				ex.printStackTrace();
 				LOGGER.warn("Task ends with an exception.", ex.getCause());
 				JOptionPane.showMessageDialog(null, "Task ends with an exception: " + ex.getCause().getMessage() + "."
 							+ System.getProperty("line.separator") + "See log for more details.",
 						"Error", JOptionPane.ERROR_MESSAGE);
-				logFrame.setStatus(Status.FAILED);
+				setStatus("  FAILED  ", Color.RED);
 			} catch (CancellationException ex){
+				ex.printStackTrace();
 				LOGGER.info("Task has been cancelled.", ex.getCause());
 				JOptionPane.showMessageDialog(null, "Task has been cancelled.",
 						"Cancelled", JOptionPane.WARNING_MESSAGE);
-				logFrame.setStatus(Status.FAILED);
+				setStatus("  FAILED  ", Color.RED);
 			} catch (InterruptedException ex){
+				ex.printStackTrace();
 				LOGGER.warn("Task has been interrupted.", ex);
 				JOptionPane.showMessageDialog(null, "Task has been interrupted. See log for more details.",
 						"Error", JOptionPane.ERROR_MESSAGE);
-				logFrame.setStatus(Status.FAILED);
+				setStatus("  FAILED  ", Color.RED);
 			}
 		}
 		
@@ -619,7 +635,6 @@ public class GUIRunnerPanel extends JPanel {
 			props.setProperty(BQTProperties.HOST_PORT_PROP, port.getText());
 			props.setProperty(BQTProperties.USERNAME_PROP, userName.getText());
 			props.setProperty(BQTProperties.PASSWORD_PROP, password.getText());
-			System.setProperty(BQTProperties.LOG_DIR, logDir.getText()); // we need it only for GUIAppender
 			props.setProperty(BQTProperties.SCENARIO_FILE_PROP, scenarios.getText());
 			props.setProperty(BQTProperties.RESULT_MODE_PROP, resultModes.getSelectedItem().toString());
 			props.setProperty(BQTProperties.QUERYSET_ARTIFACTS_DIR_PROP, artifactsDir.getText());

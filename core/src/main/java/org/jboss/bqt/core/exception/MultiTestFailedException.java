@@ -39,7 +39,7 @@ public class MultiTestFailedException extends QueryTestFailedException {
 	/**
 	 * Maximum number of failures saved (to prevent excessive memory and file sizes)
 	 */
-	private static final int savedFailuresLimit = 100;
+	private static final int savedFailuresLimit = 2000;
 
 	/**
 	 * Total number of failures, including those not enlisted.

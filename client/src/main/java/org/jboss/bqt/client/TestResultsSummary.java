@@ -55,7 +55,7 @@ public class TestResultsSummary {
 	private static final SimpleDateFormat FILE_NAME_DATE_FORMATER = new SimpleDateFormat(
 			"yyyyMMdd_HHmmss"); //$NON-NLS-1$
 
-	private static final String NL = System.getProperty("line.separator"); //$NON-NLS-1$
+//	private static final String NL = System.getProperty("line.separator"); //$NON-NLS-1$
 
 	// totals for scenario
 	private int total_queries = 0;
@@ -266,7 +266,7 @@ public class TestResultsSummary {
 
 	private void printQueryTests(PrintStream outputStream,
 			Date testStartTS, Date endTS, Date length, int numberOfClients,
-			SimpleDateFormat formatter, Collection results) {
+			SimpleDateFormat formatter, Collection<TestResult> results) {
 		outputStream.println("Query TestResult Results [" + this.scenario.getResultsMode() + "]"); //$NON-NLS-1$
 		outputStream.println("=================="); //$NON-NLS-1$
 		outputStream.println("Start        Time: " + testStartTS); //$NON-NLS-1$
@@ -286,9 +286,9 @@ public class TestResultsSummary {
 		outputStream
 				.println("Number Failed    : " + passFailGenMap.get(MAP_FAIL)); //$NON-NLS-1$ //$NON-NLS-2$
 
-		Iterator resultItr = results.iterator();
+		Iterator<TestResult> resultItr = results.iterator();
 		while (resultItr.hasNext()) {
-			TestResult stat = (TestResult) resultItr.next();
+			TestResult stat = resultItr.next();
 			writeQueryResult(outputStream, formatter, stat);
 		}
 
@@ -300,16 +300,16 @@ public class TestResultsSummary {
 	private static final String MAP_EXP_FAIL = "expfail";
 	
 
-	private static Map getPassFailGen(Collection results) {
+	private static Map<String, String> getPassFailGen(Collection<TestResult> results) {
 		Map<String, String> passFailGenMap = new HashMap<String, String>();
 		int queries = 0;
 		int pass = 0;
 		int fail = 0;
-		int gen = 0;
+//		int gen = 0;
 		int expected_fail = 0;
 
-		for (Iterator resultsItr = results.iterator(); resultsItr.hasNext();) {
-			TestResult stat = (TestResult) resultsItr.next();
+		for (Iterator<TestResult> resultsItr = results.iterator(); resultsItr.hasNext();) {
+			TestResult stat = resultsItr.next();
 			++queries;
 			switch (stat.getStatus()) {
 			case TestResult.RESULT_STATE.TEST_EXCEPTION:
@@ -332,7 +332,7 @@ public class TestResultsSummary {
 		return passFailGenMap;
 	}
 
-	private void addTotalPassFailGen(String scenario_name, Collection results,
+	private void addTotalPassFailGen(String scenario_name, Collection<TestResult> results,
 			Date testStartTSx, Date endTSx, Date lengthTime) {
 		int queries = 0;
 		int pass = 0;
@@ -346,8 +346,8 @@ public class TestResultsSummary {
 		String queryset = null;
 
 		total_querysets++;
-		for (Iterator resultsItr = results.iterator(); resultsItr.hasNext();) {
-			TestResult stat = (TestResult) resultsItr.next();
+		for (Iterator<TestResult> resultsItr = results.iterator(); resultsItr.hasNext();) {
+			TestResult stat = resultsItr.next();
 
 			if (queryset == null) {
 				queryset = stat.getQuerySetID();
@@ -595,7 +595,7 @@ public class TestResultsSummary {
 	private static void printOverallConnectionExceptionSummaryErrosHeadings(Writer overallsummary) {
 
 		try {
-			overallsummary.write("================== \n"); //$NON-NLS-1$ //TODO
+			overallsummary.write("================== \n"); //$NON-NLS-1$
 			overallsummary.write("TestResult Summary Connection Errors \n"); //$NON-NLS-1$
 			overallsummary.write("================== \n"); //$NON-NLS-1$
 
@@ -750,178 +750,178 @@ public class TestResultsSummary {
 		//+ "_Run-" + runNumber; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
-	private static void printHtmlQueryTests(PrintStream outputStream,
-			long testStartTS, long endTS, int numberOfClients,
-			SimpleDateFormat formatter, Collection results) {
+//	private static void printHtmlQueryTests(PrintStream outputStream,
+//			long testStartTS, long endTS, int numberOfClients,
+//			SimpleDateFormat formatter, Collection results) {
+//
+//		StringBuffer htmlCode = new StringBuffer("<html>").append(NL); //$NON-NLS-1$
+//		htmlCode.append("<HEAD>").append(NL); //$NON-NLS-1$
+//		htmlCode.append("<TITLE>Query TestResult Results</TITLE>").append(NL); //$NON-NLS-1$
+//		htmlCode.append("<STYLE TYPE=\"text/css\">").append(NL); //$NON-NLS-1$
+//		htmlCode.append(
+//				"td { font-family: \"New Century Schoolbook\", Times, serif  }").append(NL); //$NON-NLS-1$
+//		htmlCode.append("td { font-size: 8pt }").append(NL); //$NON-NLS-1$
+//		htmlCode.append("</STYLE>").append(NL); //$NON-NLS-1$
+//		htmlCode.append("<SCRIPT type=\"text/javascript\">").append(NL); //$NON-NLS-1$
+//		htmlCode.append("var scriptWin = null;").append(NL); //$NON-NLS-1$
+//		htmlCode.append("function show(msg){").append(NL); //$NON-NLS-1$
+//		//htmlCode.append("alert(msg);").append(nl);       //$NON-NLS-1$
+//		htmlCode.append("if (scriptWin == null || scriptWin.closed){").append(NL); //$NON-NLS-1$
+//		htmlCode.append(
+//				"scriptWin = window.open(\"\", \"script\", \"width=800,height=50,resizable\");").append(NL); //$NON-NLS-1$
+//		htmlCode.append("scriptWin.document.open(\"text/plain\");").append(NL); //$NON-NLS-1$
+//		htmlCode.append("}").append(NL); //$NON-NLS-1$
+//		htmlCode.append("scriptWin.focus();").append(NL); //$NON-NLS-1$
+//		htmlCode.append("msg = msg.replace(/#/g, '\"');").append(NL); //$NON-NLS-1$
+//		htmlCode.append("scriptWin.document.writeln(msg);").append(NL); //$NON-NLS-1$        
+//		htmlCode.append("}").append(NL); //$NON-NLS-1$        
+//		htmlCode.append("</SCRIPT>").append(NL); //$NON-NLS-1$        
+//		htmlCode.append("</HEAD>").append(NL); //$NON-NLS-1$
+//		htmlCode.append("<body>").append(NL); //$NON-NLS-1$
+//		htmlCode.append("<h1>Query TestResult Results</h1>").append(NL); //$NON-NLS-1$
+//		htmlCode.append("<table border=\"1\">").append(NL); //$NON-NLS-1$
+//
+//		addTableRow(htmlCode, "StartTime", new Date(testStartTS).toString()); //$NON-NLS-1$
+//		addTableRow(htmlCode, "EndTime", new Date(endTS).toString()); //$NON-NLS-1$
+//		addTableRow(htmlCode,
+//				"Elapsed Time", ((endTS - testStartTS) / 1000) + " seconds"); //$NON-NLS-1$ //$NON-NLS-2$
+//		addTableRow(htmlCode,
+//				"Number Of Clients", String.valueOf(numberOfClients)); //$NON-NLS-1$
+//
+//		Map passFailGenMap = getPassFailGen(results);
+//		addTableRow(htmlCode,
+//				"Number of Queries:", passFailGenMap.get("queries")); //$NON-NLS-1$ //$NON-NLS-2$
+//		addTableRow(htmlCode, "Number Passed    :", passFailGenMap.get("pass")); //$NON-NLS-1$ //$NON-NLS-2$
+//		addTableRow(htmlCode, "Number Failed    :", passFailGenMap.get("fail")); //$NON-NLS-1$ //$NON-NLS-2$
+//		//       addTableRow(htmlCode, "Number Generated :", passFailGenMap.get("gen")); //$NON-NLS-1$ //$NON-NLS-2$
+//
+//		ResponseTimes responseTimes = calcQueryResponseTimes(results);
+//		addTableRow(htmlCode, "QPS :", Double.toString(responseTimes.qps)); //$NON-NLS-1$ 
+//		//        addTableRow(htmlCode, "Ave First Resp   :", Double.toString(responseTimes.first)); //$NON-NLS-1$ 
+//		//        addTableRow(htmlCode, "Ave Full Resp    :", Double.toString(responseTimes.full)); //$NON-NLS-1$ 
+//
+//		htmlCode.append("</table> <p>").append(NL); //$NON-NLS-1$
+//		htmlCode.append("<table border=\"1\">").append(NL); //$NON-NLS-1$
+//
+//		// Add table headers
+//		htmlCode.append("<tr style=\"background: #C0C0C0 \">"); //$NON-NLS-1$
+//
+//		addTableData(htmlCode, "QueryId"); //$NON-NLS-1$
+//		addTableData(htmlCode, "Result"); //$NON-NLS-1$
+//		addTableData(htmlCode, "First Response"); //$NON-NLS-1$
+//		addTableData(htmlCode, "Total Seconds"); //$NON-NLS-1$
+//		addTableData(htmlCode, "Exception"); //$NON-NLS-1$
+//		addTableData(htmlCode, "Error File (if any)"); //$NON-NLS-1$
+//		htmlCode.append("</tr>").append(NL); //$NON-NLS-1$
+//
+//		Iterator resultItr = results.iterator();
+//		while (resultItr.hasNext()) {
+//			TestResult stat = (TestResult) resultItr.next();
+//			htmlCode.append("<tr>").append(NL); //$NON-NLS-1$            
+//			addTableDataLink(htmlCode, stat.getQueryID(),
+//					"show('" + scrub(stat.getQuery()) + "')"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+//			addTableData(htmlCode, stat.getResultStatusString(),
+//					"fail".equalsIgnoreCase(stat.getResultStatusString())); //$NON-NLS-1$
+//			addTableData(htmlCode, new Date(stat.getBeginTS()).toString());
+//
+//			// Long.toString(stat.getBeginTS()));
+//			addTableData(htmlCode,
+//					Long.toString((stat.getEndTS() - stat.getBeginTS() / 1000)));
+//			// Long.toString(stat.getEndTS()));
+//			if (stat.getStatus() == TestResult.RESULT_STATE.TEST_EXCEPTION) {
+//				addTableData(htmlCode, stat.getFailureMessage());
+//				if (stat.getErrorfile() != null
+//						&& !stat.getErrorfile().equals("null")) { //$NON-NLS-1$
+//					addTableDataLink(htmlCode, stat.getErrorfile(), ""); //$NON-NLS-1$ 
+//				} else {
+//					addTableData(htmlCode, ""); //$NON-NLS-1$
+//				}
+//			} else {
+//				addTableData(htmlCode, ""); //$NON-NLS-1$
+//				addTableData(htmlCode, ""); //$NON-NLS-1$                                
+//			}
+//			htmlCode.append("</tr>").append(NL); //$NON-NLS-1$
+//		}
+//		htmlCode.append("</table>").append(NL); //$NON-NLS-1$
+//		outputStream.print(htmlCode.toString());
+//	}
 
-		StringBuffer htmlCode = new StringBuffer("<html>").append(NL); //$NON-NLS-1$
-		htmlCode.append("<HEAD>").append(NL); //$NON-NLS-1$
-		htmlCode.append("<TITLE>Query TestResult Results</TITLE>").append(NL); //$NON-NLS-1$
-		htmlCode.append("<STYLE TYPE=\"text/css\">").append(NL); //$NON-NLS-1$
-		htmlCode.append(
-				"td { font-family: \"New Century Schoolbook\", Times, serif  }").append(NL); //$NON-NLS-1$
-		htmlCode.append("td { font-size: 8pt }").append(NL); //$NON-NLS-1$
-		htmlCode.append("</STYLE>").append(NL); //$NON-NLS-1$
-		htmlCode.append("<SCRIPT type=\"text/javascript\">").append(NL); //$NON-NLS-1$
-		htmlCode.append("var scriptWin = null;").append(NL); //$NON-NLS-1$
-		htmlCode.append("function show(msg){").append(NL); //$NON-NLS-1$
-		//htmlCode.append("alert(msg);").append(nl);       //$NON-NLS-1$
-		htmlCode.append("if (scriptWin == null || scriptWin.closed){").append(NL); //$NON-NLS-1$
-		htmlCode.append(
-				"scriptWin = window.open(\"\", \"script\", \"width=800,height=50,resizable\");").append(NL); //$NON-NLS-1$
-		htmlCode.append("scriptWin.document.open(\"text/plain\");").append(NL); //$NON-NLS-1$
-		htmlCode.append("}").append(NL); //$NON-NLS-1$
-		htmlCode.append("scriptWin.focus();").append(NL); //$NON-NLS-1$
-		htmlCode.append("msg = msg.replace(/#/g, '\"');").append(NL); //$NON-NLS-1$
-		htmlCode.append("scriptWin.document.writeln(msg);").append(NL); //$NON-NLS-1$        
-		htmlCode.append("}").append(NL); //$NON-NLS-1$        
-		htmlCode.append("</SCRIPT>").append(NL); //$NON-NLS-1$        
-		htmlCode.append("</HEAD>").append(NL); //$NON-NLS-1$
-		htmlCode.append("<body>").append(NL); //$NON-NLS-1$
-		htmlCode.append("<h1>Query TestResult Results</h1>").append(NL); //$NON-NLS-1$
-		htmlCode.append("<table border=\"1\">").append(NL); //$NON-NLS-1$
+//	private static void addTableRow(StringBuffer table, String column,
+//			Object msg) {
+//		table.append("<tr>").append(NL); //$NON-NLS-1$        
+//		addTableData(table, column); //$NON-NLS-1$
+//		addTableData(table, msg.toString());
+//		table.append("</tr>").append(NL); //$NON-NLS-1$        
+//	}
 
-		addTableRow(htmlCode, "StartTime", new Date(testStartTS).toString()); //$NON-NLS-1$
-		addTableRow(htmlCode, "EndTime", new Date(endTS).toString()); //$NON-NLS-1$
-		addTableRow(htmlCode,
-				"Elapsed Time", ((endTS - testStartTS) / 1000) + " seconds"); //$NON-NLS-1$ //$NON-NLS-2$
-		addTableRow(htmlCode,
-				"Number Of Clients", String.valueOf(numberOfClients)); //$NON-NLS-1$
+//	private static void addTableData(StringBuffer table, String msg) {
+//		addTableData(table, msg, false);
+//	}
 
-		Map passFailGenMap = getPassFailGen(results);
-		addTableRow(htmlCode,
-				"Number of Queries:", passFailGenMap.get("queries")); //$NON-NLS-1$ //$NON-NLS-2$
-		addTableRow(htmlCode, "Number Passed    :", passFailGenMap.get("pass")); //$NON-NLS-1$ //$NON-NLS-2$
-		addTableRow(htmlCode, "Number Failed    :", passFailGenMap.get("fail")); //$NON-NLS-1$ //$NON-NLS-2$
-		//       addTableRow(htmlCode, "Number Generated :", passFailGenMap.get("gen")); //$NON-NLS-1$ //$NON-NLS-2$
+//	private static void addTableDataLink(StringBuffer table, String link,
+//			String jsEvent) {
+//		if (link.indexOf(".") == -1) //$NON-NLS-1$
+//			table.append("<td>").append("<a href=\"#" + link + "\" onclick=\"" + jsEvent + "\">" + link + "</a>").append("</td>").append(NL); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
+//		else
+//			table.append("<td>").append("<a href=\"" + link + "\" onclick=\"" + jsEvent + "\">" + link + "</a>").append("</td>").append(NL); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$         
+//	}
 
-		ResponseTimes responseTimes = calcQueryResponseTimes(results);
-		addTableRow(htmlCode, "QPS :", Double.toString(responseTimes.qps)); //$NON-NLS-1$ 
-		//        addTableRow(htmlCode, "Ave First Resp   :", Double.toString(responseTimes.first)); //$NON-NLS-1$ 
-		//        addTableRow(htmlCode, "Ave Full Resp    :", Double.toString(responseTimes.full)); //$NON-NLS-1$ 
+//	private static void addTableData(StringBuffer table, String msg,
+//			boolean error) {
+//		if (error)
+//			table.append("<td style=\"background: #ffccff \">").append(msg).append("</td>").append(NL); //$NON-NLS-1$ //$NON-NLS-2$
+//		else
+//			table.append("<td>").append(msg).append("</td>").append(NL); //$NON-NLS-1$ //$NON-NLS-2$
+//	}
 
-		htmlCode.append("</table> <p>").append(NL); //$NON-NLS-1$
-		htmlCode.append("<table border=\"1\">").append(NL); //$NON-NLS-1$
+//	/**
+//	 * @param queryResults 
+//	 * @return ResponseTimes
+//	 * @since 4.2
+//	 */
+//	private static ResponseTimes calcQueryResponseTimes(Collection<TestResult> queryResults) {
+//		ResponseTimes responseTimes = new ResponseTimes();
+//		int nQueries = 0;
+//		double startTS;
+//		// double firstResponseTimeStamp;
+//		double fullResponseTimeStamp;
+//		double totalSecs = 0.0;
+//		double totalFullMilliSecs = 0.0;
+//		// double totalFirstMilliSecs = 0.0;
+//
+//		for (Iterator<TestResult> resultItr = queryResults.iterator(); resultItr.hasNext();) {
+//			TestResult result = resultItr.next();
+//			if ( result.getException() != null || result.getFailureMessage() != null) {
+//				// dont include errors in time calculations;
+//				continue;		
+//			}
+//			++nQueries;
+//
+//			startTS = result.getBeginTS();
+//			// firstResponseTimeStamp = result.getBeginTS();
+//			fullResponseTimeStamp = result.getEndTS();
+//			totalSecs += ((fullResponseTimeStamp - startTS) / 1000);
+//
+//			// totalFirstMilliSecs += (firstResponseTimeStamp - startTS);
+//			totalFullMilliSecs += (fullResponseTimeStamp - startTS);
+//		}
+//
+//		responseTimes.qps = (totalSecs > 0 ? nQueries / totalSecs : -1.0);
+//		// responseTimes.first = (nQueries > 0 ? totalFirstMilliSecs / nQueries
+//		// : -1.0);
+//		responseTimes.full = (nQueries > 0 ? totalFullMilliSecs / nQueries
+//				: -1.0);
+//		return responseTimes;
+//	}
 
-		// Add table headers
-		htmlCode.append("<tr style=\"background: #C0C0C0 \">"); //$NON-NLS-1$
-
-		addTableData(htmlCode, "QueryId"); //$NON-NLS-1$
-		addTableData(htmlCode, "Result"); //$NON-NLS-1$
-		addTableData(htmlCode, "First Response"); //$NON-NLS-1$
-		addTableData(htmlCode, "Total Seconds"); //$NON-NLS-1$
-		addTableData(htmlCode, "Exception"); //$NON-NLS-1$
-		addTableData(htmlCode, "Error File (if any)"); //$NON-NLS-1$
-		htmlCode.append("</tr>").append(NL); //$NON-NLS-1$
-
-		Iterator resultItr = results.iterator();
-		while (resultItr.hasNext()) {
-			TestResult stat = (TestResult) resultItr.next();
-			htmlCode.append("<tr>").append(NL); //$NON-NLS-1$            
-			addTableDataLink(htmlCode, stat.getQueryID(),
-					"show('" + scrub(stat.getQuery()) + "')"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			addTableData(htmlCode, stat.getResultStatusString(),
-					"fail".equalsIgnoreCase(stat.getResultStatusString())); //$NON-NLS-1$
-			addTableData(htmlCode, new Date(stat.getBeginTS()).toString());
-
-			// Long.toString(stat.getBeginTS()));
-			addTableData(htmlCode,
-					Long.toString((stat.getEndTS() - stat.getBeginTS() / 1000)));
-			// Long.toString(stat.getEndTS()));
-			if (stat.getStatus() == TestResult.RESULT_STATE.TEST_EXCEPTION) {
-				addTableData(htmlCode, stat.getFailureMessage());
-				if (stat.getErrorfile() != null
-						&& !stat.getErrorfile().equals("null")) { //$NON-NLS-1$
-					addTableDataLink(htmlCode, stat.getErrorfile(), ""); //$NON-NLS-1$ 
-				} else {
-					addTableData(htmlCode, ""); //$NON-NLS-1$
-				}
-			} else {
-				addTableData(htmlCode, ""); //$NON-NLS-1$
-				addTableData(htmlCode, ""); //$NON-NLS-1$                                
-			}
-			htmlCode.append("</tr>").append(NL); //$NON-NLS-1$
-		}
-		htmlCode.append("</table>").append(NL); //$NON-NLS-1$
-		outputStream.print(htmlCode.toString());
-	}
-
-	private static void addTableRow(StringBuffer table, String column,
-			Object msg) {
-		table.append("<tr>").append(NL); //$NON-NLS-1$        
-		addTableData(table, column); //$NON-NLS-1$
-		addTableData(table, msg.toString());
-		table.append("</tr>").append(NL); //$NON-NLS-1$        
-	}
-
-	private static void addTableData(StringBuffer table, String msg) {
-		addTableData(table, msg, false);
-	}
-
-	private static void addTableDataLink(StringBuffer table, String link,
-			String jsEvent) {
-		if (link.indexOf(".") == -1) //$NON-NLS-1$
-			table.append("<td>").append("<a href=\"#" + link + "\" onclick=\"" + jsEvent + "\">" + link + "</a>").append("</td>").append(NL); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
-		else
-			table.append("<td>").append("<a href=\"" + link + "\" onclick=\"" + jsEvent + "\">" + link + "</a>").append("</td>").append(NL); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$         
-	}
-
-	private static void addTableData(StringBuffer table, String msg,
-			boolean error) {
-		if (error)
-			table.append("<td style=\"background: #ffccff \">").append(msg).append("</td>").append(NL); //$NON-NLS-1$ //$NON-NLS-2$
-		else
-			table.append("<td>").append(msg).append("</td>").append(NL); //$NON-NLS-1$ //$NON-NLS-2$
-	}
-
-	/**
-	 * @param queryResults 
-	 * @return ResponseTimes
-	 * @since 4.2
-	 */
-	private static ResponseTimes calcQueryResponseTimes(Collection queryResults) {
-		ResponseTimes responseTimes = new ResponseTimes();
-		int nQueries = 0;
-		double startTS;
-		// double firstResponseTimeStamp;
-		double fullResponseTimeStamp;
-		double totalSecs = 0.0;
-		double totalFullMilliSecs = 0.0;
-		// double totalFirstMilliSecs = 0.0;
-
-		for (Iterator resultItr = queryResults.iterator(); resultItr.hasNext();) {
-			TestResult result = (TestResult) resultItr.next();
-			if ( result.getException() != null || result.getFailureMessage() != null) {
-				// dont include errors in time calculations;
-				continue;		
-			}
-			++nQueries;
-
-			startTS = result.getBeginTS();
-			// firstResponseTimeStamp = result.getBeginTS();
-			fullResponseTimeStamp = result.getEndTS();
-			totalSecs += ((fullResponseTimeStamp - startTS) / 1000);
-
-			// totalFirstMilliSecs += (firstResponseTimeStamp - startTS);
-			totalFullMilliSecs += (fullResponseTimeStamp - startTS);
-		}
-
-		responseTimes.qps = (totalSecs > 0 ? nQueries / totalSecs : -1.0);
-		// responseTimes.first = (nQueries > 0 ? totalFirstMilliSecs / nQueries
-		// : -1.0);
-		responseTimes.full = (nQueries > 0 ? totalFullMilliSecs / nQueries
-				: -1.0);
-		return responseTimes;
-	}
-
-	private static String scrub(String str) {
-		// Scrub the query
-		if (str != null) {
-			str = str.replace('"', '#');
-			str = str.replace('\'', '#');
-		}
-		return str;
-	}
+//	private static String scrub(String str) {
+//		// Scrub the query
+//		if (str != null) {
+//			str = str.replace('"', '#');
+//			str = str.replace('\'', '#');
+//		}
+//		return str;
+//	}
 
 	/**
 	 * @param outputStream
@@ -959,10 +959,10 @@ public class TestResultsSummary {
 		return format.format(new Date(millis));
 	}
 
-	private static class ResponseTimes {
-		double first; // millis
-		double full; // millis
-		double qps; // secs
-	}
+//	private static class ResponseTimes {
+//		double first; // millis
+//		double full; // millis
+//		double qps; // secs
+//	}
 
 }

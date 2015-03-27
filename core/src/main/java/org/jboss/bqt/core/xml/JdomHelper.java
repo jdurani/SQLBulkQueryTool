@@ -38,18 +38,18 @@ import java.util.List;
 
 import org.jboss.bqt.core.CorePlugin;
 import org.jboss.bqt.core.util.ArgCheck;
-import org.jdom.Attribute;
-import org.jdom.Comment;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.Namespace;
-import org.jdom.ProcessingInstruction;
-import org.jdom.Text;
-import org.jdom.input.SAXBuilder;
-import org.jdom.output.Format;
-import org.jdom.output.Format.TextMode;
-import org.jdom.output.XMLOutputter;
+import org.jdom2.Attribute;
+import org.jdom2.Comment;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
+import org.jdom2.Namespace;
+import org.jdom2.ProcessingInstruction;
+import org.jdom2.Text;
+import org.jdom2.input.SAXBuilder;
+import org.jdom2.output.Format;
+import org.jdom2.output.Format.TextMode;
+import org.jdom2.output.XMLOutputter;
 
 public class JdomHelper {
 
@@ -382,7 +382,7 @@ public class JdomHelper {
 	 * @return list of descendent JDOM <code>Element</code>s or an empty list if
 	 *         none exist.
 	 */
-	public static List getDescendents(int traversalMethod, Element parent,
+	public static List<Element> getDescendents(int traversalMethod, Element parent,
 			final Namespace ns) {
 		if (parent == null) {
 			ArgCheck.isNotNull(
@@ -397,13 +397,13 @@ public class JdomHelper {
 							.getString("JdomHelper.The_Namespace_reference_may_not_be_null_14")); //$NON-NLS-1$
 		}
 
-		final List results = new LinkedList();
+		final List<Element> results = new LinkedList<Element>();
 		switch (traversalMethod) {
 		case PRE_ORDER_TRAVERSAL:
 			preOrderTraversal(parent, new XMLVisitor() {
 				public void visit(Object obj) {
 					if (((Element) obj).getNamespace().equals(ns)) {
-						results.add(obj);
+						results.add((Element)obj);
 					}
 				}
 			});
@@ -412,7 +412,7 @@ public class JdomHelper {
 			postOrderTraversal(parent, new XMLVisitor() {
 				public void visit(Object obj) {
 					if (((Element) obj).getNamespace().equals(ns)) {
-						results.add(obj);
+						results.add((Element)obj);
 					}
 				}
 			});
@@ -421,7 +421,7 @@ public class JdomHelper {
 			levelOrderTraversal(parent, new XMLVisitor() {
 				public void visit(Object obj) {
 					if (((Element) obj).getNamespace().equals(ns)) {
-						results.add(obj);
+						results.add((Element)obj);
 					}
 				}
 			});
@@ -444,7 +444,7 @@ public class JdomHelper {
 	 * @return list of descendent JDOM <code>Element</code>s or an empty list if
 	 *         none exist.
 	 */
-	public static List getDescendents(Element parent) {
+	public static List<Element> getDescendents(Element parent) {
 		if (parent == null) {
 			ArgCheck.isNotNull(
 					parent,
@@ -452,10 +452,10 @@ public class JdomHelper {
 							.getString("JdomHelper.The_JDOM_Element_reference_may_not_be_null_15")); //$NON-NLS-1$
 		}
 
-		final List results = new LinkedList();
+		final List<Element> results = new LinkedList<Element>();
 		levelOrderTraversal(parent, new XMLVisitor() {
 			public void visit(Object obj) {
-				results.add(obj);
+				results.add((Element)obj);
 			}
 		});
 		return results;
@@ -477,7 +477,7 @@ public class JdomHelper {
 	 * @return list of descendent JDOM <code>Element</code>s or an empty list if
 	 *         none exist.
 	 */
-	public static List getDescendents(Element parent, final String name) {
+	public static List<Element> getDescendents(Element parent, final String name) {
 		if (parent == null) {
 			ArgCheck.isNotNull(
 					parent,
@@ -495,11 +495,11 @@ public class JdomHelper {
 					.getString("JdomHelper.The_name_may_not_be_zero-length_18")); //$NON-NLS-1$
 		}
 
-		final List results = new LinkedList();
+		final List<Element> results = new LinkedList<Element>();
 		levelOrderTraversal(parent, new XMLVisitor() {
 			public void visit(Object obj) {
 				if (((Element) obj).getName().equals(name)) {
-					results.add(obj);
+					results.add((Element)obj);
 				}
 			}
 		});
@@ -522,7 +522,7 @@ public class JdomHelper {
 	 * @return list of descendent JDOM <code>Element</code>s or an empty list if
 	 *         none exist.
 	 */
-	public static List getDescendents(Element parent, final Namespace ns) {
+	public static List<Element> getDescendents(Element parent, final Namespace ns) {
 		if (parent == null) {
 			ArgCheck.isNotNull(
 					parent,
@@ -534,11 +534,11 @@ public class JdomHelper {
 					.getString("JdomHelper.The_Namespace_may_not_be_null_20")); //$NON-NLS-1$
 		}
 
-		final List results = new LinkedList();
+		final List<Element> results = new LinkedList<Element>();
 		levelOrderTraversal(parent, new XMLVisitor() {
 			public void visit(Object obj) {
 				if (((Element) obj).getNamespace().equals(ns)) {
-					results.add(obj);
+					results.add((Element)obj);
 				}
 			}
 		});
@@ -564,7 +564,7 @@ public class JdomHelper {
 	 * @return list of descendent JDOM <code>Element</code>s or an empty list if
 	 *         none exist.
 	 */
-	public static List getDescendents(Element parent, final String name,
+	public static List<Element> getDescendents(Element parent, final String name,
 			final Namespace ns) {
 		if (parent == null) {
 			ArgCheck.isNotNull(
@@ -583,12 +583,12 @@ public class JdomHelper {
 					.getString("JdomHelper.The_name_may_not_be_zero-length_23")); //$NON-NLS-1$
 		}
 
-		final List results = new LinkedList();
+		final List<Element> results = new LinkedList<Element>();
 		levelOrderTraversal(parent, new XMLVisitor() {
 			public void visit(Object obj) {
 				if (((Element) obj).getName().equals(name)
 						&& ((Element) obj).getNamespace().equals(ns)) {
-					results.add(obj);
+					results.add((Element)obj);
 				}
 			}
 		});
@@ -827,9 +827,9 @@ public class JdomHelper {
 							.getString("JdomHelper.The_XMLVisitor_reference_may_not_be_null_37")); //$NON-NLS-1$
 		}
 
-		LinkedList queue = new LinkedList(parent.getChildren());
+		LinkedList<Element> queue = new LinkedList<Element>(parent.getChildren());
 		while (queue.size() != 0) {
-			Element child = (Element) queue.getFirst();
+			Element child = queue.getFirst();
 			v.visit(child);
 			queue.addAll(child.getChildren());
 			queue.removeFirst();
@@ -864,9 +864,9 @@ public class JdomHelper {
 							.getString("JdomHelper.The_XMLVisitor_reference_may_not_be_null_39")); //$NON-NLS-1$
 		}
 
-		List children = parent.getChildren();
+		List<Element> children = parent.getChildren();
 		for (int i = 0, len = children.size(); i < len; i++) {
-			Element child = (Element) children.get(i);
+			Element child = children.get(i);
 			v.visit(child);
 			preOrderTraversal(child, v);
 		}
@@ -900,9 +900,9 @@ public class JdomHelper {
 							.getString("JdomHelper.The_XMLVisitor_reference_may_not_be_null_41")); //$NON-NLS-1$
 		}
 
-		List children = parent.getChildren();
+		List<Element> children = parent.getChildren();
 		for (int i = 0, len = children.size(); i < len; i++) {
-			Element child = (Element) children.get(i);
+			Element child = children.get(i);
 			postOrderTraversal(child, v);
 			v.visit(child);
 		}
@@ -1165,9 +1165,9 @@ public class JdomHelper {
 	private static void print(Element elm, PrintStream stream,
 			String leadingString) {
 		stream.println(leadingString + elm.getName());
-		Iterator itr = elm.getChildren().iterator();
+		Iterator<Element> itr = elm.getChildren().iterator();
 		while (itr.hasNext()) {
-			print((Element) itr.next(),
+			print(itr.next(),
 					stream,
 					leadingString
 							+ CorePlugin.Util.getString("JdomHelper.___53")); //$NON-NLS-1$

@@ -57,12 +57,13 @@ import org.jboss.bqt.core.util.StringHelper;
 import org.jboss.bqt.core.xml.SAXBuilderHelper;
 import org.jboss.bqt.jdbc.sql.lang.ElementSymbol;
 import org.jboss.bqt.jdbc.sql.lang.Select;
-import org.jdom.Attribute;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.IllegalDataException;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
+import org.jboss.bqt.jdbc.sql.lang.SelectSymbol;
+import org.jdom2.Attribute;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.IllegalDataException;
+import org.jdom2.JDOMException;
+import org.jdom2.input.SAXBuilder;
 
 
 /**
@@ -94,15 +95,15 @@ public class XMLQueryVisitationStrategy {
      * @throws IOException 
      * @exception JDOMException if there is an error consuming the message.
      */
-    public List parseXMLQueryFile(String queryScenarioID, File queryFile, String querySetID) throws IOException, JDOMException {
+    public List<QueryTest> parseXMLQueryFile(String queryScenarioID, File queryFile, String querySetID) throws IOException, JDOMException {
 
-	List<QueryTest> queries = new LinkedList();
+    	List<QueryTest> queries = new LinkedList<QueryTest>();
         SAXBuilder builder = SAXBuilderHelper.createSAXBuilder(false);
         Document queryDocument = builder.build(queryFile);
-        List queryElements = queryDocument.getRootElement().getChildren(TagNames.Elements.QUERY);
-        Iterator iter = queryElements.iterator();
+        List<Element> queryElements = queryDocument.getRootElement().getChildren(TagNames.Elements.QUERY);
+        Iterator<Element> iter = queryElements.iterator();
         while ( iter.hasNext() ) {
-            Element queryElement = (Element) iter.next();
+            Element queryElement = iter.next();
             String queryName = queryElement.getAttributeValue(TagNames.Attributes.NAME);
             Element exceptionElement = queryElement.getChild(TagNames.Elements.EXCEPTION);
             if ( exceptionElement == null ) {
@@ -190,7 +191,7 @@ public class XMLQueryVisitationStrategy {
 		
 		final Iterator<Element> iter = parmChildren.iterator();
 		while ( iter.hasNext() ) {
-			final Element parmElement = (Element) iter.next();
+			final Element parmElement = iter.next();
 			
 			String name = parmElement.getAttributeValue(TagNames.Attributes.NAME);
 			String value = parmElement.getTextTrim();
@@ -210,7 +211,7 @@ public class XMLQueryVisitationStrategy {
 		int i = 0;
 		final Iterator<Element> iter = parmChildren.iterator();
 		while ( iter.hasNext() ) {
-			final Element parmElement = (Element) iter.next();
+			final Element parmElement = iter.next();
 			try {
 			    Object parm = createParmType(parmElement);
 			    parms[i] = parm;
@@ -285,11 +286,11 @@ public class XMLQueryVisitationStrategy {
         final SAXBuilder builder = SAXBuilderHelper.createSAXBuilder(false);
         final Document resultsDocument = builder.build(resultsFile);
         final String query = resultsDocument.getRootElement().getChildText(TagNames.Elements.QUERY);
-        final List resultElements = resultsDocument.getRootElement().getChildren(TagNames.Elements.QUERY_RESULTS);
-        final Iterator iter = resultElements.iterator();
+        final List<Element> resultElements = resultsDocument.getRootElement().getChildren(TagNames.Elements.QUERY_RESULTS);
+        final Iterator<Element> iter = resultElements.iterator();
         while ( iter.hasNext() ) {
-            final Element resultElement = (Element) iter.next();
-            final String resultName = resultElement.getAttributeValue(TagNames.Attributes.NAME);
+            final Element resultElement = iter.next();
+//            final String resultName = resultElement.getAttributeValue(TagNames.Attributes.NAME);
             
             final String execTime  = resultElement.getAttributeValue(TagNames.Attributes.EXECUTION_TIME);
             
@@ -313,7 +314,7 @@ public class XMLQueryVisitationStrategy {
                 	//
                     // We've got an exception
                     //
-                    expectedResults = new ExpectedResultsHolder( TagNames.Elements.EXCEPTION,  test );
+                    expectedResults = new ExpectedResultsHolder(TagNames.Elements.EXCEPTION, test);
                     expectedResults.setQuery(query);
                     
                     expectedResults.setExceptionClassName(exceptionElement.getChild(TagNames.Elements.CLASS).getTextTrim());
@@ -357,10 +358,10 @@ public class XMLQueryVisitationStrategy {
 
         SAXBuilder builder = SAXBuilderHelper.createSAXBuilder(false);
         Document resultsDocument = builder.build(resultsFile);
-        List resultElements = resultsDocument.getRootElement().getChildren(TagNames.Elements.QUERY_RESULTS);
-        Iterator iter = resultElements.iterator();
+        List<Element> resultElements = resultsDocument.getRootElement().getChildren(TagNames.Elements.QUERY_RESULTS);
+        Iterator<Element> iter = resultElements.iterator();
         while ( iter.hasNext() ) {
-            Element resultElement = (Element) iter.next();
+            Element resultElement = iter.next();
             if ( resultElement.getChild(TagNames.Elements.SELECT) == null ) {
                 // We've got an exception
                 Element exceptionElement = resultElement.getChild(TagNames.Elements.EXCEPTION);
@@ -522,9 +523,9 @@ public class XMLQueryVisitationStrategy {
         Select select = new Select();
         select = consumeMsg(select, selectElement);
 
-        List listOfElementSymbols = select.getSymbols();
-        Iterator elementSymbolItr = listOfElementSymbols.iterator();
-        Collection collectionOfColumnInfos = new ArrayList();
+        List<SelectSymbol> listOfElementSymbols = select.getSymbols();
+        Iterator<SelectSymbol> elementSymbolItr = listOfElementSymbols.iterator();
+        Collection<ColumnInfo> collectionOfColumnInfos = new ArrayList<ColumnInfo>();
         while ( elementSymbolItr.hasNext() ) {
             ElementSymbol elementSymbol = (ElementSymbol) elementSymbolItr.next();
  //           Class elementType = elementSymbol.getType();
@@ -541,23 +542,23 @@ public class XMLQueryVisitationStrategy {
         // -------------------------------
 
         Element tableElement = resultsElement.getChild(TagNames.Elements.TABLE);
-        List tableRows = tableElement.getChildren(TagNames.Elements.TABLE_ROW);
+        List<Element> tableRows = tableElement.getChildren(TagNames.Elements.TABLE_ROW);
         if ( tableRows.size() > 0 ) {
-            Iterator rowIter = tableRows.iterator();
+            Iterator<Element> rowIter = tableRows.iterator();
 
             while ( rowIter.hasNext() ) {
-                Element rowElement = (Element) rowIter.next();
-                List cellElements = rowElement.getChildren(TagNames.Elements.TABLE_CELL);
-                Iterator cellIter = cellElements.iterator();
+                Element rowElement = rowIter.next();
+                List<Element> cellElements = rowElement.getChildren(TagNames.Elements.TABLE_CELL);
+                Iterator<Element> cellIter = cellElements.iterator();
                 // Read cells of the table
-                ArrayList row = new ArrayList();
+                ArrayList<Object> row = new ArrayList<Object>();
                 Object evalue = null;
                 while ( cellIter.hasNext() ) {
-                    Element cellElement = (Element) cellIter.next();
+                    Element cellElement = cellIter.next();
                     if ( cellElement.getTextTrim().equalsIgnoreCase(TagNames.Elements.NULL) ) {
                         row.add(null);
                     } else {
-                        Element cellChildElement = (Element) cellElement.getChildren().get(0);
+                        Element cellChildElement = cellElement.getChildren().get(0);
                         evalue = consumeMsg(cellChildElement);
                         row.add(evalue);
                     }
@@ -608,10 +609,10 @@ public class XMLQueryVisitationStrategy {
         // --------------------------------
         // Read the IDENTIFIER elements ...
         // --------------------------------
-        List idents = selectElement.getChildren();
-        Iterator identIter = idents.iterator();
+        List<Element> idents = selectElement.getChildren();
+        Iterator<Element> identIter = idents.iterator();
         while ( identIter.hasNext() ) {
-            Element dataElement = (Element) identIter.next();
+            Element dataElement = identIter.next();
             Attribute dataType = dataElement.getAttribute(TagNames.Attributes.TYPE);
             // add the dataType of the element to the list containing dataTypes
             ElementSymbol nodeID = new ElementSymbol(dataElement.getText());
@@ -1015,7 +1016,6 @@ public class XMLQueryVisitationStrategy {
      * @return the updated instance.
      * @exception JDOMException if there is an error consuming the message.
      */
-    @SuppressWarnings("unused")
 	private Object consumeMsg(Object object, Element cellElement) throws JDOMException {
 
 //        // -----------------------
@@ -1045,7 +1045,6 @@ public class XMLQueryVisitationStrategy {
 //        			result = ObjectConverterUtil.convertToString(c.getAsciiStream());
 //					
 //				} catch (Throwable e) {
-//					// TODO Auto-generated catch block
 //					throw new SQLException(e);
 //				}
 //        	} else if (object instanceof Blob){
@@ -1054,7 +1053,6 @@ public class XMLQueryVisitationStrategy {
 //            			result = ObjectConverterUtil.convertToString(b.getBinaryStream());
 //						
 //					} catch (Throwable e) {
-//						// TODO Auto-generated catch block
 //						throw new SQLException(e);
 //					}
 //            } else if (object instanceof SQLXML){
@@ -1063,7 +1061,6 @@ public class XMLQueryVisitationStrategy {
 //        			result = ObjectConverterUtil.convertToString(s.getBinaryStream());
 //					
 //				} catch (Throwable e) {
-//					// TODO Auto-generated catch block
 //					throw new SQLException(e);
 //				}
 //            } 
@@ -1199,7 +1196,7 @@ public class XMLQueryVisitationStrategy {
         // -----------------------------------
         try {
             ResultSetMetaData rmdata = object.getMetaData();
-            List identList = new ArrayList(rmdata.getColumnCount());
+            List<SelectSymbol> identList = new ArrayList<SelectSymbol>(rmdata.getColumnCount());
             for ( int i = 1; i <= rmdata.getColumnCount(); i++ ) {
                 identList.add(new ElementSymbol(rmdata.getColumnName(i)));
             }
@@ -1267,7 +1264,7 @@ public class XMLQueryVisitationStrategy {
         // -----------------------------------
         try {
             ResultSetMetaData rmdata = object.getMetaData();
-            List identList = new ArrayList(rmdata.getColumnCount());
+            List<SelectSymbol> identList = new ArrayList<SelectSymbol>(rmdata.getColumnCount());
             for ( int i = 1; i <= rmdata.getColumnCount(); i++ ) {
                 identList.add(new ElementSymbol(rmdata.getColumnName(i)));
             }
@@ -1409,7 +1406,7 @@ public class XMLQueryVisitationStrategy {
         // Create the DATANODE elements ...
         // --------------------------------
         int col = 0;
-        Iterator iter = select.getSymbols().iterator();
+        Iterator<SelectSymbol> iter = select.getSymbols().iterator();
         while ( iter.hasNext() ) {
             Element dataElement = new Element(TagNames.Elements.DATA_ELEMENT);
             ElementSymbol symbol = (ElementSymbol) iter.next();
@@ -1456,7 +1453,6 @@ public class XMLQueryVisitationStrategy {
         			result = ObjectConverterUtil.convertToString(c.getAsciiStream());
 					
 				} catch (Throwable e) {
-					// TODO Auto-generated catch block
 					throw new SQLException(e);
 				}
         	} else if (object instanceof Blob){        		
@@ -1467,7 +1463,6 @@ public class XMLQueryVisitationStrategy {
             			result = String.valueOf(ba.length);
             			
 					} catch (Throwable e) {
-						// TODO Auto-generated catch block
 						throw new SQLException(e);
 					}
             } else if (object instanceof SQLXML){
@@ -1477,7 +1472,6 @@ public class XMLQueryVisitationStrategy {
         			result = ObjectConverterUtil.convertToString(s.getBinaryStream());
 					
 				} catch (Throwable e) {
-					// TODO Auto-generated catch block
 					throw new SQLException(e);
 				}
             } 

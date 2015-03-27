@@ -226,12 +226,12 @@ public class Select  {
 	 * @return Deep clone
 	 */
 	public Object clone() {
-	    List thisSymbols = getSymbols();
-	    List copySymbols = new ArrayList(thisSymbols.size());
-	    Iterator iter = thisSymbols.iterator();
+	    List<SelectSymbol> thisSymbols = getSymbols();
+	    List<SelectSymbol> copySymbols = new ArrayList<SelectSymbol>(thisSymbols.size());
+	    Iterator<SelectSymbol> iter = thisSymbols.iterator();
 	    while(iter.hasNext()) {
 	    	SelectSymbol ss = (SelectSymbol) iter.next();
-	    	copySymbols.add(ss.clone());    
+	    	copySymbols.add((SelectSymbol)ss.clone());    
 	    }
 	    	    
 		Select copy = new Select(copySymbols);

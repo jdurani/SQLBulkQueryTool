@@ -46,14 +46,12 @@ import org.jboss.bqt.client.api.ExpectedResults;
 import org.jboss.bqt.client.results.ExpectedResultsHolder;
 import org.jboss.bqt.client.util.ListNestedSortComparator;
 import org.jboss.bqt.client.xml.TagNames;
-import org.jboss.bqt.client.xml.TagNames.Elements;
 import org.jboss.bqt.core.exception.FrameworkRuntimeException;
 import org.jboss.bqt.core.exception.MultiTestFailedException;
 import org.jboss.bqt.core.exception.QueryTestFailedException;
 import org.jboss.bqt.core.util.ExceptionUtil;
 import org.jboss.bqt.core.util.ObjectConverterUtil;
 import org.jboss.bqt.framework.ConfigPropertyLoader;
-import org.jboss.bqt.framework.ConfigPropertyNames;
 import org.jboss.bqt.framework.TestCase;
 import org.jboss.bqt.framework.TestResult;
 
@@ -353,10 +351,10 @@ public class XMLCompareResults {
 	 * @param records 
 	 * @param ascending 
 	 */
-	private static void sortRecords(List records, boolean ascending) {
+	private static void sortRecords(List<List<Object>> records, boolean ascending) {
 		// if record's size == 0, don't need to sort
 		if (records.size() != 0) {
-			int nFields = ((List) records.get(0)).size();
+			int nFields = records.get(0).size();
 			int[] params = new int[  ( nFields > 3 ? 3 : nFields ) ];
 			for (int k = 0, j = 0; k < params.length; k++, j++) {
 				params[j] = k;

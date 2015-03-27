@@ -57,7 +57,7 @@ import java.util.List;
  * </pre>
  */
 @SuppressWarnings({ "serial", "rawtypes" })
-public class ListNestedSortComparator implements java.util.Comparator,
+public class ListNestedSortComparator implements java.util.Comparator<List<Object>>,
 		java.io.Serializable {
 
 	/**
@@ -142,9 +142,10 @@ public class ListNestedSortComparator implements java.util.Comparator,
 	 *            The second object being compared
 	 * @return int
 	 */
-	public int compare(final Object o1, final Object o2) {
-		final List list1 = (List) o1;
-		final List list2 = (List) o2;
+	@SuppressWarnings("unchecked")
+	public int compare(final List<Object> o1, final List<Object> o2) {
+		final List list1 = o1;
+		final List list2 = o2;
 
 		int compare = 0;
 		for (int k = 0; k < sortParameters.length; k++) {

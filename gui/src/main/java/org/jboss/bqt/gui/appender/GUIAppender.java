@@ -1,11 +1,17 @@
 package org.jboss.bqt.gui.appender;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.awt.Color;
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
+import javax.swing.JTextPane;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
+
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.Filter;
 import org.apache.logging.log4j.core.Layout;
 import org.apache.logging.log4j.core.LogEvent;
@@ -15,7 +21,6 @@ import org.apache.logging.log4j.core.config.plugins.PluginAttribute;
 import org.apache.logging.log4j.core.config.plugins.PluginElement;
 import org.apache.logging.log4j.core.config.plugins.PluginFactory;
 import org.apache.logging.log4j.core.layout.PatternLayout;
-import org.jboss.bqt.gui.panels.GUIRunnerPanel.BQTProperties;
 
 /**
  * Log Appender. The user can dynamically change an output stream for this appender.
@@ -28,11 +33,16 @@ import org.jboss.bqt.gui.panels.GUIRunnerPanel.BQTProperties;
 @Plugin(name = "GUI", category = "Core", elementType = "appender", printObject = true)
 public final class GUIAppender extends AbstractAppender {
 	
-	private static final Object LOCK = new Object();
-	private static OutputStream OUTPUT_STREAM = null;
-	private static FileOutputStream FILE_OUTPUT_STREAM = null; 
+	private static final Color TRACE_COLOR = new Color(34, 139, 34);
+	private static final Color DEBUG_COLOR = new Color(34, 139, 34);
+	private static final Color INFO_COLOR = Color.BLACK;
+	private static final Color WARN_COLOR = new Color(184, 134, 11);
+	private static final Color ERROR_COLOR = new Color(220, 20, 60);
+	private static final Color DEFAULT_COLOR = Color.BLACK;
 	
-	private static String fileName;
+	private static final Map<String, JTextPane> TEXT_PANES = new HashMap<String, JTextPane>();
+	
+	private JTextPane textPane;
 	
 	/**
 	 * Create a new instance.
@@ -42,10 +52,30 @@ public final class GUIAppender extends AbstractAppender {
 	 * @param filter filter
 	 * @param layout layout
 	 */
-	protected GUIAppender(String name, String fileName, Filter filter,
+	protected GUIAppender(String name, Filter filter,
 			Layout<? extends Serializable> layout) {
 		super(name, filter, layout, false);
-		GUIAppender.fileName = fileName;
+		initTextPane();
+	}
+	
+	private void initTextPane(){
+		textPane = new JTextPane();
+		textPane.setEditable(false);
+		TEXT_PANES.put(getName(), textPane);
+		StyledDocument doc = textPane.getStyledDocument();
+		Style trace = doc.addStyle(Level.TRACE.name(), null);
+		Style debug = doc.addStyle(Level.DEBUG.name(), null);
+		Style info = doc.addStyle(Level.INFO.name(), null);
+		Style warn = doc.addStyle(Level.WARN.name(), null);
+		Style error = doc.addStyle(Level.ERROR.name(), null);
+		Style def = doc.addStyle("default", null);
+		
+		StyleConstants.setForeground(debug, TRACE_COLOR);
+		StyleConstants.setForeground(trace, DEBUG_COLOR);
+		StyleConstants.setForeground(info, INFO_COLOR);
+		StyleConstants.setForeground(warn, WARN_COLOR);
+		StyleConstants.setForeground(error, ERROR_COLOR);
+		StyleConstants.setForeground(def, DEFAULT_COLOR);
 	}
 
 	/**
@@ -59,8 +89,7 @@ public final class GUIAppender extends AbstractAppender {
 	@PluginFactory
     public static GUIAppender createAppender(
             @PluginElement("Layout") Layout<? extends Serializable> layout,
-            @PluginElement("Filter") final Filter filter,
-            @PluginAttribute(value="filename", defaultString="bqt.log") final String fileName, 
+            @PluginElement("Filter") final Filter filter, 
             @PluginAttribute("name") final String name) {
         if (name == null) {
             LOGGER.error("No name provided for GUIAppender");
@@ -70,95 +99,48 @@ public final class GUIAppender extends AbstractAppender {
             layout = PatternLayout.createDefaultLayout();
         }
         
-        return new GUIAppender(name, fileName, filter, layout);
+        return new GUIAppender(name, filter, layout);
     }
 
 	@Override
 	public void append(LogEvent event) {
-		synchronized (LOCK) {
-			if(OUTPUT_STREAM != null){
-				try{
-					byte[] byteArray = getLayout().toByteArray(event);
-					OUTPUT_STREAM.write(byteArray);
-					if(FILE_OUTPUT_STREAM != null){
-						FILE_OUTPUT_STREAM.write(byteArray);
-					}
-				} catch (Exception ex){
-					LOGGER.error("Unable to write a message.", ex);
-				}
-			}
-		}
-	}
-	
-	/**
-	 * <p>
-	 * Clears previously set output stream. The output stream will not
-	 * be closed.
-	 * </p>
-	 * <p>
-	 * Along with the output stream, the second file output stream will be cleared too.
-	 * As the second stream is managed by this class, it will be closed.
-	 * </p>
-	 * 
-	 * @see GUIAppender#setOutputStream(OutputStream)
-	 */
-	public static void clearOutputStream(){
-		synchronized (LOCK) {
-			OUTPUT_STREAM = null;
-			closeFileOutputStream();
-			FILE_OUTPUT_STREAM = null;
-		}
-	}
-	
-	/**
-	 * Close the file output stream.
-	 */
-	private static void closeFileOutputStream(){		
 		try{
-			FILE_OUTPUT_STREAM.close();
-		} catch (NullPointerException ignore1){
-		} catch (IOException ignore2){}
+			byte[] byteArray = getLayout().toByteArray(event);
+			writeToTextPane(byteArray, event.getLevel());
+		} catch (Exception ex){
+			LOGGER.error("Unable to write a message.", ex);
+		}
 	}
 	
 	/**
-	 * <p>
-	 * Sets the output stream for this class. Along with setting, a new
-	 * file output stream will be opened. If the file output stream is already opened,
-	 * old stream will be closed.
-	 * </p>
-	 * <p>
-	 * The name of file depends on system's property {@link BQTProperties#LOG_DIR} and
-	 * appender's property {@code fileName}.
-	 * </p>
-	 * <pre>
-	 * String logDir = System.getProperty(BQTProperties.LOG_DIR, ".");
-	 * File logFile = new File(logDir, fileName);
-	 * </pre>
-	 * 
-	 * @param os output stream
-	 * 
-	 * @see GUIAppender#clearOutputStream()
+	 * This method writes byte array to JTextOutpuStream
+	 * @param bArray
+	 * @param level
 	 */
-	public static void setOutputStream(OutputStream os){
-		synchronized (LOCK) {
-			OUTPUT_STREAM = os;
-			closeFileOutputStream();
-			try{
-				String logDir = System.getProperty(BQTProperties.LOG_DIR, ".");
-				File logFile = new File(logDir, fileName);
-				if(!logFile.exists()){
-					File parentDir = logFile.getParentFile();
-					if(!parentDir.exists()){
-						parentDir.mkdirs();
-					}
-					logFile.createNewFile();
-				}
-				FILE_OUTPUT_STREAM = new FileOutputStream(logFile, true);
-			} catch (Exception ex){
-				ex.printStackTrace();
-				FILE_OUTPUT_STREAM = null;
-			}
+	private void writeToTextPane(byte[] bArray, Level level){
+		if (bArray == null) {
+			return;
 		}
+		String text = new String(bArray); 
+		try {
+			StyledDocument doc = textPane.getStyledDocument();
+			Style s = doc.getStyle(level.name());
+			s = s == null ? doc.getStyle("default") : s;
+			doc.insertString(doc.getLength(), text, s);
+		} catch (BadLocationException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Returns an instance of {@link JTextPane} that is associated with appender
+	 * with name {@code appendersName}.
+	 * 
+	 * @param appendersName name of the appender
+	 * @return
+	 */
+	public static final JTextPane getTextPane(String appendersName){
+		return TEXT_PANES.get(appendersName);
 	}
 }
 

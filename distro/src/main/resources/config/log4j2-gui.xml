@@ -4,16 +4,19 @@
 		<Console name="CONSOLE" target="SYSTEM_OUT">
 			<PatternLayout pattern="%highlight{%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n}{FATAL=red, ERROR=red, WARN=yellow, INFO=black, DEBUG=green, TRACE=blue}"/>
 		</Console>
-		<GUI name="GUI" fileName="bqt-gui.log">
+		<GUI name="BQT_GUI">
 			<PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level %logger{36} - %msg%n" />
 		</GUI>
 	</Appenders>
 	<Loggers>
-		<Logger name="org.jboss.bqt.gui" level="DEBUG">
-			<AppenderRef ref="CONSOLE" />
+		<Logger name="org.jboss.bqt.client" level="INFO">
+			<AppenderRef ref="BQT_GUI" />
+		</Logger>
+		<Logger name="org.jboss.bqt.framework" level="INFO">
+			<AppenderRef ref="BQT_GUI" />
 		</Logger>
 		<Root level="INFO">
-			<AppenderRef ref="GUI" />
+			<AppenderRef ref="CONSOLE" />
 		</Root>
 	</Loggers>
 </Configuration>

@@ -104,7 +104,6 @@ public class XMLQueryReader extends QueryReader {
 
 	}
 
-	@SuppressWarnings("unchecked")
 	private List<QueryTest> loadQueries(String querySetID, File queryFile)
 			throws IOException {
 

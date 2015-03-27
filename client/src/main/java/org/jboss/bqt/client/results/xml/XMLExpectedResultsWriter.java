@@ -46,12 +46,12 @@ import org.jboss.bqt.core.xml.JdomHelper;
 import org.jboss.bqt.framework.AbstractQuery;
 import org.jboss.bqt.framework.TestCase;
 import org.jboss.bqt.framework.TransactionAPI;
-import org.jdom.Attribute;
-import org.jdom.CDATA;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.output.XMLOutputter;
+import org.jdom2.Attribute;
+import org.jdom2.CDATA;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
+import org.jdom2.output.XMLOutputter;
 
 public class XMLExpectedResultsWriter extends ExpectedResultsWriter{
 //	private static final int MAX_COL_WIDTH = 65;

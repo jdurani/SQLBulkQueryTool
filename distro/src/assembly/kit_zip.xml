@@ -32,7 +32,7 @@
 				<include>org.apache.logging.log4j:log4j-core</include>
 				<include>org.apache.logging.log4j:log4j-slf4j-impl</include>
 				<!-- include>junit:junit</include -->
-				<include>jdom:jdom</include>
+				<include>org.jdom:jdom2</include>
                 <include>commons-lang:commons-lang</include>
                 
 				<include>org.jboss.bqt:bqt-core</include>

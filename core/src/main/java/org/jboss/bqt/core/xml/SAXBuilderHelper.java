@@ -22,7 +22,8 @@
 
 package org.jboss.bqt.core.xml;
 
-import org.jdom.input.SAXBuilder;
+import org.jdom2.input.SAXBuilder;
+import org.jdom2.input.sax.XMLReaderSAX2Factory;
 
 /**
  * Utility class used to create a SAXBuilder
@@ -64,7 +65,7 @@ public class SAXBuilderHelper {
 	 * @return org.jdom.input.SAXBuilder
 	 */
 	public static SAXBuilder createSAXBuilder(boolean validate) {
-		return new SAXBuilder(getParserClassName(), validate);
+		return new SAXBuilder(new XMLReaderSAX2Factory(validate, getParserClassName()));
 	}
 
 	/**
@@ -76,7 +77,7 @@ public class SAXBuilderHelper {
 	 */
 	public static SAXBuilder createSAXBuilder(String saxDriverClass,
 			boolean validate) {
-		return new SAXBuilder(saxDriverClass, validate);
+		return new SAXBuilder(new XMLReaderSAX2Factory(validate, saxDriverClass));
 	}
 
 }

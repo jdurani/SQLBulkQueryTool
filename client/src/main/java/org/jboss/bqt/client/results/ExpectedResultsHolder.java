@@ -45,7 +45,7 @@ public class ExpectedResultsHolder extends ExpectedResults {
 	private String query;
 
 	// Query Results
-	private List rows;
+	private List<List<Object>> rows;
 	private List types;
 	private List identifiers;
 
@@ -104,11 +104,11 @@ public class ExpectedResultsHolder extends ExpectedResults {
 		this.resultType = resultType;
 	}
 
-	public List getRows() {
-		return (rows == null ? new ArrayList() : rows);
+	public List<List<Object>> getRows() {
+		return (rows == null ? new ArrayList<List<Object>>() : rows);
 	}
 
-	public void setRows(final List rows) {
+	public void setRows(final List<List<Object>> rows) {
 		this.rows = rows;
 	}
 

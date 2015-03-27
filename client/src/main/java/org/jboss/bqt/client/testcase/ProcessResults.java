@@ -93,12 +93,13 @@ public class ProcessResults implements TestCaseLifeCycle {
 		int timeForOneQuery;
 		if(timeForOneQueryProp == null || timeForOneQueryProp.isEmpty()){
 			timeForOneQuery = -1;
-			FrameworkPlugin.LOGGER.warn("Time for one query is not set [scenario: {}].", scenario.getQueryScenarioIdentifier());
+			FrameworkPlugin.LOGGER.warn("Time for one query is not set [scenario: " + scenario.getQueryScenarioIdentifier() + "].");
 		} else {
 			try{
 				timeForOneQuery = Integer.parseInt(timeForOneQueryProp);
 			} catch (NumberFormatException ex){
-				FrameworkPlugin.LOGGER.warn("Unparsable time for one query [scenario: {}, time: {}].", scenario.getQueryScenarioIdentifier(), timeForOneQueryProp);
+				FrameworkPlugin.LOGGER.warn("Unparsable time for one query [scenario: " + scenario.getQueryScenarioIdentifier() 
+						+ ", time: " + timeForOneQueryProp + "].");
 				timeForOneQuery = -1;
 			}
 		}
@@ -124,7 +125,7 @@ public class ProcessResults implements TestCaseLifeCycle {
 				String querySetID = null;
 				querySetID = qsetIt.next();
 
-				ClientPlugin.LOGGER.info("Start TestResult:  QuerySetID [{}]", querySetID);
+				ClientPlugin.LOGGER.info("Start TestResult:  QuerySetID [" + querySetID + "]");
 
 				final List<QueryTest> queryTests = scenario.getQueries(querySetID);
 
@@ -141,7 +142,7 @@ public class ProcessResults implements TestCaseLifeCycle {
 					TestCase testcase = new TestCase(q);
 					testcase.setTestResult(testResult);
 					
-					ClientPlugin.LOGGER.debug("Test: QuerySetID [{} - {}]", testResult.getQuerySetID(), testResult.getQueryID());
+					ClientPlugin.LOGGER.debug("Test: QuerySetID [" + testResult.getQuerySetID() + " - " + testResult.getQueryID() + "]");
 
 					testResult.setResultMode(this.scenario.getResultsMode());
 					testResult.setStatus(TestResult.RESULT_STATE.TEST_PRERUN);
@@ -192,7 +193,7 @@ public class ProcessResults implements TestCaseLifeCycle {
 
 				long endTS = System.currentTimeMillis();
 
-				ClientPlugin.LOGGER.info("End TestResult: QuerySetID [{}]", querySetID);
+				ClientPlugin.LOGGER.info("End TestResult: QuerySetID [" + querySetID + "]");
 
 				try {
 					summary.printResults(querySetID, beginTS, endTS);
@@ -273,7 +274,7 @@ public class ProcessResults implements TestCaseLifeCycle {
 					+ test.getQueryID() + "ResultMode: " + (resultModeNone ? "NONE" : scenario.getResultsMode()) + ", numtimes: " +
 					qsql.getRunTimes() + " rowcount: "  + qsql.getRowCnt() + " updatecnt: " + 
 					qsql.getUpdateCnt());
-			ClientPlugin.LOGGER.info("Query [{}]: {}", testResult.getQueryID(), testResult.getQuery());
+			ClientPlugin.LOGGER.info("Query [" + testResult.getQueryID() + "]: " + testResult.getQuery());
 			for (int r = 0; r < qsql.getRunTimes(); r++) {
 
 				abQuery.execute(testResult.getQuery(), qsql.getParms(), qsql.getPayLoad());
@@ -340,7 +341,7 @@ public class ProcessResults implements TestCaseLifeCycle {
 	private Exception pingDS(String scenario){
 		String pingQuery = ConfigPropertyLoader.getInstance().getProperty(TestProperties.PING_QUERY);
 		if(pingQuery == null || pingQuery.isEmpty()){
-			FrameworkPlugin.LOGGER.warn("Ping-query not set [scenario: {}]", scenario);
+			FrameworkPlugin.LOGGER.warn("Ping-query not set [scenario: " + scenario + "]");
 			return null;
 		}
 		Connection con;
@@ -350,7 +351,7 @@ public class ProcessResults implements TestCaseLifeCycle {
 			return new FrameworkRuntimeException(ex);
 		}
 		try{
-			FrameworkPlugin.LOGGER.debug("Trying ping-query {} [scenario {}]", pingQuery, scenario);
+			FrameworkPlugin.LOGGER.debug("Trying ping-query " + pingQuery + " [scenario " + scenario + "]");
 			con.prepareStatement(pingQuery).execute();
 		} catch (SQLException ex){
 			return new FrameworkRuntimeException(ex, FrameworkException.ErrorCodes.PING_QUERY_FAILED,

@@ -285,6 +285,7 @@ public class TestPropertiesUtils {
 	 * defaults of the properties, the third Map the defaults of the second Map, and so on... 
 	 * @return true or false for pass or fail
 	 */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
 	private static final boolean verifyProps(Properties props, List chainOfMappings){
 	    boolean result = verifyAllPropsPresent(props, chainOfMappings);
 	    if (result){
@@ -301,7 +302,8 @@ public class TestPropertiesUtils {
 	 * defaults of the properties, the third Map the defaults of the second Map, and so on... 
 	 * @return true all keys are present, false otherwise
 	 */
-    private static final boolean verifyAllPropsPresent(Properties props, List chainOfMappings){
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	private static final boolean verifyAllPropsPresent(Properties props, List chainOfMappings){
 	    Enumeration e = props.propertyNames();
 		HashSet propNames = new HashSet();
 	    while (e.hasMoreElements()) {
@@ -332,16 +334,16 @@ public class TestPropertiesUtils {
 	 * defaults of the properties, the third Map the defaults of the second Map, and so on... 
 	 * @return true if props correctly reflects the chainOfMappings, false otherwise
 	 */
-	private static final boolean verifyCorrectMappings(Properties props, List chainOfMappings){
-	    Enumeration e = props.propertyNames();
+	private static final boolean verifyCorrectMappings(Properties props, List<Map<String, Object>> chainOfMappings){
+	    Enumeration<?> e = props.propertyNames();
 		boolean allGood = true;
 	    while (e.hasMoreElements() && allGood) {
 			boolean foundKey = false;
             String propName = (String) e.nextElement();
 			String propValue = props.getProperty(propName);
-            Iterator i = chainOfMappings.iterator();
+            Iterator<Map<String, Object>> i = chainOfMappings.iterator();
             while (i.hasNext() && !foundKey) {
-                Map aMapping = (Map) i.next();
+                Map<String, Object> aMapping = i.next();
                 Object value = aMapping.get(propName);
 				if (value != null){
 				    foundKey = true;
@@ -362,16 +364,16 @@ public class TestPropertiesUtils {
 	 * an instance of UnmodifiableProperties wrapping a Properties object
 	 * @return Properties
 	 */
-	private static final Properties make(Map mappings, Properties defaults, boolean makeUnmodifiable){
+	private static final Properties make(Map<String, String> mappings, Properties defaults, boolean makeUnmodifiable){
 	    Properties props = null;
 	    if (defaults != null){
 	    	props = new Properties(defaults);    
 	    } else {
 	        props = new Properties();
 	    }
-	    Iterator i = mappings.entrySet().iterator();
+	    Iterator<Map.Entry<String, String>> i = mappings.entrySet().iterator();
 	    while (i.hasNext()) {
-            Map.Entry anEntry = (Map.Entry) i.next();
+            Map.Entry<String, String> anEntry = i.next();
             props.setProperty((String)anEntry.getKey(),(String)anEntry.getValue());
         }
 	    return props;
@@ -399,44 +401,44 @@ public class TestPropertiesUtils {
 	private static final String PROP_VALUE_5B = "value5b"; //$NON-NLS-1$
 	private static final String PROP_VALUE_6C = "value6c"; //$NON-NLS-1$
 	
-	private static final Map MAP_A;
-	private static final Map MAP_B;
-	private static final Map MAP_C;
-	private static final List LIST_A;
+	private static final Map<String, String> MAP_A;
+	private static final Map<String, String> MAP_B;
+	private static final Map<String, String> MAP_C;
+	private static final List<Map<String, String>> LIST_A;
 //	private static final List LIST_B;
-	private static final List LIST_AB;
-	private static final List LIST_ABC;
+	private static final List<Map<String, String>> LIST_AB;
+	private static final List<Map<String, String>> LIST_ABC;
 	static{
 		//A
-	    Map temp = new HashMap();
+	    Map<String, String> temp = new HashMap<String, String>();
 	    temp.put(PROP_NAME_1, PROP_VALUE_1A);
 	    temp.put(PROP_NAME_2, PROP_VALUE_2A);
 	    temp.put(PROP_NAME_3, PROP_VALUE_3A);
 		MAP_A = Collections.unmodifiableMap(temp);
 		//B
-	    temp = new HashMap();
+	    temp = new HashMap<String, String>();
 	    temp.put(PROP_NAME_1, PROP_VALUE_1B);
 	    temp.put(PROP_NAME_4, PROP_VALUE_4B);
 	    temp.put(PROP_NAME_5, PROP_VALUE_5B);
 		MAP_B = Collections.unmodifiableMap(temp);
 		//C
-	    temp = new HashMap();
+	    temp = new HashMap<String, String>();
 	    temp.put(PROP_NAME_2, PROP_VALUE_2C);
 	    temp.put(PROP_NAME_4, PROP_VALUE_4C);
 	    temp.put(PROP_NAME_6, PROP_VALUE_6C);
 		MAP_C = Collections.unmodifiableMap(temp);
 		//LISTS OF BINDINGS		
-		List tempList = new ArrayList(1);
+		List<Map<String, String>> tempList = new ArrayList<Map<String, String>>(1);
 		tempList.add(MAP_A);
 		LIST_A = Collections.unmodifiableList(tempList);
-		tempList = new ArrayList(1);
+		tempList = new ArrayList<Map<String, String>>(1);
 		tempList.add(MAP_B);
 //		LIST_B = Collections.unmodifiableList(tempList);
-		tempList = new ArrayList(2);
+		tempList = new ArrayList<Map<String, String>>(2);
 		tempList.add(MAP_A);
 		tempList.add(MAP_B);
 		LIST_AB = Collections.unmodifiableList(tempList);
-		tempList = new ArrayList(3);
+		tempList = new ArrayList<Map<String, String>>(3);
 		tempList.add(MAP_A);
 		tempList.add(MAP_B);
 		tempList.add(MAP_C);
@@ -519,11 +521,11 @@ public class TestPropertiesUtils {
         p.setProperty("foo.bar2", "value2"); //$NON-NLS-1$ //$NON-NLS-2$
         p.setProperty("bar.foo1", "value3"); //$NON-NLS-1$ //$NON-NLS-2$
         
-        List foop = PropertiesUtils.filter("foo.*", p);
+        List<String> foop = PropertiesUtils.filter("foo.*", p);
         
         assertEquals(2,foop.size());
         
-        List barp = PropertiesUtils.filter("bar.*", p);
+        List<String> barp = PropertiesUtils.filter("bar.*", p);
         
         assertEquals(1, barp.size());
     }    

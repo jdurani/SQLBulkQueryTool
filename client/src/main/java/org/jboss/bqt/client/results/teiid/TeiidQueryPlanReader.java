@@ -112,7 +112,7 @@ public class TeiidQueryPlanReader extends ExpectedResultsReader {
 		
 		String xml = statement.getPlanDescription().toXml();
 		
-    	List differences = null;
+    	List<String> differences = null;
 		try {
 			differences = TeiidUtil.compareToResults(xml,  null, testcase.getTestResult().getQuery(), expectedResults.getExpectedResultsFile(), false);
 

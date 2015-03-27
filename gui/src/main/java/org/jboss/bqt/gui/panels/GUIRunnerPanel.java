@@ -227,7 +227,7 @@ public class GUIRunnerPanel extends JPanel {
 				.addComponent(cancelButton)
 				.addComponent(statusLabel)
 				.addComponent(status))
-			.addComponent(bqtLogScrollPane));
+			.addComponent(bqtLogScrollPane, 800, 1000, 1000));
 		
 		int fieldHeight = 25;
 		int groupsGap = 25;
@@ -279,7 +279,7 @@ public class GUIRunnerPanel extends JPanel {
 				.addComponent(cancelButton)
 				.addComponent(statusLabel)
 				.addComponent(status))
-			.addComponent(bqtLogScrollPane));
+			.addComponent(bqtLogScrollPane, 200, 300, 400));
 		
 		gl.linkSize(host, port, userName, password);
 		gl.linkSize(SwingConstants.VERTICAL, scenarios, outputDir, config, artifactsDir, include, exclude);
@@ -508,7 +508,6 @@ public class GUIRunnerPanel extends JPanel {
 	private void setStatus(String statusText, Color bg) {
 		status.setText(statusText);
 		status.setForeground(bg);
-		status.repaint();
 	}
 
 	/**
@@ -588,7 +587,7 @@ public class GUIRunnerPanel extends JPanel {
 		protected Void doInBackground() throws Exception {
 			Properties props = getProperties();
 			bqtLogPane.setText("");
-			LOGGER.info("Starting BQT with properties: {}.",props);
+			LOGGER.info("Starting BQT with properties: " + props + ".");
 			setStatus("IN PROGRESS", Color.ORANGE); 
 			new TestClient().runTest(props);
 			LOGGER.debug("BQT ended.");

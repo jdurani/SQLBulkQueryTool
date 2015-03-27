@@ -151,7 +151,7 @@ public class XMLFileType implements FileType {
 	 *      org.jboss.bqt.framework.TestResult)
 	 */
 	@Override
-	public String getErrorMessagesFileName(@SuppressWarnings("unused") QueryScenario scenario, TestResult testResult) {
+	public String getErrorMessagesFileName(QueryScenario scenario, TestResult testResult) {
 		return testResult.getQuerySetID() + "_" + testResult.getQueryID() + "_messages.txt";
 	}
 

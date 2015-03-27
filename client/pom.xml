@@ -29,8 +29,8 @@
         <dependency>
             <groupId>org.jboss.bqt</groupId>
             <artifactId>bqt-core</artifactId>
-            <version>${project.version}</version>
             <type>test-jar</type>
+            <version>${project.version}</version>
         </dependency>
         
 		<dependency>

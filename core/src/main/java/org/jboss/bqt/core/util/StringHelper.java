@@ -51,8 +51,6 @@ public final class StringHelper {
 		final Pattern PARAMETER_COUNT_PATTERN = Pattern.compile("\\{(\\d+)\\}");
 	}
 
-	
-	@SuppressWarnings("null")
 	public static boolean isEqual(String arg1, String arg2) {
 		if (arg1 == null && arg2 == null) return true;
 		if (arg1 == null && arg2 != null) return false;

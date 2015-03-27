@@ -82,18 +82,18 @@ public class QueryResults implements Externalizable {
 	/**
 	 * The fields in the results object: List of String
 	 */
-	private List fields;
+	private List<String> fields;
 
 	/**
 	 * The column info for each field: Map of String --> ColumnInfo
 	 */
-	private Map columnInfos;
+	private Map<String, ColumnInfo> columnInfos;
 
 	/**
 	 * The set of results. Each result is keyed off the variable identifier that
 	 * was defined in the query's select clause. This field will never be null.
 	 */
-	private List records; // Rows of columns: List<List<Object>>
+	private List<List<Object>> records; // Rows of columns: List<List<Object>>
 
 	// =========================================================================
 	// C O N S T R U C T O R S
@@ -123,7 +123,7 @@ public class QueryResults implements Externalizable {
 	 * @param fields
 	 *            The set of field identifiers that will be in the result set
 	 */
-	public QueryResults(List fields) {
+	public QueryResults(List<ColumnInfo> fields) {
 		this(fields, 0);
 	}
 
@@ -147,11 +147,11 @@ public class QueryResults implements Externalizable {
 	 *            contain <code>null</code> values for all the fields
 	 * @see #addField
 	 */
-	public QueryResults(List fields, int numberOfRecords) {
+	public QueryResults(List<ColumnInfo> fields, int numberOfRecords) {
 		if (fields != null) {
-			Iterator fieldIter = fields.iterator();
+			Iterator<ColumnInfo> fieldIter = fields.iterator();
 			while (fieldIter.hasNext()) {
-				ColumnInfo info = (ColumnInfo) fieldIter.next();
+				ColumnInfo info = fieldIter.next();
 				addField(info);
 			}
 			for (int k = 0; k < numberOfRecords; k++) {
@@ -162,7 +162,7 @@ public class QueryResults implements Externalizable {
 
 
 	// =========================================================================
-	// D A T A A C C E S S M E T H O D S
+	// D A T A   A C C E S S   M E T H O D S
 	// =========================================================================
 
 	/**
@@ -176,8 +176,8 @@ public class QueryResults implements Externalizable {
 	 * 
 	 * @return The field identifiers
 	 */
-	public List getFieldIdents() {
-		return (fields != null) ? fields : new ArrayList();
+	public List<String> getFieldIdents() {
+		return (fields != null) ? fields : new ArrayList<String>();
 	}
 
 	/**
@@ -215,11 +215,11 @@ public class QueryResults implements Externalizable {
 	 *         ordered according to the original select parameters, if defined
 	 * @throws IndexOutOfBoundsException 
 	 */
-	public List getRecordValues(int recordNumber)
+	public List<Object> getRecordValues(int recordNumber)
 			throws IndexOutOfBoundsException {
 
 		if (records != null) {
-			return (List) records.get(recordNumber);
+			return records.get(recordNumber);
 		}
 		throw new IndexOutOfBoundsException("Record number " + recordNumber
 				+ " is not valid.");
@@ -231,24 +231,24 @@ public class QueryResults implements Externalizable {
 	 * 
 	 * @return A list of lists contains the field values for each row.
 	 */
-	public List getRecords() {
+	public List<List<Object>> getRecords() {
 		return records;
 	}
 
 
-	public List getTypes() {
-		List typeNames = new ArrayList();
+	public List<String> getTypes() {
+		List<String> typeNames = new ArrayList<String>();
 
 		int nFields = getFieldCount();
 		for (int i = 0; i < nFields; i++) {
-			String aField = (String) fields.get(i);
+			String aField = fields.get(i);
 			typeNames.add(((ColumnInfo) columnInfos.get(aField)).getDataType());
 		}
 		return typeNames;
 	}
 
 	// =========================================================================
-	// D A T A M A N I P U L A T I O N M E T H O D S
+	// D A T A   M A N I P U L A T I O N   M E T H O D S
 	// =========================================================================
 
 	/**
@@ -264,20 +264,20 @@ public class QueryResults implements Externalizable {
 	public void addField(ColumnInfo info) {
 		// Add to ordered list of fields
 		if (fields == null) {
-			fields = new ArrayList();
+			fields = new ArrayList<String>();
 		}
 		fields.add(info.getName());
 
 		// Save column information
 		if (columnInfos == null) {
-			columnInfos = new HashMap();
+			columnInfos = new HashMap<String, ColumnInfo>();
 		}
 		columnInfos.put(info.getName(), info);
 
 		// Add new field to each record
 		if (records != null) {
 			for (int i = 0; i < records.size(); i++) {
-				List record = (List) records.get(i);
+				List<Object> record = records.get(i);
 				record.add(null);
 			}
 		}
@@ -293,11 +293,10 @@ public class QueryResults implements Externalizable {
 	 * @param fields
 	 *            The field identifiers.
 	 */
-	public void addFields(Collection fields) {
-		Iterator idents = fields.iterator();
+	public void addFields(Collection<ColumnInfo> fields) {
+		Iterator<ColumnInfo> idents = fields.iterator();
 		while (idents.hasNext()) {
-			ColumnInfo ident = (ColumnInfo) idents.next();
-			addField(ident);
+			addField(idents.next());
 		}
 	}
 
@@ -319,7 +318,7 @@ public class QueryResults implements Externalizable {
 					"Cannot add record; no fields have been defined");
 		}
 		// Create a record with all null values, one for each field
-		List record = new ArrayList(nField);
+		List<Object> record = new ArrayList<Object>(nField);
 		for (int j = 0; j < nField; j++) {
 			record.add(null);
 		}
@@ -336,7 +335,7 @@ public class QueryResults implements Externalizable {
 	 * 
 	 * @return The updated number of records
 	 */
-	public int addRecord(List record) {
+	public int addRecord(List<Object> record) {
 		if (record == null) {
 			throw new IllegalArgumentException("Attempt to add null record.");
 		}
@@ -346,7 +345,7 @@ public class QueryResults implements Externalizable {
 					+ " fields are defined.");
 		}
 		if (records == null) {
-			records = new ArrayList();
+			records = new ArrayList<List<Object>>();
 		}
 		records.add(record);
 		return records.size();
@@ -354,7 +353,7 @@ public class QueryResults implements Externalizable {
 
 
 	// =========================================================================
-	// O V E R R I D D E N O B J E C T M E T H O D S
+	// O V E R R I D D E N   O B J E C T   M E T H O D S
 	// =========================================================================
 
 	/** Compares with another result set 
@@ -379,8 +378,8 @@ public class QueryResults implements Externalizable {
 			return false;
 		}
 
-		List thisRecords = this.getRecords();
-		List otherRecords = other.getRecords();
+		List<List<Object>> thisRecords = this.getRecords();
+		List<List<Object>> otherRecords = other.getRecords();
 
 		if (thisRecords == null) {
 			if (otherRecords == null) {
@@ -406,7 +405,7 @@ public class QueryResults implements Externalizable {
 			buffer.append(r);
 			buffer.append(": "); //$NON-NLS-1$
 
-			List record = this.getRecordValues(r);
+			List<Object> record = this.getRecordValues(r);
 			for (int c = 0; c < this.getFieldCount(); c++) {
 				buffer.append(record.get(c));
 				if (c < this.getFieldCount() - 1) {
@@ -418,17 +417,17 @@ public class QueryResults implements Externalizable {
 		return buffer.toString();
 	}
 
-	private static String printFieldIdentsAndTypes(List fieldIdents,
-			Map columnInfos) {
+	private static String printFieldIdentsAndTypes(List<String> fieldIdents,
+			Map<String, ColumnInfo> columnInfos) {
 		StringBuffer buf = new StringBuffer();
-		Iterator fieldItr = fieldIdents.iterator();
+		Iterator<String> fieldItr = fieldIdents.iterator();
 		while (fieldItr.hasNext()) {
-			String aField = (String) fieldItr.next();
+			String aField = fieldItr.next();
 			if (aField != null) {
 				buf.append("["); //$NON-NLS-1$
 				buf.append(aField);
 				buf.append(" - ["); //$NON-NLS-1$
-				ColumnInfo colInfo = (ColumnInfo) columnInfos.get(aField);
+				ColumnInfo colInfo = columnInfos.get(aField);
 				buf.append(colInfo.getDataType());
 				buf.append(", "); //$NON-NLS-1$
 				buf.append(colInfo.getJavaClass());
@@ -456,22 +455,22 @@ public class QueryResults implements Externalizable {
 			throws ClassNotFoundException, IOException {
 		int numFields = s.readInt();
 		if (numFields > 0) {
-			fields = new ArrayList(numFields);
-			columnInfos = new HashMap();
+			fields = new ArrayList<String>(numFields);
+			columnInfos = new HashMap<String, ColumnInfo>();
 			for (int i = 0; i < numFields; i++) {
 				String fieldName = s.readUTF();
 				fields.add(fieldName);
 
 				Object colInfo = s.readObject();
-				columnInfos.put(fieldName, colInfo);
+				columnInfos.put(fieldName, (ColumnInfo) colInfo);
 			}
 		}
 
 		int numRows = s.readInt();
 		if (numRows > 0) {
-			records = new ArrayList(numRows);
+			records = new ArrayList<List<Object>>(numRows);
 			for (int row = 0; row < numRows; row++) {
-				List record = new ArrayList(numFields);
+				List<Object> record = new ArrayList<Object>(numFields);
 				for (int col = 0; col < numFields; col++) {
 					record.add(s.readObject());
 				}
@@ -509,7 +508,7 @@ public class QueryResults implements Externalizable {
 			int numRows = records.size();
 			s.writeInt(numRows);
 			for (int row = 0; row < numRows; row++) {
-				List record = (List) records.get(row);
+				List<Object> record = records.get(row);
 				for (int col = 0; col < numFields; col++) {
 					s.writeObject(record.get(col));
 				}
@@ -534,7 +533,7 @@ public class QueryResults implements Externalizable {
 
 		private String name;
 		private String dataType;
-		private Class javaClass;
+		private Class<?> javaClass;
 
 		private Object groupID; // fully qualified group name
 		private Object elementID; // short name
@@ -549,7 +548,7 @@ public class QueryResults implements Externalizable {
 			this.javaClass = java.lang.String.class;
 		}
 
-		public ColumnInfo(String name, String dataType, Class javaClass) {
+		public ColumnInfo(String name, String dataType, Class<?> javaClass) {
 			if (name == null) {
 				throw new IllegalArgumentException(
 						"QueryResults column cannot have name==null");
@@ -559,7 +558,7 @@ public class QueryResults implements Externalizable {
 			this.javaClass = javaClass;
 		}
 
-		public ColumnInfo(String name, String dataType, Class javaClass,
+		public ColumnInfo(String name, String dataType, Class<?> javaClass,
 				Object groupID, Object elementID) {
 			this(name, dataType, javaClass);
 			this.groupID = groupID;
@@ -574,7 +573,7 @@ public class QueryResults implements Externalizable {
 			return this.dataType;
 		}
 
-		public Class getJavaClass() {
+		public Class<?> getJavaClass() {
 			return this.javaClass;
 		}
 

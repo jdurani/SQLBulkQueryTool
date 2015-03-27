@@ -299,7 +299,7 @@ public class QueryTestFailedException extends Exception implements Serializable 
 	 *            retrieved message.
 	 * @since 3.1
 	 */
-	private void setMessage(final String message, final List parameters) {
+	private void setMessage(final String message, final List<Object> parameters) {
 		if (message == null) {
 			this.msg = message;
 		} else {

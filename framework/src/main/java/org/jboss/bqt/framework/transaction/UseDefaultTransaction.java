@@ -31,6 +31,4 @@ public class UseDefaultTransaction extends AbstractQuery {
 	public UseDefaultTransaction() {
 		super();
 	}
-
-	
 }

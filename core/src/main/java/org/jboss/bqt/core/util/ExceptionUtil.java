@@ -55,7 +55,7 @@ public class ExceptionUtil {
 	 *            any Throwable
 	 * @return an appropriate Iterator over any nested children Throwables;
 	 */
-	public static Iterator getChildrenIterator(Throwable e) {
+	public static Iterator<Throwable> getChildrenIterator(Throwable e) {
 		return new NestedExceptionIterator(e);
 	}
 
@@ -64,9 +64,9 @@ public class ExceptionUtil {
 		if (exception != null) {
 			exception.printStackTrace(output);
 
-			Iterator children = getChildrenIterator(exception);
+			Iterator<Throwable> children = getChildrenIterator(exception);
 			while (children.hasNext()) {
-				exception = (Throwable) children.next();
+				exception = children.next();
 				output.print(FrameworkRuntimeException.CAUSED_BY_STRING);
 				exception.printStackTrace(output);
 			}
@@ -81,10 +81,10 @@ public class ExceptionUtil {
 		if (exception != null) {
 			StringBuffer buf = new StringBuffer();
 			String lastMessage = appendMessage("", buf, null, exception); //$NON-NLS-1$
-			Iterator children = getChildrenIterator(exception);
+			Iterator<Throwable> children = getChildrenIterator(exception);
 			while (children.hasNext()) {
 				level++;
-				exception = (Throwable) children.next();
+				exception = children.next();
 				lastMessage = appendMessage("->", buf, lastMessage, exception); //$NON-NLS-1$
 			}
 			return buf.toString();
@@ -135,10 +135,10 @@ public class ExceptionUtil {
 		if (exception != null) {
 			StringBuffer buf = new StringBuffer();
 			buf.append(exception.getMessage());
-			Iterator children = getChildrenIterator(exception);
+			Iterator<Throwable> children = getChildrenIterator(exception);
 			while (children.hasNext()) {
 				level++;
-				exception = (Throwable) children.next();
+				exception = children.next();
 				buf.append(exception.getMessage());
 			}
 			return buf.toString();
@@ -161,9 +161,9 @@ public class ExceptionUtil {
 	private static String getInnerMostdMessage(Throwable exception) {
 		
 		if (exception != null) {
-			Iterator children = getChildrenIterator(exception);
+			Iterator<Throwable> children = getChildrenIterator(exception);
 			while (children.hasNext()) {
-				exception = (Throwable) children.next();
+				exception = children.next();
 			}
 			return exception.getMessage();
 		}
@@ -185,7 +185,7 @@ public class ExceptionUtil {
 	 * </p>
 	 * 
 	 */
-	public static class NestedExceptionIterator implements Iterator {
+	public static class NestedExceptionIterator implements Iterator<Throwable> {
 
 		Throwable exception;
 		Throwable child;
@@ -213,7 +213,7 @@ public class ExceptionUtil {
 		 * @exception NoSuchElementException
 		 *                iteration has no more elements.
 		 */
-		public Object next() {
+		public Throwable next() {
 			if (!hasNext()) {
 				throw new NoSuchElementException();
 			}

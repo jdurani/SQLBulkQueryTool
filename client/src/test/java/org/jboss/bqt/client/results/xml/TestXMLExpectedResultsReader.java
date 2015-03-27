@@ -160,6 +160,7 @@ public class TestXMLExpectedResultsReader {
 
 		QueryScenario set = QueryScenario.createInstance("testscenario",p);
 		
+		@SuppressWarnings("unused")
 		XMLExpectedResultsReader er = new XMLExpectedResultsReader(set, "test_queries1",_instance.getProperties());
 		
 		QueryTest qt = new QueryTest(set.getQueryScenarioIdentifier(), "test_queries1", "Query1", null);
@@ -199,6 +200,7 @@ public class TestXMLExpectedResultsReader {
 
 		QueryScenario set = QueryScenario.createInstance("testscenario",p);
 		
+		@SuppressWarnings("unused")
 		XMLExpectedResultsReader er = new XMLExpectedResultsReader(set, "test_queries1",_instance.getProperties());
 		
 		QueryTest qt = new QueryTest(set.getQueryScenarioIdentifier(), "test_queries1", "Query2", null);

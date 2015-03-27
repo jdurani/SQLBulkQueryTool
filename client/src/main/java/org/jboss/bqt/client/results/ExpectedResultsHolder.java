@@ -46,8 +46,8 @@ public class ExpectedResultsHolder extends ExpectedResults {
 
 	// Query Results
 	private List<List<Object>> rows;
-	private List types;
-	private List identifiers;
+	private List<String> types;
+	private List<String> identifiers;
 
 	// Exception
 	private String exceptionClassName;
@@ -112,19 +112,19 @@ public class ExpectedResultsHolder extends ExpectedResults {
 		this.rows = rows;
 	}
 
-	public List getTypes() {
+	public List<String> getTypes() {
 		return types;
 	}
 
-	public void setTypes(final List types) {
+	public void setTypes(final List<String> types) {
 		this.types = types;
 	}
 
-	public List getIdentifiers() {
+	public List<String> getIdentifiers() {
 		return identifiers;
 	}
 
-	public void setIdentifiers(final List identifiers) {
+	public void setIdentifiers(final List<String> identifiers) {
 		this.identifiers = identifiers;
 	}
 
@@ -195,7 +195,7 @@ public class ExpectedResultsHolder extends ExpectedResults {
 				buf.append("\n"); //$NON-NLS-1$
 			}
 			if (rows != null) {
-				Iterator rowItr = this.rows.iterator();
+				Iterator<List<Object>> rowItr = this.rows.iterator();
 				int i = 1;
 				while (rowItr.hasNext()) {
 					buf.append(i++);

@@ -56,7 +56,7 @@ public class TestResultSetUtil {
 	private static final String NULL = "<null>"; //$NON-NLS-1$
 	private static final String MORE = "$ ";
 
-	public static List compareThrowable(Throwable t, String query,
+	public static List<String> compareThrowable(Throwable t, String query,
 			File expectedResultsFile, boolean printToConsole)
 			throws IOException, SQLException {
 		BufferedReader expectedResultsReader = null;
@@ -162,7 +162,7 @@ public class TestResultSetUtil {
 	 * @throws SQLException
 	 * @since 4.3
 	 */
-	public static List writeAndCompareResultSet(ResultSet rs, String query,
+	public static List<String> writeAndCompareResultSet(ResultSet rs, String query,
 			int maxColWidth, boolean printMetadata, File resultsFile,
 			File expectedResultsFile, boolean printToConsole)
 			throws IOException, SQLException {
@@ -203,7 +203,7 @@ public class TestResultSetUtil {
 	 * @throws SQLException
 	 * @since 4.3
 	 */
-	public static List writeAndCompareResultSet(ResultSet rs, String query,
+	public static List<String> writeAndCompareResultSet(ResultSet rs, String query,
 			int maxColWidth, boolean printMetadata, OutputStream resultsOutput,
 			BufferedReader expectedResultsInput, PrintStream defaultPrintStream)
 			throws SQLException {
@@ -213,11 +213,11 @@ public class TestResultSetUtil {
 		return getUnequalLines(out);
 	}
 
-	public static List getUnequalLines(PrintStream out) {
+	public static List<String> getUnequalLines(PrintStream out) {
 		if (out instanceof ComparingPrintStream) {
 			return ((ComparingPrintStream) out).getUnequalLines();
 		}
-		return Collections.EMPTY_LIST;
+		return Collections.emptyList();
 	}
 
 
@@ -350,8 +350,8 @@ public class TestResultSetUtil {
 	public static void printResultSetMetadata(ResultSetMetaData rsmd,
 			PrintStream out) throws SQLException {
 		int columns = rsmd.getColumnCount();
-		Class RSMD = ResultSetMetaData.class;
-		Class[] params = { int.class };
+		Class<ResultSetMetaData> RSMD = ResultSetMetaData.class;
+		Class<?>[] params = { int.class };
 		int numMethods = METADATA_METHODS.length;
 		String[][] metadataStrings = new String[columns][numMethods];
 		// Init the widths of the columns
@@ -596,7 +596,7 @@ public class TestResultSetUtil {
 //			        "UTF-8"),
 //			    1024);
 
-		private ArrayList unequalLines = new ArrayList();
+		private ArrayList<String> unequalLines = new ArrayList<String>();
 
 		private ComparingPrintStream(OutputStream out, BufferedReader in) {
 			super(out);
@@ -729,7 +729,7 @@ public class TestResultSetUtil {
 
 		}
 
-		public List getUnequalLines() {
+		public List<String> getUnequalLines() {
 			return unequalLines;
 		}
 	}

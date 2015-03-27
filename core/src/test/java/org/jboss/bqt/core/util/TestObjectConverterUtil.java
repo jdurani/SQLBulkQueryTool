@@ -51,7 +51,8 @@ public class TestObjectConverterUtil extends TestCase {
     	WORLD
     }
     
-    public void testValueOf() throws Exception {
+    @SuppressWarnings("rawtypes")
+	public void testValueOf() throws Exception {
     	assertEquals(Integer.valueOf(21), ObjectConverterUtil.valueOf("21", Integer.class)); //$NON-NLS-1$
     	assertEquals(Boolean.valueOf(true), ObjectConverterUtil.valueOf("true", Boolean.class)); //$NON-NLS-1$    	
     	assertEquals("Foo", ObjectConverterUtil.valueOf("Foo", String.class)); //$NON-NLS-1$ //$NON-NLS-2$

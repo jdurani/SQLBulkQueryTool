@@ -441,7 +441,7 @@ public class ArgCheck {
 	 * @throws IllegalArgumentException
 	 *             If value is null
 	 */
-	public static final void isInstanceOf(Class theClass, Object value) {
+	public static final void isInstanceOf(Class<?> theClass, Object value) {
 		isInstanceOf(theClass, value, null);
 	}
 
@@ -457,7 +457,7 @@ public class ArgCheck {
 	 * @throws IllegalArgumentException
 	 *             If value is null
 	 */
-	public static final void isInstanceOf(Class theClass, Object value,
+	public static final void isInstanceOf(Class<?> theClass, Object value,
 			String message) {
 		isNotNull(value);
 		if (!theClass.isInstance(value)) {
@@ -480,7 +480,7 @@ public class ArgCheck {
 	 * @throws IllegalArgumentException
 	 *             If collection is null or empty
 	 */
-	public static final void isNotEmpty(Collection collection) {
+	public static final void isNotEmpty(Collection<?> collection) {
 		isNotEmpty(collection, null);
 	}
 
@@ -494,7 +494,7 @@ public class ArgCheck {
 	 * @throws IllegalArgumentException
 	 *             If collection is null or empty
 	 */
-	public static final void isNotEmpty(Collection collection, String message) {
+	public static final void isNotEmpty(Collection<?> collection, String message) {
 		isNotNull(collection);
 		if (collection.isEmpty()) {
 			final String msg = message != null ? message : CorePlugin.Util
@@ -511,7 +511,7 @@ public class ArgCheck {
 	 * @throws IllegalArgumentException
 	 *             If map is null or empty
 	 */
-	public static final void isNotEmpty(Map map) {
+	public static final void isNotEmpty(Map<?, ?> map) {
 		isNotEmpty(map, null);
 	}
 
@@ -525,7 +525,7 @@ public class ArgCheck {
 	 * @throws IllegalArgumentException
 	 *             If map is null or empty
 	 */
-	public static final void isNotEmpty(Map map, String message) {
+	public static final void isNotEmpty(Map<?, ?> map, String message) {
 		isNotNull(map);
 		if (map.isEmpty()) {
 			final String msg = message != null ? message : CorePlugin.Util
@@ -643,7 +643,7 @@ public class ArgCheck {
 	 * @throws IllegalArgumentException
 	 *             If collection is null or doesn't contain value
 	 */
-	public static final void contains(Collection collection, Object value) {
+	public static final void contains(Collection<?> collection, Object value) {
 		contains(collection, value, null);
 	}
 
@@ -659,7 +659,7 @@ public class ArgCheck {
 	 * @throws IllegalArgumentException
 	 *             If collection is null or doesn't contain value
 	 */
-	public static final void contains(Collection collection, Object value,
+	public static final void contains(Collection<?> collection, Object value,
 			String message) {
 		isNotNull(collection);
 		if (!collection.contains(value)) {
@@ -679,7 +679,7 @@ public class ArgCheck {
 	 * @throws IllegalArgumentException
 	 *             If map is null or doesn't contain key
 	 */
-	public static final void containsKey(Map map, Object key) {
+	public static final void containsKey(Map<?, ?> map, Object key) {
 		containsKey(map, key, null);
 	}
 
@@ -695,7 +695,7 @@ public class ArgCheck {
 	 * @throws IllegalArgumentException
 	 *             If map is null or doesn't contain key
 	 */
-	public static final void containsKey(Map map, Object key, String message) {
+	public static final void containsKey(Map<?, ?> map, Object key, String message) {
 		isNotNull(map);
 		if (!map.containsKey(key)) {
 			final String msg = message != null ? message : CorePlugin.Util

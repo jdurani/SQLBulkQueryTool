@@ -80,10 +80,10 @@ public final class PropertiesUtils {
 	 * @return The List of property names matching given pattern - may be empty
 	 *         but never null.
 	 */
-	public static List filter(String pattern, Properties props) {
+	public static List<String> filter(String pattern, Properties props) {
 		boolean addAll = false;
 		String searchStr = null;
-		List propNames = new ArrayList();
+		List<String> propNames = new ArrayList<String>();
 		int globIndex = pattern.indexOf('*');
 		if (globIndex == -1) {
 			searchStr = pattern;
@@ -93,7 +93,7 @@ public final class PropertiesUtils {
 			searchStr = pattern.substring(0, globIndex);
 		}
 
-		Enumeration propNameEnum = props.propertyNames();
+		Enumeration<?> propNameEnum = props.propertyNames();
 		while (propNameEnum.hasMoreElements()) {
 			String name = (String) propNameEnum.nextElement();
 			if (name.startsWith(searchStr) || addAll) {
@@ -143,7 +143,7 @@ public final class PropertiesUtils {
 			searchStr = filterPattern.substring(0, globIndex);
 		}
 
-		Enumeration propNameEnum = props.propertyNames();
+		Enumeration<?> propNameEnum = props.propertyNames();
 		while (propNameEnum.hasMoreElements()) {
 			String name = (String) propNameEnum.nextElement();
 			if (name.startsWith(searchStr)) {
@@ -216,6 +216,7 @@ public final class PropertiesUtils {
 	 *         <code>p1</code> is less than, equal to, or greater than
 	 *         <code>p2</code>, respectively.
 	 */
+	@SuppressWarnings("unchecked")
 	public static int compare(Properties p1, Properties p2) {
 		if (p1 != null) {
 			if (p2 == null) {
@@ -235,12 +236,12 @@ public final class PropertiesUtils {
 		}
 
 		// Iterate through the properties and compare values ...
-		Map.Entry entry = null;
+		Map.Entry<Object, Object> entry = null;
 		Object p1Value = null;
 		Object p2Value = null;
-		Iterator iter = p1.entrySet().iterator();
+		Iterator<Map.Entry<Object, Object>> iter = p1.entrySet().iterator();
 		while (iter.hasNext()) {
-			entry = (Map.Entry) iter.next();
+			entry = iter.next();
 			p1Value = entry.getValue();
 			p2Value = p2.get(entry.getKey());
 			if (p1Value != null) {
@@ -248,7 +249,7 @@ public final class PropertiesUtils {
 					return 1;
 				}
 				if (p1Value instanceof Comparable) {
-					diff = ((Comparable) p1Value).compareTo(p2Value);
+					diff = ((Comparable<Object>) p1Value).compareTo(p2Value);
 				} else {
 					diff = p1Value.toString().compareTo(p2Value.toString());
 				}
@@ -319,7 +320,7 @@ public final class PropertiesUtils {
 	 */
 	public static void putAll(Properties addToThis, Properties withThese) {
 		if (withThese != null && addToThis != null) {
-			Enumeration enumeration = withThese.propertyNames();
+			Enumeration<?> enumeration = withThese.propertyNames();
 			while (enumeration.hasMoreElements()) {
 				String propName = (String) enumeration.nextElement();
 				Object propValue = withThese.get(propName);
@@ -335,7 +336,7 @@ public final class PropertiesUtils {
 	}
 
 	public static void setOverrideProperies(Properties base, Properties override) {
-		Enumeration overrideEnum = override.propertyNames();
+		Enumeration<?> overrideEnum = override.propertyNames();
 		while (overrideEnum.hasMoreElements()) {
 			String key = (String) overrideEnum.nextElement();
 			String value = base.getProperty(key);
@@ -536,7 +537,7 @@ public final class PropertiesUtils {
 		return result;
 	}
 
-	public static Properties loadAsResource(Class clazz, String resourceName)
+	public static Properties loadAsResource(Class<?> clazz, String resourceName)
 			throws IOException {
 		InputStream is = null;
 		Properties configProps = new Properties();
@@ -560,8 +561,8 @@ public final class PropertiesUtils {
 
 	public static Properties sort(Properties props) {
 
-		List names = new ArrayList();
-		Enumeration enumeration = props.propertyNames();
+		List<String> names = new ArrayList<String>();
+		Enumeration<?> enumeration = props.propertyNames();
 		while (enumeration.hasMoreElements()) {
 			String name = (String) enumeration.nextElement();
 			names.add(name);
@@ -569,9 +570,9 @@ public final class PropertiesUtils {
 		Collections.sort(names);
 
 		Properties newProps = new Properties();
-		Iterator iter = names.iterator();
+		Iterator<String> iter = names.iterator();
 		while (iter.hasNext()) {
-			String name = (String) iter.next();
+			String name = iter.next();
 			String propValue = props.getProperty(name);
 			if (propValue != null) {
 				newProps.setProperty(name, propValue);
@@ -625,8 +626,8 @@ public final class PropertiesUtils {
 			stream = new FileOutputStream(fileName);
 			writer = new PrintStream(stream);
 
-			List names = new ArrayList();
-			Enumeration enumeration = props.propertyNames();
+			List<String> names = new ArrayList<String>();
+			Enumeration<?> enumeration = props.propertyNames();
 			while (enumeration.hasMoreElements()) {
 				String name = (String) enumeration.nextElement();
 				names.add(name);
@@ -635,8 +636,8 @@ public final class PropertiesUtils {
 
 			StringBuffer sb;
 
-			for (Iterator nIt = names.iterator(); nIt.hasNext();) {
-				String name = (String) nIt.next();
+			for (Iterator<String> nIt = names.iterator(); nIt.hasNext();) {
+				String name = nIt.next();
 
 				String value = props.getProperty(name);
 
@@ -805,7 +806,7 @@ public final class PropertiesUtils {
 	 */
 	public static Properties resolveNestedProperties(Properties original, boolean failWhenNotFound) {
 
-		for (Enumeration e = original.propertyNames(); e.hasMoreElements();) {
+		for (Enumeration<?> e = original.propertyNames(); e.hasMoreElements();) {
 			String key = (String) e.nextElement();
 			String value = original.getProperty(key);
 

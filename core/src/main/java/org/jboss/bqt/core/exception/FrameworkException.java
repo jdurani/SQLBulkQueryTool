@@ -154,10 +154,10 @@ public class FrameworkException extends Exception {
 		int level = 0;
 		StringBuffer buf = new StringBuffer();
 		buf.append(getFormattedMessage(this, level));
-		Iterator children = ExceptionUtil.getChildrenIterator(this);
+		Iterator<Throwable> children = ExceptionUtil.getChildrenIterator(this);
 		while (children.hasNext()) {
 			level++;
-			Throwable exception = (Throwable) children.next();
+			Throwable exception = children.next();
 			buf.append(getFormattedMessage(exception, level));
 		}
 		return buf.toString();

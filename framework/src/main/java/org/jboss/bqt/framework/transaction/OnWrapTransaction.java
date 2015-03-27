@@ -23,7 +23,6 @@ package org.jboss.bqt.framework.transaction;
 
 import org.jboss.bqt.core.exception.TransactionRuntimeException;
 import org.jboss.bqt.framework.AbstractQuery;
-import org.jboss.bqt.framework.TestResult;
 import org.jboss.bqt.framework.TestCase;
 
 /**

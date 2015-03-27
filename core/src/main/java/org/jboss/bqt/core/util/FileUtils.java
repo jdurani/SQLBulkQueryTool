@@ -518,7 +518,7 @@ public final class FileUtils {
 
 		// Recursively navigate through the contents of this directory
 		// gathering up all the files
-		List allFiles = new ArrayList();
+		List<File> allFiles = new ArrayList<File>();
 		File directory = new File(dir);
 		addFilesInDirectoryRecursively(directory, allFiles);
 
@@ -527,7 +527,7 @@ public final class FileUtils {
 	}
 
 	private static void addFilesInDirectoryRecursively(final File directory,
-			final List allFiles) {
+			final List<File> allFiles) {
 		File[] files = directory.listFiles();
 		if (files != null) {
 			for (int i = 0; i < files.length; i++) {

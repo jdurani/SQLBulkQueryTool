@@ -357,7 +357,7 @@ public class ObjectConverterUtil {
 	 * @return T
 	 */
 	@SuppressWarnings("unchecked")
-	static <T> T valueOf(String value, Class type) {
+	static <T> T valueOf(String value, @SuppressWarnings("rawtypes") Class type) {
 
 		if (type == String.class) {
 			return (T) value;
@@ -395,7 +395,7 @@ public class ObjectConverterUtil {
 			}
 		} else if (type.isAssignableFrom(Map.class)) {
 			List<String> l = Arrays.asList(value.split(",")); //$NON-NLS-1$
-			Map m = new HashMap<String, String>();
+			Map<String, String> m = new HashMap<String, String>();
 			for (String key : l) {
 				int index = key.indexOf('=');
 				if (index != -1) {

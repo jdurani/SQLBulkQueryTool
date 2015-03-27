@@ -21,14 +21,16 @@
  */
 package org.jboss.bqt.test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import junit.framework.Assert;
 
 import org.jboss.bqt.client.TestClient;
 import org.jboss.bqt.core.util.FileUtils;

@@ -91,7 +91,7 @@ public class JdkLoggerImpl extends org.jboss.bqt.core.Logger {
     
     @Override
     public void debug( String message) {
-        log(java.util.logging.Level.FINE, StringHelper.createString(message, null), null);
+        log(java.util.logging.Level.FINE, StringHelper.createString(message, (Object[]) null), null);
     }    
 
     @Override
@@ -122,7 +122,7 @@ public class JdkLoggerImpl extends org.jboss.bqt.core.Logger {
     
     @Override
     public void info( String message) {
-        log(java.util.logging.Level.INFO, StringHelper.createString(message, null), null);
+        log(java.util.logging.Level.INFO, StringHelper.createString(message, (Object[]) null), null);
     }    
 
     @Override

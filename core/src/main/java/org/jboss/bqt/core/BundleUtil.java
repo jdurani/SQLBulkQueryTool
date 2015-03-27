@@ -204,7 +204,7 @@ public class BundleUtil {
 	 *    "No message available"
 	 * </code> if the <code>key</code> is null.
 	 */
-	public String getString(final String key, final List parameters) {
+	public String getString(final String key, final List<Object> parameters) {
 		if (parameters == null) {
 			return getString(key);
 		}

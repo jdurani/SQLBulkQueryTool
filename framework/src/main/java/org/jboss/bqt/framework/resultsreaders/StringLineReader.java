@@ -45,7 +45,6 @@ public abstract class StringLineReader extends Reader {
      * @see java.io.Reader#close()
      * @since 4.3
      */
-    @SuppressWarnings("unused")
 	@Override
     public void close() throws IOException {
         closed = true;

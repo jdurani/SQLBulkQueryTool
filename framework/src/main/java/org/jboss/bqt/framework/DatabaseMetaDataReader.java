@@ -88,11 +88,11 @@ public class DatabaseMetaDataReader {
 			throws SQLException {
 		List<String> queries = new ArrayList<String>();
 
-		int queryCnt = 0;
+//		int queryCnt = 0;
 		// Walk through each row of results	
 
-		for (int i = 1; results.next(); i++) {
-			queryCnt++;
+		for (;results.next();) {
+//			queryCnt++;
 			
 			String tname = results.getString("TABLE_NAME");
 			String schemaname = results.getString("TABLE_SCHEM");
@@ -132,8 +132,7 @@ public class DatabaseMetaDataReader {
 					(schemaname != null ? schemaname : "%"), tname,
 					"%");
 			
-
-			for (int row = 1; results.next(); row++) {
+			for (;results.next();) {
 				
 				String[] rowValue = new String[3];
 	

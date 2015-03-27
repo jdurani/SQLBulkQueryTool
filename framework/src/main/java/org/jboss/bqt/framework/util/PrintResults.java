@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.sql.ResultSet;
 
 import org.jboss.bqt.core.exception.TransactionRuntimeException;
-import org.jboss.bqt.core.util.ArgCheck;
 import org.jboss.bqt.framework.resultsreaders.ResultSetReader;
 
 /**
@@ -58,6 +57,7 @@ public class PrintResults {
 		int row;
 		try {
 			row = -1;
+			@SuppressWarnings("resource")
 			BufferedReader in = new BufferedReader(new ResultSetReader(results,
 					DELIMITER));
 			String line = in.readLine();

@@ -40,7 +40,6 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 import junit.framework.AssertionFailedError;
-
 import static org.junit.Assert.*;
 
 
@@ -145,7 +144,8 @@ public final class UnitTestUtil {
      * @param obj1 the reference to the first Object object; may be null, but no tests will be performed
      * @param obj2 the reference to the second Object object; may be null
      */
-    public static void helpTestEquivalence(final int correctCompareToResult,
+    @SuppressWarnings("rawtypes")
+	public static void helpTestEquivalence(final int correctCompareToResult,
                                            final Object obj1,
                                            final Object obj2) {
         if (obj1 != null) {
@@ -210,7 +210,8 @@ public final class UnitTestUtil {
      * @param obj1 the reference to the first Comparable object; may be null
      * @param obj2 the reference to the second Comparable object; may be null
      */
-    protected static void helpTestCompareTo(final int correctCompareToResult,
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+	protected static void helpTestCompareTo(final int correctCompareToResult,
                                             final Comparable obj1,
                                             final Comparable obj2) {
         if (obj1 != null) {
@@ -375,6 +376,7 @@ public final class UnitTestUtil {
      * @param obj
      *            the reference to the Comparable object; may be null
      */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     protected static void helpTestReflexiveCompareTo(final Comparable obj) {
         if (obj != null && obj.compareTo(obj) != 0) {
         	fail("The compareTo method is not reflexive; obj.compareTo(obj) does not equal 0"); //$NON-NLS-1$

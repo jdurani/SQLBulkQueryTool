@@ -27,7 +27,6 @@ import java.io.PrintWriter;
 import java.sql.SQLException;
 
 import org.jboss.bqt.core.CorePlugin;
-import org.jboss.bqt.core.util.ExceptionUtil;
 
 /**
  * A generic runtime exception which contains a reference to another exception
@@ -57,7 +56,7 @@ public class FrameworkRuntimeException extends RuntimeException {
 	 *            The class to get the name of
 	 * @return The name of the class, without package info
 	 */
-	public static String getClassShortName(Class cls) {
+	public static String getClassShortName(Class<?> cls) {
 		if (cls == null)
 			return EMPTY_STRING;
 		String className = cls.getName();

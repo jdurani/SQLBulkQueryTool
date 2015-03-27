@@ -63,13 +63,13 @@ public class AllSymbol extends MultipleElementSymbol {
 	public Object clone() {
 		AllSymbol copy = new AllSymbol(ALL_SYMBOL_NAME, ALL_SYMBOL_NAME);
 
-		List elements = getElementSymbols();
+		List<ElementSymbol> elements = getElementSymbols();
 		if(elements != null && elements.size() > 0) {
-			ArrayList copyElements = new ArrayList(elements.size());
-			Iterator iter = elements.iterator();
+			ArrayList<ElementSymbol> copyElements = new ArrayList<ElementSymbol>(elements.size());
+			Iterator<ElementSymbol> iter = elements.iterator();
 			while(iter.hasNext()) {
 				ElementSymbol element = (ElementSymbol) iter.next();
-				copyElements.add( element.clone() );
+				copyElements.add((ElementSymbol) element.clone() );
 			}
 			copy.setElementSymbols(copyElements);				
 		}	

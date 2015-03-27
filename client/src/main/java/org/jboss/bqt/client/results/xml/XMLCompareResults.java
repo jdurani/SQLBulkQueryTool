@@ -308,12 +308,12 @@ public class XMLCompareResults {
 			// to be in same order
 
 			// sort the sortedResults in ascending order
-			final List actualRows = actualResults.getRows();
+			final List<List<Object>> actualRows = actualResults.getRows();
 			sortRecords(actualRows, true);
 			actualResults.setRows(actualRows);
 
 			// sort the expectedResults with ascending order
-			final List expectedRows = expectedResults.getRows();
+			final List<List<Object>> expectedRows = expectedResults.getRows();
 			sortRecords(expectedRows, true);
 			expectedResults.setRows(expectedRows);
 		}
@@ -477,7 +477,6 @@ public class XMLCompareResults {
 					actualValue = ObjectConverterUtil.convertToString(c.getAsciiStream());
 
 				} catch (Throwable e) {
-					// TODO Auto-generated catch block
 					throw new QueryTestFailedException(e);
 				}
 			} else if (actualValue instanceof Blob) {
@@ -491,7 +490,6 @@ public class XMLCompareResults {
 					// ObjectConverterUtil.convertToString(b.getBinaryStream());
 
 				} catch (Throwable e) {
-					// TODO Auto-generated catch block
 					throw new QueryTestFailedException(e);
 				}
 			} else if (actualValue instanceof SQLXML) {
@@ -500,7 +498,6 @@ public class XMLCompareResults {
 					actualValue = ObjectConverterUtil.convertToString(s.getBinaryStream());
 
 				} catch (Throwable e) {
-					// TODO Auto-generated catch block
 					throw new QueryTestFailedException(e);
 				}
 			}
@@ -590,10 +587,10 @@ public class XMLCompareResults {
 	 * @throws QueryTestFailedException
 	 *             If comparison fails.
 	 */
-	private static void compareResultSets(final List actualResults,
-			final List actualDatatypes, final List actualIdentifiers,
-			final List expectedResults, final List expectedDatatypes,
-			final List expectedIdentifiers, final String eMsg)
+	private static void compareResultSets(final List<List<Object>> actualResults,
+			final List<String> actualDatatypes, final List<String> actualIdentifiers,
+			final List<List<Object>> expectedResults, final List<String> expectedDatatypes,
+			final List<String> expectedIdentifiers, final String eMsg)
 			throws QueryTestFailedException {
 		// Compare column names and types
 		compareIdentifiers(actualIdentifiers, expectedIdentifiers,
@@ -642,10 +639,10 @@ public class XMLCompareResults {
 		for (int row = 0; row < actualRowCount; row++) {
 
 			// Get actual record
-			final List actualRecord = (List) actualResults.get(row);
+			final List<Object> actualRecord = actualResults.get(row);
 
 			// Get expected record
-			final List expectedRecord = (List) expectedResults.get(row);
+			final List<Object> expectedRecord = expectedResults.get(row);
 
 			// DEBUG:
 			// debugOut.println("Row: " + (row + 1));
@@ -676,9 +673,9 @@ public class XMLCompareResults {
 		}
 	}
 
-	private static void compareIdentifiers(List actualIdentifiers,
-			List expectedIdentifiers, List actualDataTypes,
-			List expectedDatatypes) throws QueryTestFailedException {
+	private static void compareIdentifiers(List<String> actualIdentifiers,
+			List<String> expectedIdentifiers, List<String> actualDataTypes,
+			List<String> expectedDatatypes) throws QueryTestFailedException {
 
 		// Check sizes
 		if (expectedIdentifiers.size() != actualIdentifiers.size()) {
@@ -689,10 +686,10 @@ public class XMLCompareResults {
 
 		// Compare identifier lists only by short name
 		for (int i = 0; i < actualIdentifiers.size(); i++) {
-			String actualIdent = (String) actualIdentifiers.get(i);
-			String expectedIdent = (String) expectedIdentifiers.get(i);
-			String actualType = (String) actualDataTypes.get(i);
-			String expectedType = (String) expectedDatatypes.get(i);
+			String actualIdent = actualIdentifiers.get(i);
+			String expectedIdent = expectedIdentifiers.get(i);
+			String actualType = actualDataTypes.get(i);
+			String expectedType = expectedDatatypes.get(i);
 
 			// Get short name for each identifier
 			String actualShort = getShortName(actualIdent);
@@ -711,7 +708,7 @@ public class XMLCompareResults {
 //			}
 
 			if (actualType.equalsIgnoreCase("blob")) {
-				Class nodeType = (Class) TagNames.TYPE_MAP.get(actualType);
+				Class<?> nodeType = TagNames.TYPE_MAP.get(actualType);
 				actualType = nodeType.getSimpleName();
 			}
 			if (!expectedType.equalsIgnoreCase(actualType)) {
@@ -808,20 +805,18 @@ public class XMLCompareResults {
 				+ suffix;
 	}
 
-	private static String stripCR(final String text) {
-		if (text.indexOf('\r') >= 0) {
-			StringBuffer stripped = new StringBuffer(text.length());
-			int len = text.length();
-			for (int i = 0; i < len; i++) {
-				char current = text.charAt(i);
-				if (current != '\r') {
-					stripped.append(current);
-				}
-			}
-			return stripped.toString();
-		}
-		return text;
-	}
-
-
+//	private static String stripCR(final String text) {
+//		if (text.indexOf('\r') >= 0) {
+//			StringBuffer stripped = new StringBuffer(text.length());
+//			int len = text.length();
+//			for (int i = 0; i < len; i++) {
+//				char current = text.charAt(i);
+//				if (current != '\r') {
+//					stripped.append(current);
+//				}
+//			}
+//			return stripped.toString();
+//		}
+//		return text;
+//	}
 }

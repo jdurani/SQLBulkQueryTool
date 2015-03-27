@@ -51,10 +51,10 @@ import org.teiid.core.util.FileUtils;
 public class TeiidUtil {
 
 	public static final int DEFAULT_MAX_COL_WIDTH = 29;
-	private static final String NULL = "<null>"; //$NON-NLS-1$
-	private static final String MORE = "$ ";
+//	private static final String NULL = "<null>"; //$NON-NLS-1$
+//	private static final String MORE = "$ ";
 
-	public static List compareThrowable(Throwable t, String query,
+	public static List<String> compareThrowable(Throwable t, String query,
 			File expectedResultsFile, boolean printToConsole)
 			throws IOException, SQLException {
 		BufferedReader expectedResultsReader = null;
@@ -152,7 +152,7 @@ public class TeiidUtil {
 		return out;
 	}
 	
-	public static List compareToResults(String results, 
+	public static List<String> compareToResults(String results, 
 			File resultsFile, String query, File expectedResultsFile, boolean printToConsole) throws IOException {
 
 		FileOutputStream resultsOutputStream = null;
@@ -178,34 +178,34 @@ public class TeiidUtil {
 		return getUnequalLines(out);
 	}
 
-	public static List getUnequalLines(PrintStream out) {
+	public static List<String> getUnequalLines(PrintStream out) {
 		if (out instanceof ComparingPrintStream) {
 			return ((ComparingPrintStream) out).getUnequalLines();
 		}
-		return Collections.EMPTY_LIST;
+		return Collections.emptyList();
 	}
 
-	private static String resizeString(Object obj, int size) {
-		if (obj == null) {
-			return resizeString(NULL, size); //$NON-NLS-1$
-		}
-		String str = obj.toString();
-		if (str.length() == size) {
-			return str;
-		} else if (str.length() < size) {
-			return pad(str, size - str.length());
-		} else {
-			return str.substring(0, size) + MORE;
-		}
-	}
-
-	private static String pad(String str, int padding) {
-		StringBuffer buf = new StringBuffer(str);
-		for (int i = 0; i < padding; i++) {
-			buf.append(' ');
-		}
-		return buf.toString();
-	}
+//	private static String resizeString(Object obj, int size) {
+//		if (obj == null) {
+//			return resizeString(NULL, size); //$NON-NLS-1$
+//		}
+//		String str = obj.toString();
+//		if (str.length() == size) {
+//			return str;
+//		} else if (str.length() < size) {
+//			return pad(str, size - str.length());
+//		} else {
+//			return str.substring(0, size) + MORE;
+//		}
+//	}
+//
+//	private static String pad(String str, int padding) {
+//		StringBuffer buf = new StringBuffer(str);
+//		for (int i = 0; i < padding; i++) {
+//			buf.append(' ');
+//		}
+//		return buf.toString();
+//	}
 
 	/**
 	 * Used to write the same data to more than one output stream.
@@ -385,7 +385,7 @@ public class TeiidUtil {
 //			        "UTF-8"),
 //			    1024);
 
-		private ArrayList unequalLines = new ArrayList();
+		private ArrayList<String> unequalLines = new ArrayList<String>();
 
 		private ComparingPrintStream(OutputStream out, BufferedReader in) {
 			super(out);
@@ -541,7 +541,7 @@ public class TeiidUtil {
 
 		}
 
-		public List getUnequalLines() {
+		public List<String> getUnequalLines() {
 			return unequalLines;
 		}
 	}

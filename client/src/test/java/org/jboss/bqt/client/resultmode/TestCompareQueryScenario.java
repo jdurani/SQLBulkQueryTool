@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.jboss.bqt.client.QueryTest;
+import org.jboss.bqt.client.api.ExpectedResultsReader;
 import org.jboss.bqt.client.api.QueryScenario;
 import org.jboss.bqt.core.exception.FrameworkRuntimeException;
 import org.jboss.bqt.core.util.UnitTestUtil;
@@ -112,7 +113,7 @@ public class TestCompareQueryScenario {
 		TestCase testcase = new TestCase(qt);
 		testcase.setTestResult(testResult);
 
-		List readers = set.getExpectedResultsReaders(testcase);
+		List<ExpectedResultsReader> readers = set.getExpectedResultsReaders(testcase);
 		assertNotNull(readers);
 		assertEquals(1, readers.size());
 		

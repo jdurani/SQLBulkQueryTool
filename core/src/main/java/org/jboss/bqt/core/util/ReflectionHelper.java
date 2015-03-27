@@ -41,7 +41,7 @@ import org.jboss.bqt.core.exception.FrameworkRuntimeException;
 public class ReflectionHelper {
 
 	private Class<?> targetClass;
-	private Map methodMap = null; // used for the brute-force method finder
+	private Map<String, LinkedList<Method>> methodMap = null; // used for the brute-force method finder
 
 	/**
 	 * Construct a ReflectionHelper instance that cache's some information about
@@ -53,7 +53,7 @@ public class ReflectionHelper {
 	 * @throws IllegalArgumentException
 	 *             if the target class is null
 	 */
-	public ReflectionHelper(Class targetClass) {
+	public ReflectionHelper(Class<?> targetClass) {
 		if (targetClass == null) {
 			throw new IllegalArgumentException(
 					CorePlugin.Util
@@ -87,14 +87,14 @@ public class ReflectionHelper {
 	public Method findBestMethodOnTarget(String methodName, Object[] arguments)
 			throws NoSuchMethodException, SecurityException {
 		if (arguments == null) {
-			return findBestMethodWithSignature(methodName,
-					Collections.EMPTY_LIST);
+			List<Class<?>> list = Collections.emptyList(); 
+			return findBestMethodWithSignature(methodName, list);
 		}
 		int size = arguments.length;
-		List argumentClasses = new ArrayList(size);
+		List<Class<?>> argumentClasses = new ArrayList<Class<?>>(size);
 		for (int i = 0; i != size; ++i) {
 			if (arguments[i] != null) {
-				Class clazz = arguments[i].getClass();
+				Class<?> clazz = arguments[i].getClass();
 				argumentClasses.add(clazz);
 			} else {
 				argumentClasses.add(null);
@@ -121,9 +121,11 @@ public class ReflectionHelper {
 	 * @throws SecurityException
 	 *             if access to the information is denied.
 	 */
+	@SuppressWarnings("unchecked")
 	public Method findBestMethodWithSignature(String methodName,
 			Object[] argumentsClasses) throws NoSuchMethodException,
 			SecurityException {
+		@SuppressWarnings("rawtypes")
 		List argumentClassesList = Arrays.asList(argumentsClasses);
 		return findBestMethodWithSignature(methodName, argumentClassesList);
 	}
@@ -147,11 +149,11 @@ public class ReflectionHelper {
 	 *             if access to the information is denied.
 	 */
 	public Method findBestMethodWithSignature(String methodName,
-			List argumentsClasses) throws NoSuchMethodException,
+			List<Class<?>> argumentsClasses) throws NoSuchMethodException,
 			SecurityException {
 		// Attempt to find the method
 		Method result = null;
-		Class[] classArgs = new Class[argumentsClasses.size()];
+		Class<?>[] classArgs = new Class[argumentsClasses.size()];
 
 		// -------------------------------------------------------------------------------
 		// First try to find the method with EXACTLY the argument classes as
@@ -176,7 +178,7 @@ public class ReflectionHelper {
 		// Then try to find a method with the argument classes converted to a
 		// primitive, if possible ...
 		// ---------------------------------------------------------------------------------------------
-		List argumentsClassList = convertArgumentClassesToPrimitives(argumentsClasses);
+		List<Class<?>> argumentsClassList = convertArgumentClassesToPrimitives(argumentsClasses);
 		argumentsClassList.toArray(classArgs);
 		try {
 			result = this.targetClass.getMethod(methodName, classArgs); // this
@@ -201,34 +203,32 @@ public class ReflectionHelper {
 		// we have to brute-force it.
 		// ---------------------------------------------------------------------------------------------
 		if (this.methodMap == null) {
-			this.methodMap = new HashMap();
+			this.methodMap = new HashMap<String, LinkedList<Method>>();
 			Method[] methods = this.targetClass.getMethods();
 			for (int i = 0; i != methods.length; ++i) {
 				Method method = methods[i];
-				LinkedList methodsWithSameName = (LinkedList) this.methodMap
-						.get(method.getName());
+				LinkedList<Method> methodsWithSameName = this.methodMap.get(method.getName());
 				if (methodsWithSameName == null) {
-					methodsWithSameName = new LinkedList();
+					methodsWithSameName = new LinkedList<Method>();
 					this.methodMap.put(method.getName(), methodsWithSameName);
 				}
 				methodsWithSameName.addFirst(method); // add lower methods first
 			}
 		}
 
-		LinkedList<Method> methodsWithSameName = (LinkedList) this.methodMap
-				.get(methodName);
+		LinkedList<Method> methodsWithSameName = this.methodMap.get(methodName);
 		if (methodsWithSameName == null) {
 			throw new NoSuchMethodException(methodName);
 		}
 		for (Method method : methodsWithSameName) {
-			Class[] args = method.getParameterTypes();
+			Class<?>[] args = method.getParameterTypes();
 			if (args.length != argumentsClasses.size()) {
 				continue;
 			}
 			boolean allMatch = true; // assume all args match
 			for (int i = 0; i < args.length && allMatch == true; ++i) {
-				Class primitiveClazz = (Class) argumentsClassList.get(i);
-				Class objectClazz = (Class) argumentsClasses.get(i);
+				Class<?> primitiveClazz = argumentsClassList.get(i);
+				Class<?> objectClazz = argumentsClasses.get(i);
 				if (objectClazz != null) {
 					// Check for possible matches with (converted) primitive
 					// types
@@ -299,16 +299,16 @@ public class ReflectionHelper {
 	 *             if an error occurrs instantiating the class
 	 */
 
-	public static final Object create(String className, Collection ctorObjs,
+	public static final Object create(String className, Collection<?> ctorObjs,
 			final ClassLoader classLoader) throws FrameworkRuntimeException {
 		try {
 			int size = (ctorObjs == null ? 0 : ctorObjs.size());
-			Class[] names = new Class[size];
+			Class<?>[] names = new Class[size];
 			Object[] objArray = new Object[size];
 			int i = 0;
 
 			if (size > 0) {
-				for (Iterator it = ctorObjs.iterator(); it.hasNext();) {
+				for (Iterator<?> it = ctorObjs.iterator(); it.hasNext();) {
 					Object obj = it.next();
 	                if (obj != null) {
 		                names[i] = obj.getClass();
@@ -366,7 +366,7 @@ public class ReflectionHelper {
 	}
 	
 	private static boolean argsMatch(List<Class<?>> argumentsClasses,
-			List<Class<?>> argumentsClassList, Class[] args) {
+			List<Class<?>> argumentsClassList, Class<?>[] args) {
         if ( args.length != argumentsClasses.size() ) {
             return false;
         }

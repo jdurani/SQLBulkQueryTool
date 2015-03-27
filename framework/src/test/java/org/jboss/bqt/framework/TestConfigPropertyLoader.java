@@ -23,6 +23,8 @@
 package org.jboss.bqt.framework;
 
 import static org.junit.Assert.*;
+
+import java.util.Arrays;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
@@ -173,13 +175,7 @@ public class TestConfigPropertyLoader {
 
 		String ttypes =  _instance.getProperty(ConfigPropertyNames.DATABASE_METADATA_OPTIONS.TABLE_TYPES);
 		String[] table_types = StringUtils.split(ttypes, ","); //$NON-NLS-1$
-		assertEquals(new String[] {"TABLE","VIEW","SYSTEM"}, table_types); //$NON-NLS-1$ //$NON-NLS-2$
-
-		
-		
+		assertTrue(Arrays.equals(new String[] {"TABLE","VIEW","SYSTEM"}, table_types));
+//		assertEquals(new String[] {"TABLE","VIEW","SYSTEM"}, table_types); //$NON-NLS-1$ //$NON-NLS-2$
     }
-
-    
-    
- 
 }

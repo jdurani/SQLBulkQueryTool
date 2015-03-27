@@ -42,7 +42,7 @@ import org.junit.Test;
 public class TestTeiidUtil  {
     private static final String TEMP_DIR = UnitTestUtil.getTestScratchPath();  //$NON-NLS-1$
     
-    private static final String newLine = String.format("%n");
+//    private static final String newLine = String.format("%n");
     
 
     	//System.getProperty("line.separator");
@@ -136,7 +136,7 @@ public class TestTeiidUtil  {
     	
       	String resultplan = EXPECTED_RESULT;
       	     	
-    	List differences = TeiidUtil.compareToResults(resultplan,  errorFile, null, resultPlanFile, false); 
+    	List<String> differences = TeiidUtil.compareToResults(resultplan,  errorFile, null, resultPlanFile, false); 
     	System.out.println(differences);
     	assertEquals(0, differences.size());
     }
@@ -152,7 +152,7 @@ public class TestTeiidUtil  {
     	File errorFile = new File(TEMP_DIR + File.separator + "printResults2.error");
     	String resultplan = StringUtils.replace(EXPECTED_RESULT, "Cardinality: 1.0", "Cardinality: 2.0");
      	
-    	List differences = TeiidUtil.compareToResults(resultplan,  errorFile, null, resultPlanFile, false); 
+    	List<String> differences = TeiidUtil.compareToResults(resultplan,  errorFile, null, resultPlanFile, false); 
     	assertEquals(1, differences.size());
     }
     
@@ -165,7 +165,7 @@ public class TestTeiidUtil  {
     	String resultplan = StringUtils.replace(EXPECTED_RESULT, "Cardinality: 1.0", "Cardinality: 2.0");
     	resultplan = StringUtils.replace(resultplan, "Node Output Rows: 1", "Node Output Rows: 2");
        	
-    	List differences = TeiidUtil.compareToResults(resultplan,  errorFile, null, resultPlanFile, false); 
+    	List<String> differences = TeiidUtil.compareToResults(resultplan,  errorFile, null, resultPlanFile, false); 
     	assertEquals(2, differences.size());
     }
     
@@ -186,7 +186,7 @@ public class TestTeiidUtil  {
        	resultplan = StringUtils.replace(resultplan, "Node Cumulative Next Batch Process Time: 0", "Node Cumulative Next Batch Process Time: 10");
 
        	
-    	List differences = TeiidUtil.compareToResults(resultplan,  errorFile, null, resultPlanFile, false); 
+    	List<String> differences = TeiidUtil.compareToResults(resultplan,  errorFile, null, resultPlanFile, false); 
     	assertEquals(2, differences.size());
     }    
     	

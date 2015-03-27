@@ -23,7 +23,6 @@ package org.jboss.bqt.framework;
 
 import java.util.Properties;
 
-import org.jboss.bqt.core.exception.FrameworkRuntimeException;
 import org.jboss.bqt.framework.transaction.JNDITransaction;
 import org.jboss.bqt.framework.transaction.LocalTransaction;
 import org.jboss.bqt.framework.transaction.OnWrapTransaction;

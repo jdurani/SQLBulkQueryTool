@@ -1,9 +1,12 @@
 package org.jboss.bqt.gui;
 
 
-import javax.swing.JFrame;
+import java.awt.Dimension;
 
-import org.jboss.bqt.gui.panels.MainPanel;
+import javax.swing.JFrame;
+import javax.swing.JScrollPane;
+
+import org.jboss.bqt.gui.panels.GUIRunnerPanel;
 
 /**
  * Main frame of GUI tool. Contains only one panel of type {@link MainPanel}.
@@ -13,7 +16,7 @@ import org.jboss.bqt.gui.panels.MainPanel;
 @SuppressWarnings("serial")
 public class GUIFrame extends JFrame {
 
-	private MainPanel mainPanel;
+	private GUIRunnerPanel guiPanel;
 	
 	/**
 	 * Creates a new instance.
@@ -27,8 +30,10 @@ public class GUIFrame extends JFrame {
 	 * Initializes this frame.
 	 */
 	private void init(){
-		mainPanel = new MainPanel();
-		add(mainPanel);
+		guiPanel = new GUIRunnerPanel();
+		JScrollPane pane = new JScrollPane(guiPanel);
+		pane.setPreferredSize(new Dimension(1200, 800));
+		add(pane);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setTitle("BQT GUI Tool");
 		pack();
@@ -44,7 +49,7 @@ public class GUIFrame extends JFrame {
 	 */
 	@Override
 	public void dispose() {
-		if(mainPanel.couldDispose()){
+		if(guiPanel.couldDispose()){
 			super.dispose();
 		}
 	}

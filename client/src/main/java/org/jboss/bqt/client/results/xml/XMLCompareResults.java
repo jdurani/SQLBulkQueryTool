@@ -477,7 +477,7 @@ public class XMLCompareResults {
 			// Compare nulls
 			throw new QueryTestFailedException(eMsg + "Value mismatch at row " + (row + 1) //$NON-NLS-1$
 					+ " and column " + (col + 1) //$NON-NLS-1$
-					+ " {row in actual result: " + actualResultRow + ", row in expected result: " + expectedResultRow + "}"
+					+ " (row in actual result: " + actualResultRow + ", row in expected result: " + expectedResultRow + ")"
 					+ ": expected = [" //$NON-NLS-1$
 					+ (expectedValue != null ? expectedValue : "null") + "], actual = [" //$NON-NLS-1$
 					+ (actualValue != null ? actualValue : "null") + "]"); //$NON-NLS-1$
@@ -543,7 +543,7 @@ public class XMLCompareResults {
 				throw new QueryTestFailedException(eMsg
 						+ "Value mismatch at row " + (row + 1) //$NON-NLS-1$
 						+ " and column " + (col + 1) //$NON-NLS-1$
-						+ " {row in actual result: " + actualResultRow + ", row in expected result: " + expectedResultRow + "}"
+						+ " (row in actual result: " + actualResultRow + ", row in expected result: " + expectedResultRow + ")"
 						+ ": expected = [" //$NON-NLS-1$
 						+ expV + "], actual = [" //$NON-NLS-1$
 						+ actV + "] {allowed divergence: " + allowedDivergence + "}"); //$NON-NLS-1$ $NON-NLS-2$
@@ -572,7 +572,7 @@ public class XMLCompareResults {
 				if (!(actualValue instanceof String)) {
 					throw new QueryTestFailedException(eMsg + "Value (types) mismatch at row " + (row + 1) //$NON-NLS-1$
 							+ " and column " + (col + 1) //$NON-NLS-1$
-							+ " {row in actual result: " + actualResultRow + ", row in expected result: " + expectedResultRow + "}"
+							+ " (row in actual result: " + actualResultRow + ", row in expected result: " + expectedResultRow + ")"
 							+ ": expected = [" //$NON-NLS-1$
 							+ expectedValue + ", (String) ], actual = [" //$NON-NLS-1$
 							+ actualValue + ", (" + actualValue.getClass().getName() + ") ]"); //$NON-NLS-1$
@@ -585,7 +585,7 @@ public class XMLCompareResults {
 
 				throw new QueryTestFailedException(eMsg + "Value mismatch at row " + (row + 1) //$NON-NLS-1$
 						+ " and column " + (col + 1) //$NON-NLS-1$
-						+ " {row in actual result: " + actualResultRow + ", row in expected result: " + expectedResultRow + "}"
+						+ " (row in actual result: " + actualResultRow + ", row in expected result: " + expectedResultRow + ")"
 						+ ": expected = [" //$NON-NLS-1$
 						+ expectedValue + "], actual = [" //$NON-NLS-1$
 						+ actualValue + "]"); //$NON-NLS-1$
@@ -816,7 +816,7 @@ public class XMLCompareResults {
 
 			String message = eMsg + "String mismatch at row " + row //$NON-NLS-1$
 					+ " and column " + col//$NON-NLS-1$
-					+ " {row in actual result: " + actualResultRow + ", row in expected result: " + expectedResultRow + "}"
+					+ " (row in actual result: " + actualResultRow + ", row in expected result: " + expectedResultRow + ")"
 					+ ". Expected: {0} but was: {1}" + locationText; //$NON-NLS-1$
 			message = MessageFormat.format(message, new Object[] {
 					expectedPartOfMessage, actualPartOfMessage });

@@ -65,7 +65,7 @@
 		<int.delim />
 
 
-		<jdbc.hsqldb.version>1.8.0.2</jdbc.hsqldb.version>
+		<jdbc.hsqldb.version>1.8.0.10</jdbc.hsqldb.version>
 		<jdbc.h2.version>1.2.124</jdbc.h2.version>
 
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

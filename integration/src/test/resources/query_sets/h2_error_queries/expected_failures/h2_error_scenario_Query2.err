@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root>
   <queryResults name="Query2" value="Select SSN, FIRSTNAME, LASTNAME, ST_ADDRESS, APT_NUMBER, CITY, STATE, ZIPCODE, PHONE From CUSTOMER">
-    <failureMessage>CompareResults Error: String mismatch at row 1 and column 4. Expected: 1234 Another Street but was: 1234 Main Street  Strings do not match at character: 6. Expected [A] in 1234 Another Street - but got [M] in 1234 Main Street</failureMessage>
-    <failureMessage>CompareResults Error: String mismatch at row 1 and column 8. Expected: 101�74 but was: 10174  Strings do not match at character: 4. Expected [�] in 101�74 - but got [7] in 10174</failureMessage>
-    <failureMessage>CompareResults Error: String mismatch at row 15 and column 8. Expected: 02136 but was: 02136 </failureMessage>
+    <failureMessage>CompareResults Error: String mismatch at row 1 and column 4 (row in actual result: 1, row in expected result: 1). Expected: 1234 Another Street but was: 1234 Main Street  Strings do not match at character: 6. Expected [A] in 1234 Another Street - but got [M] in 1234 Main Street</failureMessage>
+    <failureMessage>CompareResults Error: String mismatch at row 1 and column 8 (row in actual result: 1, row in expected result: 1). Expected: 101�74 but was: 10174  Strings do not match at character: 4. Expected [�] in 101�74 - but got [7] in 10174</failureMessage>
+    <failureMessage>CompareResults Error: String mismatch at row 15 and column 8 (row in actual result: 15, row in expected result: 15). Expected: 02136 but was: 02136 </failureMessage>
     <actualQueryResults>
       <select>
         <dataElement type="CHAR">SSN</dataElement>

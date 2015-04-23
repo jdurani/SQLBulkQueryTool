@@ -22,6 +22,7 @@
 
 package org.jboss.bqt.client.results.xml;
 
+import java.awt.PageAttributes.OriginType;
 import java.math.BigDecimal;
 import java.sql.Blob;
 import java.sql.Clob;
@@ -300,6 +301,8 @@ public class XMLCompareResults {
 
 		// if (actualResults.isResult() && expectedResults.isResult()) {
 		// Compare results
+	    final List<List<Object>> originalExpectedRows = cloneList(expectedResults.getRows());
+	    final List<List<Object>> originalActualRows = cloneList(actualResults.getRows());
 		if (isOrdered == false && actualResults.hasRows()
 				&& expectedResults.hasRows()) {
 			// If the results are not ordered, we can sort both
@@ -317,13 +320,18 @@ public class XMLCompareResults {
 			sortRecords(expectedRows, true);
 			expectedResults.setRows(expectedRows);
 		}
-
-		compareResultSets(actualResults.getRows(), actualResults.getTypes(),
-				actualResults.getIdentifiers(), expectedResults.getRows(),
-				expectedResults.getTypes(), expectedResults.getIdentifiers(),
-				eMsg);
+		try{
+    		compareResultSets(actualResults.getRows(), originalActualRows,
+    		        actualResults.getTypes(), actualResults.getIdentifiers(),
+    		        expectedResults.getRows(), originalExpectedRows,
+    				expectedResults.getTypes(), expectedResults.getIdentifiers(),
+    				eMsg);
+	    } finally {
+            expectedResults.setRows(originalExpectedRows);
+            actualResults.setRows(originalActualRows);
+	    }
 		
-		long a =  actualResults.getExecutionTime();
+		long a = actualResults.getExecutionTime();
 		long e = expectedResults.getExecutionTime();
 
 		
@@ -346,6 +354,14 @@ public class XMLCompareResults {
 		}
 	}
 
+	private static <T> List<T> cloneList(List<T> list){
+	    if(list == null){
+	        return null;
+	    }
+	    return new ArrayList<T>(list);
+	    
+	}
+	
 	/**
 	 * sort one result that is composed of records of all columns
 	 * @param records 
@@ -447,8 +463,10 @@ public class XMLCompareResults {
 	}
 
 	private static void compareResultColumn(Object actualValue, Object expectedValue, int row, int col,
-			final String eMsg) throws QueryTestFailedException {
+	        int actualResultRow, int expectedResultRow, final String eMsg) throws QueryTestFailedException {
 
+	    actualResultRow += 1;
+	    expectedResultRow += 1;
 		// DEBUG:
 		// debugOut.println(" Col: " +(col +1) + ": expectedValue:[" +
 		// expectedValue + "] actualValue:[" + actualValue +
@@ -459,6 +477,7 @@ public class XMLCompareResults {
 			// Compare nulls
 			throw new QueryTestFailedException(eMsg + "Value mismatch at row " + (row + 1) //$NON-NLS-1$
 					+ " and column " + (col + 1) //$NON-NLS-1$
+					+ " {row in actual result: " + actualResultRow + ", row in expected result: " + expectedResultRow + "}"
 					+ ": expected = [" //$NON-NLS-1$
 					+ (expectedValue != null ? expectedValue : "null") + "], actual = [" //$NON-NLS-1$
 					+ (actualValue != null ? actualValue : "null") + "]"); //$NON-NLS-1$
@@ -524,6 +543,7 @@ public class XMLCompareResults {
 				throw new QueryTestFailedException(eMsg
 						+ "Value mismatch at row " + (row + 1) //$NON-NLS-1$
 						+ " and column " + (col + 1) //$NON-NLS-1$
+						+ " {row in actual result: " + actualResultRow + ", row in expected result: " + expectedResultRow + "}"
 						+ ": expected = [" //$NON-NLS-1$
 						+ expV + "], actual = [" //$NON-NLS-1$
 						+ actV + "] {allowed divergence: " + allowedDivergence + "}"); //$NON-NLS-1$ $NON-NLS-2$
@@ -552,18 +572,20 @@ public class XMLCompareResults {
 				if (!(actualValue instanceof String)) {
 					throw new QueryTestFailedException(eMsg + "Value (types) mismatch at row " + (row + 1) //$NON-NLS-1$
 							+ " and column " + (col + 1) //$NON-NLS-1$
+							+ " {row in actual result: " + actualResultRow + ", row in expected result: " + expectedResultRow + "}"
 							+ ": expected = [" //$NON-NLS-1$
 							+ expectedValue + ", (String) ], actual = [" //$NON-NLS-1$
 							+ actualValue + ", (" + actualValue.getClass().getName() + ") ]"); //$NON-NLS-1$
 				}
 
 				// Check for String difference
-				assertStringsMatch(expectedString, (String) actualValue, (row + 1), (col + 1), eMsg);
+				assertStringsMatch(expectedString, (String) actualValue, (row + 1), (col + 1), actualResultRow, expectedResultRow, eMsg);
 
 			} else {
 
 				throw new QueryTestFailedException(eMsg + "Value mismatch at row " + (row + 1) //$NON-NLS-1$
 						+ " and column " + (col + 1) //$NON-NLS-1$
+						+ " {row in actual result: " + actualResultRow + ", row in expected result: " + expectedResultRow + "}"
 						+ ": expected = [" //$NON-NLS-1$
 						+ expectedValue + "], actual = [" //$NON-NLS-1$
 						+ actualValue + "]"); //$NON-NLS-1$
@@ -587,10 +609,12 @@ public class XMLCompareResults {
 	 * @throws QueryTestFailedException
 	 *             If comparison fails.
 	 */
-	private static void compareResultSets(final List<List<Object>> actualResults,
+	private static void compareResultSets(
+	        final List<List<Object>> actualResults, final List<List<Object>> originalActualResults, 
 			final List<String> actualDatatypes, final List<String> actualIdentifiers,
-			final List<List<Object>> expectedResults, final List<String> expectedDatatypes,
-			final List<String> expectedIdentifiers, final String eMsg)
+			final List<List<Object>> expectedResults, final List<List<Object>> originalExpectedResults,
+			final List<String> expectedDatatypes, final List<String> expectedIdentifiers,
+			final String eMsg)
 			throws QueryTestFailedException {
 		// Compare column names and types
 		compareIdentifiers(actualIdentifiers, expectedIdentifiers,
@@ -658,7 +682,10 @@ public class XMLCompareResults {
 				Object expectedValue = expectedRecord.get(col);
 
 				try {
-					compareResultColumn(actualValue, expectedValue, row, col, eMsg);
+					compareResultColumn(actualValue, expectedValue, row, col,
+					        getIndexByRef(originalActualResults, actualRecord),
+					        getIndexByRef(originalExpectedResults, expectedRecord),
+					        eMsg);
 				} catch (QueryTestFailedException e) {
 					multiException.addFailure(e);
 				}
@@ -673,6 +700,20 @@ public class XMLCompareResults {
 		}
 	}
 
+	private static <T> int getIndexByRef(List<T> list, T o){
+	    if(list == null){
+	        return -1;
+	    }
+	    int i = 0;
+	    for(T t : list){
+	        if(t == o){
+	            return i;
+	        }
+	        i++;
+	    }
+	    return -1;
+	}
+	
 	private static void compareIdentifiers(List<String> actualIdentifiers,
 			List<String> expectedIdentifiers, List<String> actualDataTypes,
 			List<String> expectedDatatypes) throws QueryTestFailedException {
@@ -732,6 +773,7 @@ public class XMLCompareResults {
 
 	private static void assertStringsMatch(final String expected,
 			final String actual, final int row, final int col,
+			final int actualResultRow, final int expectedResultRow,
 			final String eMsg) throws QueryTestFailedException {
 		// TODO: Replace stripCR() with XMLUnit comparison for XML results.
 		// stripCR() is a workaround for comparing XML Queries
@@ -772,9 +814,10 @@ public class XMLCompareResults {
 						- MISMATCH_OFFSET, mismatchIndex + MISMATCH_OFFSET);
 			}
 
-			String message = eMsg + "String mismatch at row " + row + //$NON-NLS-1$
-					" and column " + col + //$NON-NLS-1$
-					". Expected: {0} but was: {1}" + locationText; //$NON-NLS-1$
+			String message = eMsg + "String mismatch at row " + row //$NON-NLS-1$
+					+ " and column " + col//$NON-NLS-1$
+					+ " {row in actual result: " + actualResultRow + ", row in expected result: " + expectedResultRow + "}"
+					+ ". Expected: {0} but was: {1}" + locationText; //$NON-NLS-1$
 			message = MessageFormat.format(message, new Object[] {
 					expectedPartOfMessage, actualPartOfMessage });
 			throw new QueryTestFailedException(message);

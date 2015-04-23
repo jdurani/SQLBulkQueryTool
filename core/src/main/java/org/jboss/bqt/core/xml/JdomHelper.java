@@ -49,6 +49,7 @@ import org.jdom2.Text;
 import org.jdom2.input.SAXBuilder;
 import org.jdom2.output.Format;
 import org.jdom2.output.Format.TextMode;
+import org.jdom2.output.LineSeparator;
 import org.jdom2.output.XMLOutputter;
 
 public class JdomHelper {
@@ -1209,13 +1210,13 @@ public class JdomHelper {
 	}
 
 	public static Format getFormat(String indent, boolean newlines) {
-		Format format = Format.getPrettyFormat();
+		Format format = Format.getRawFormat();
 		format.setTextMode(TextMode.TRIM_FULL_WHITE);
 		format.setIndent(indent);
 		if (newlines) {
-			format.setLineSeparator("\n"); //$NON-NLS-1$
+		    format.setLineSeparator(LineSeparator.SYSTEM);
 		} else {
-			format.setLineSeparator(""); //$NON-NLS-1$
+			format.setLineSeparator(LineSeparator.NONE);
 		}
 		return format;
 	}

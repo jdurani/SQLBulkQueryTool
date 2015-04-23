@@ -63,6 +63,7 @@ import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.IllegalDataException;
 import org.jdom2.JDOMException;
+import org.jdom2.Verifier;
 import org.jdom2.input.SAXBuilder;
 
 
@@ -472,6 +473,9 @@ public class XMLQueryVisitationStrategy {
 	 */
 	private static void fillDataElement(String data, Element element) {
 		try {
+		    if(Verifier.isAllXMLWhitespace(data)){
+		        throw new IllegalDataException(""); // we want to save data as hex
+		    }
 			element.setText(data);
 		} catch (IllegalDataException e) {
 			element.setAttribute(TagNames.Attributes.UNPRINTABALE, TagNames.Values.TRUE);

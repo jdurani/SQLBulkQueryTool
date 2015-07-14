@@ -377,8 +377,21 @@ public class XMLQueryVisitationStrategy {
                     // ---------------------------
                     // Add the Message element ...
                     // ---------------------------
-                    Element messageElement = new Element(TagNames.Elements.MESSAGE);    
-                    String msg = exceptionElement.getChild(TagNames.Elements.MESSAGE).getTextTrim();   
+                    Element messageElement = null;    
+                    String msg = null;
+                    if (exceptionElement.getChild(TagNames.Elements.MESSAGE) != null) {
+                        messageElement = new Element(TagNames.Elements.MESSAGE);
+                        msg = exceptionElement.getChild(TagNames.Elements.MESSAGE).getTextTrim();  
+                    } else if (exceptionElement.getChild(TagNames.Elements.MESSAGE_STARTSWITH) != null ) {
+                        messageElement = new Element(TagNames.Elements.MESSAGE_STARTSWITH);
+                        msg = exceptionElement.getChild(TagNames.Elements.MESSAGE_STARTSWITH).getTextTrim();
+                    } else if (exceptionElement.getChild(TagNames.Elements.MESSAGE_CONTAINS) != null ) {
+                        messageElement = new Element(TagNames.Elements.MESSAGE_CONTAINS);
+                        msg = exceptionElement.getChild(TagNames.Elements.MESSAGE_CONTAINS).getTextTrim();
+                    } else if (exceptionElement.getChild(TagNames.Elements.MESSAGE_REGEX) != null) {
+                        messageElement = new Element(TagNames.Elements.MESSAGE_REGEX);
+                        msg = exceptionElement.getChild(TagNames.Elements.MESSAGE_REGEX).getTextTrim();
+                    }   
                     
                     messageElement.setText(StringUtils.remove(msg, '\r'));
                     parent.addContent(messageElement);
@@ -1441,7 +1454,7 @@ public class XMLQueryVisitationStrategy {
      * @exception JDOMException if there is an error producing the message.
      * @throws SQLException 
      */
-    private Element produceObject(Object object, Element parent) throws JDOMException, SQLException { //TODO - write results
+    private Element produceObject(Object object, Element parent) throws JDOMException, SQLException {
 
          // ----------------------
         // Create the Object element ...

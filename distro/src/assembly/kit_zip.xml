@@ -38,7 +38,6 @@
 				<include>org.jboss.bqt:bqt-core</include>
 				<include>org.jboss.bqt:bqt-framework</include>
 				<include>org.jboss.bqt:bqt-client</include>
-				<include>org.jboss.bqt:bqt-gui</include>
 			</includes>
 
 		</dependencySet>

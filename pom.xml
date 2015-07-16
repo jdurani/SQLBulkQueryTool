@@ -4,7 +4,7 @@
 
 	<groupId>org.jboss.bqt</groupId>
 	<artifactId>parent</artifactId>
-	<version>2.2.0</version>
+	<version>2.2.1</version>
 	<packaging>pom</packaging>
 
 	<name>BQT JDBC Query Execution Framework</name>
@@ -47,6 +47,19 @@
 		</developer>
 	</developers>
 
+    <distributionManagement>
+        <repository>
+            <id>dvqe-release</id>
+            <name>Release repository for DV qe team</name>
+            <url>http://dvqe11.mw.lab.eng.bos.redhat.com:8081/nexus/content/repositories/releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>dvqe-snapshot</id>
+            <name>Snapshot repository for DV qe team</name>
+            <url>http://dvqe11.mw.lab.eng.bos.redhat.com:8081/nexus/content/repositories/snapshots/</url>
+         </snapshotRepository>
+    </distributionManagement>
+    
 	<properties>
 		<!-- These are properties used in the database profiles. Must initialize 
 			them to be empty so that Maven applies them via filtering to the resources. 
@@ -99,7 +112,6 @@
 		<module>core</module>
 		<module>framework</module>
 		<module>client</module>
-		<module>gui</module>
 	</modules>
 
 	<dependencies>
@@ -132,12 +144,6 @@
 			<dependency>
 				<groupId>org.jboss.bqt</groupId>
 				<artifactId>bqt-client</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			
-			<dependency>
-				<groupId>org.jboss.bqt</groupId>
-				<artifactId>bqt-gui</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 
@@ -230,6 +236,41 @@
 					<showWarnings>false</showWarnings>
 				</configuration>
 			</plugin>
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>1.6.5</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <skipStaging>true</skipStaging>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.2.1</version>
+                <executions>
+                     <execution>
+                           <id>attach-sources</id>
+                           <goals>
+                                 <goal>jar-no-fork</goal>
+                           </goals>
+                     </execution>
+                </executions>
+            </plugin>
+            <!-- <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.9.1</version>
+                <executions>
+                   <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                              <goal>jar</goal>
+                        </goals>
+                   </execution>
+                </executions>
+            </plugin> -->
 		</plugins>
 	</build>
 

@@ -39,6 +39,7 @@ import java.util.Properties;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.bqt.client.ClientPlugin;
 import org.jboss.bqt.client.QueryTest;
@@ -55,6 +56,7 @@ import org.jboss.bqt.core.util.ObjectConverterUtil;
 import org.jboss.bqt.framework.ConfigPropertyLoader;
 import org.jboss.bqt.framework.TestCase;
 import org.jboss.bqt.framework.TestResult;
+import org.teiid.core.util.Base64;
 
 public class XMLCompareResults {
 	private static String newline = System.getProperty("line.separator"); //$NON-NLS-1$
@@ -488,43 +490,39 @@ public class XMLCompareResults {
 			return;
 		}
 
-		if (actualValue instanceof Blob || actualValue instanceof Clob || actualValue instanceof SQLXML) {
+        if (actualValue instanceof Clob) {
+            Clob c = (Clob) actualValue;
+            try {
+                actualValue = ObjectConverterUtil.convertToString(c.getAsciiStream());
 
-			if (actualValue instanceof Clob) {
-				Clob c = (Clob) actualValue;
-				try {
-					actualValue = ObjectConverterUtil.convertToString(c.getAsciiStream());
+            } catch (Throwable e) {
+                throw new QueryTestFailedException(e);
+            }
+            expectedValue = expectedValue.toString();
+        } else if (actualValue instanceof SQLXML) {
+            SQLXML s = (SQLXML) actualValue;
+            try {
+                actualValue = ObjectConverterUtil.convertToString(s.getBinaryStream());
 
-				} catch (Throwable e) {
-					throw new QueryTestFailedException(e);
-				}
-			} else if (actualValue instanceof Blob) {
-				Blob b = (Blob) actualValue;
-				try {
-					byte[] ba = ObjectConverterUtil.convertToByteArray(b.getBinaryStream());
+            } catch (Throwable e) {
+                throw new QueryTestFailedException(e);
+            }
+            expectedValue = expectedValue.toString();
+        } else if (actualValue.getClass().getName().startsWith("[B")) {
+            actualValue = Base64.encodeBytes((byte[]) actualValue);
+        } else if(actualValue.getClass().getName().startsWith("[java.lang.Byte")){
+            actualValue = Base64.encodeBytes(ArrayUtils.toPrimitive((Byte[]) actualValue));
+        } else if (actualValue instanceof Blob) {
+            Blob b = (Blob) actualValue;
+            try {
+                byte[] ba = ObjectConverterUtil.convertToByteArray(b.getBinaryStream());
 
-					actualValue = String.valueOf(ba.length);
-
-					// actualValue =
-					// ObjectConverterUtil.convertToString(b.getBinaryStream());
-
-				} catch (Throwable e) {
-					throw new QueryTestFailedException(e);
-				}
-			} else if (actualValue instanceof SQLXML) {
-				SQLXML s = (SQLXML) actualValue;
-				try {
-					actualValue = ObjectConverterUtil.convertToString(s.getBinaryStream());
-
-				} catch (Throwable e) {
-					throw new QueryTestFailedException(e);
-				}
-			}
-
-			if (!(expectedValue instanceof String)) {
-				expectedValue = expectedValue.toString();
-			}
-		}
+                actualValue = Base64.encodeBytes(ba);
+            } catch (Throwable e) {
+                throw new QueryTestFailedException(e);
+            }
+            expectedValue = expectedValue.toString();
+        }
 		
 		if(expectedValue instanceof BigDecimal
 						&& actualValue instanceof BigDecimal){

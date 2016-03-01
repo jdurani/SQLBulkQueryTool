@@ -1492,6 +1492,8 @@ public class XMLQueryVisitationStrategy {
 					throw new SQLException(e);
 				}
             } 
+        } else if(object.getClass().getName().startsWith("[B")) {
+            result = new String((byte[]) object);
         } else {
         	result = object.toString();
         }

@@ -39,6 +39,7 @@ import java.util.Properties;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.bqt.client.ClientPlugin;
 import org.jboss.bqt.client.QueryTest;
@@ -524,6 +525,10 @@ public class XMLCompareResults {
 			if (!(expectedValue instanceof String)) {
 				expectedValue = expectedValue.toString();
 			}
+		}
+		
+		if(actualValue.getClass().getName().startsWith("[B")) {
+		    actualValue = new String((byte[]) actualValue);
 		}
 		
 		if(expectedValue instanceof BigDecimal

@@ -143,6 +143,7 @@ public final class TagNames {
 
 		public static final String UNPRINTABALE = "unprintable";
 		public static final String HEXVALUE = "hexValue";
+        public static final String IS_BASE_64 = "base64";
 	}
 
 	/**

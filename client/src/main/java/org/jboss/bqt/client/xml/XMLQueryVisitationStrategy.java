@@ -479,6 +479,10 @@ public class XMLQueryVisitationStrategy {
 
 		return exceptionElement;
 	}
+    
+    private static void fillDataElement(String data, Element element) {
+        fillDataElement(data, element, false);
+    }
 
 	/**
 	 * Fills expected-result XML data element with specified String value. The method will take care about possible
@@ -486,12 +490,15 @@ public class XMLQueryVisitationStrategy {
 	 * @param data string to save
 	 * @param element XML element
 	 */
-	private static void fillDataElement(String data, Element element) {
+	private static void fillDataElement(String data, Element element, boolean isBase64) {
 		try {
 		    if(Verifier.isAllXMLWhitespace(data)){
 		        throw new IllegalDataException(""); // we want to save data as hex
 		    }
 			element.setText(data);
+			if(isBase64) {
+			    element.setAttribute(TagNames.Attributes.IS_BASE_64, TagNames.Values.TRUE);
+			}
 		} catch (IllegalDataException e) {
 			element.setAttribute(TagNames.Attributes.UNPRINTABALE, TagNames.Values.TRUE);
 			element.setAttribute(TagNames.Attributes.HEXVALUE, StringHelper.encodeHex(data));
@@ -1463,6 +1470,8 @@ public class XMLQueryVisitationStrategy {
         // ----------------------
         Element objectElement = new Element(TagNames.Elements.OBJECT);
         
+        boolean isBase64 = false;
+        
         String result = null;
     	if (object instanceof Clob){
             Clob c = (Clob) object;
@@ -1483,14 +1492,17 @@ public class XMLQueryVisitationStrategy {
             }
         } else if(object.getClass().getName().startsWith("[B")) {
             result = Base64.encodeBytes((byte[]) object);
+            isBase64 = true;
         } else if(object.getClass().getName().startsWith("[java.lang.Byte")){
             result = Base64.encodeBytes(ArrayUtils.toPrimitive((Byte[]) object));
+            isBase64 = true;
         }else if (object instanceof Blob){              
             Blob b = (Blob)object;
             try {
                 byte[] ba = ObjectConverterUtil.convertToByteArray(b.getBinaryStream());
                 
                 result = Base64.encodeBytes(ba);
+                isBase64 = true;
                 
             } catch (Throwable e) {
                 throw new SQLException(e);
@@ -1499,7 +1511,7 @@ public class XMLQueryVisitationStrategy {
         	result = object.toString();
         }
         
-        fillDataElement(result, objectElement);
+        fillDataElement(result, objectElement, isBase64);
 
     
         if ( parent != null ) {

@@ -44,6 +44,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.bqt.client.ClientPlugin;
 import org.jboss.bqt.client.QuerySQL;
@@ -65,6 +66,7 @@ import org.jdom2.IllegalDataException;
 import org.jdom2.JDOMException;
 import org.jdom2.Verifier;
 import org.jdom2.input.SAXBuilder;
+import org.teiid.core.util.Base64;
 
 
 /**
@@ -1462,36 +1464,37 @@ public class XMLQueryVisitationStrategy {
         Element objectElement = new Element(TagNames.Elements.OBJECT);
         
         String result = null;
-        if (object instanceof Blob || object instanceof Clob || object instanceof SQLXML) {
-       	 
-        	if (object instanceof Clob){
-        		Clob c = (Clob)object;
-        		try {
-        			result = ObjectConverterUtil.convertToString(c.getAsciiStream());
-					
-				} catch (Throwable e) {
-					throw new SQLException(e);
-				}
-        	} else if (object instanceof Blob){        		
-            		Blob b = (Blob)object;
-            		try {
-            			byte[] ba = ObjectConverterUtil.convertToByteArray(b.getBinaryStream());
-            			
-            			result = String.valueOf(ba.length);
-            			
-					} catch (Throwable e) {
-						throw new SQLException(e);
-					}
-            } else if (object instanceof SQLXML){
+    	if (object instanceof Clob){
+            Clob c = (Clob) object;
+            try {
+                result = ObjectConverterUtil.convertToString(c.getAsciiStream());
 
-            	SQLXML s = (SQLXML)object;
-        		try {
-        			result = ObjectConverterUtil.convertToString(s.getBinaryStream());
-					
-				} catch (Throwable e) {
-					throw new SQLException(e);
-				}
-            } 
+            } catch (Throwable e) {
+                throw new SQLException(e);
+            }
+        } else if (object instanceof SQLXML) {
+
+            SQLXML s = (SQLXML) object;
+            try {
+                result = ObjectConverterUtil.convertToString(s.getBinaryStream());
+
+            } catch (Throwable e) {
+                throw new SQLException(e);
+            }
+        } else if(object.getClass().getName().startsWith("[B")) {
+            result = Base64.encodeBytes((byte[]) object);
+        } else if(object.getClass().getName().startsWith("[java.lang.Byte")){
+            result = Base64.encodeBytes(ArrayUtils.toPrimitive((Byte[]) object));
+        }else if (object instanceof Blob){              
+            Blob b = (Blob)object;
+            try {
+                byte[] ba = ObjectConverterUtil.convertToByteArray(b.getBinaryStream());
+                
+                result = Base64.encodeBytes(ba);
+                
+            } catch (Throwable e) {
+                throw new SQLException(e);
+            }
         } else {
         	result = object.toString();
         }

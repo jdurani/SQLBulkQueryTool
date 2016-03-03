@@ -115,6 +115,7 @@ public final class TagNames {
 		public static final String EXPECTED_QUERY_RESULTS = "expectedQueryResults"; //$NON-NLS-1$
 		public static final String QUERY = "query"; //$NON-NLS-1$
 		public static final String SELECT = "select"; //$NON-NLS-1$
+		public static final String UPDATE = "update"; //$NON-NLS-1$
 		public static final String ROOT_ELEMENT = "root"; //$NON-NLS-1$
 		public static final String SQL = "sql"; //$NON-NLS-1$
 		public static final String PARM = "parm"; //$NON-NLS-1$

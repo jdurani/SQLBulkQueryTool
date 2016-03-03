@@ -138,6 +138,15 @@ public class XMLExpectedResultsWriter extends ExpectedResultsWriter{
 				rootElement.addContent(resultsElement);
 				// debug:
 				// System.out.println("\n Result: " + printResultSet(result));
+			} else if(testcase.getTestResult().getUpdateCount() >= 0){
+			    Element updCountElement = new Element(
+                        TagNames.Elements.UPDATE);
+			    updCountElement.setAttribute(TagNames.Attributes.UPDATE_CNT, Long.toString(testcase.getTestResult().getUpdateCount()));
+			    Element resultElement = new Element(
+                        TagNames.Elements.QUERY_RESULTS);
+			    resultElement.addContent(updCountElement);
+			    rootElement.addContent(resultElement);
+			    rh = new ExpectedResultsHolder(TagNames.Elements.UPDATE, (QueryTest) testcase.getActualTest());
 			} else {
 				rh = new ExpectedResultsHolder(TagNames.Elements.EXCEPTION, (QueryTest) testcase.getActualTest() );
 				// create a JDOM element from the exception object with the

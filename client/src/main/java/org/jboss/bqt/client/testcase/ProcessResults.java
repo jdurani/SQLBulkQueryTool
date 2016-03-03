@@ -80,11 +80,11 @@ public class ProcessResults implements TestCaseLifeCycle {
 	public void runTestCase() {
 		
 		Exception scenarioFailException = null;
-		boolean next = true;
 		
+		boolean nextLoop = true;
 		//------- ping -------
 		scenarioFailException = pingDS(scenario.getQueryScenarioIdentifier());
-		next = scenarioFailException == null;
+		nextLoop = scenarioFailException == null;
 		//------- end ping -------
 		
 		//------- scenario limit -------
@@ -121,7 +121,8 @@ public class ProcessResults implements TestCaseLifeCycle {
 			long expectedEndTime = timeForOneQuery < 0 ? -1l : (((long)timeForOneQuery) * numOfQueries + System.currentTimeMillis());
 			// iterate over the query set ID's, which there
 			// should be 1 for each file to be processed
-			while (qsetIt.hasNext() && next) {
+			while (nextLoop && qsetIt.hasNext()) {
+			    
 				String querySetID = null;
 				querySetID = qsetIt.next();
 
@@ -134,7 +135,13 @@ public class ProcessResults implements TestCaseLifeCycle {
 
 				long beginTS = System.currentTimeMillis();
 
-				while (queryTestIt.hasNext() && next) {
+				while (nextLoop && queryTestIt.hasNext()) {
+				    if(Thread.currentThread().isInterrupted()){
+			            ClientPlugin.LOGGER.info("Thread has been interrupted.");
+			            nextLoop = false;
+			            scenarioFailException = new FrameworkRuntimeException(FrameworkException.ErrorCodes.BQT_INTERRUPTED, "BQT thread has been interrupted.");
+			            continue;
+			        }
 					QueryTest q = queryTestIt.next();
 					
 					TestResult testResult = new TestResult(q.getQuerySetID(), q.getQueryID());
@@ -146,13 +153,12 @@ public class ProcessResults implements TestCaseLifeCycle {
 
 					testResult.setResultMode(this.scenario.getResultsMode());
 					testResult.setStatus(TestResult.RESULT_STATE.TEST_PRERUN);
-					
 					try {
 						abQuery.before(testcase);
 
 						if(expectedEndTime >=0 
 								&& expectedEndTime < System.currentTimeMillis()){
-							next = false;
+							nextLoop = false;
 							throw new FrameworkRuntimeException(FrameworkException.ErrorCodes.SCENARIO_ABORTED,
 									"Scenario aborted - maximum time exceeded.");
 						}
@@ -172,7 +178,7 @@ public class ProcessResults implements TestCaseLifeCycle {
 							if(FrameworkException.ErrorCodes.SERVER_CONNECTION_EXCEPTION.equals(code)
 									|| FrameworkException.ErrorCodes.DB_CONNECTION_EXCEPTION.equals(code)
 									|| FrameworkException.ErrorCodes.SCENARIO_ABORTED.equals(code)){
-								next = false;
+								nextLoop = false;
 								scenarioFailException = rme;
 							}
 						}
@@ -183,12 +189,6 @@ public class ProcessResults implements TestCaseLifeCycle {
 					after(testcase);
 					
 					trans.cleanup();
-					if(Thread.currentThread().isInterrupted()){
-						ClientPlugin.LOGGER.info("Thread has been interrupted.");
-						next = false;
-						scenarioFailException = new FrameworkRuntimeException(FrameworkException.ErrorCodes.BQT_INTERRUPTED, "BQT thread has been interrupted.");
-					}
-				
 				}
 
 				long endTS = System.currentTimeMillis();

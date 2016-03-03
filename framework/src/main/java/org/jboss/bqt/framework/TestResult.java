@@ -117,7 +117,7 @@ public class TestResult implements ConfigPropertyNames, Serializable {
 	private String errorFile;
 	
 	private long rowCount;
-	private long updateCount;
+	private long updateCount = -1;
 	
 private String resultMode = null;
 	

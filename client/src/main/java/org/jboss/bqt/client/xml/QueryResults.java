@@ -90,6 +90,11 @@ public class QueryResults implements Externalizable {
 	private Map<String, ColumnInfo> columnInfos;
 
 	/**
+	 * Update count.
+	 */
+	private int updateCount = -1;
+	
+	/**
 	 * The set of results. Each result is keyed off the variable identifier that
 	 * was defined in the query's select clause. This field will never be null.
 	 */
@@ -199,7 +204,14 @@ public class QueryResults implements Externalizable {
 		return (records != null) ? records.size() : 0;
 	}
 
-
+	/**
+	 * Returns update count.
+	 * 
+	 * @return update count or -1 if query was SELECT.
+	 */
+    public int getUpdateCount() {
+        return updateCount;
+    }
 	/**
 	 * Returns the values for the specified record. The values are ordered the
 	 * same as the field identifiers in the result set, which will be the same
@@ -283,6 +295,15 @@ public class QueryResults implements Externalizable {
 		}
 	}
 
+	/**
+	 * Sets update count.
+	 * 
+	 * @param updateCount
+	 */
+	public void setUpdateCount(int updateCount) {
+        this.updateCount = Math.max(-1, updateCount);
+    }
+	
 	/**
 	 * Add a set of fields into this result set. The fields will be inserted in
 	 * the order of the parameters in the select statement if those parameters

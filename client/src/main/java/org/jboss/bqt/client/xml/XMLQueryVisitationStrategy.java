@@ -293,7 +293,6 @@ public class XMLQueryVisitationStrategy {
         final Iterator<Element> iter = resultElements.iterator();
         while ( iter.hasNext() ) {
             final Element resultElement = iter.next();
-//            final String resultName = resultElement.getAttributeValue(TagNames.Attributes.NAME);
             
             final String execTime  = resultElement.getAttributeValue(TagNames.Attributes.EXECUTION_TIME);
             
@@ -303,7 +302,6 @@ public class XMLQueryVisitationStrategy {
                 // We've got a ResultSet
                 //
                 expectedResults = new ExpectedResultsHolder( TagNames.Elements.QUERY_RESULTS, test );
-  //               expectedResults.setQueryID( resultName );
                 expectedResults.setQuery(query);
                 if (execTime != null && execTime.trim().length() > 0) expectedResults.setExecutionTime( Long.parseLong(execTime) );
                 expectedResults.setIdentifiers( queryResults.getFieldIdents() );
@@ -311,6 +309,9 @@ public class XMLQueryVisitationStrategy {
                 if ( queryResults.getRecordCount() > 0 ) {
                     expectedResults.setRows(queryResults.getRecords());
                 }
+            } else if(queryResults.getUpdateCount() > -1){
+                expectedResults = new ExpectedResultsHolder(TagNames.Elements.UPDATE, test);
+                expectedResults.setUpdCount(queryResults.getUpdateCount());
             } else {
                 final Element exceptionElement = resultElement.getChild(TagNames.Elements.EXCEPTION);
                 if ( exceptionElement != null ) {
@@ -358,14 +359,17 @@ public class XMLQueryVisitationStrategy {
      * @exception JDOMException if there is an error consuming the message.
      */
     public Element parseXMLResultsFile(File resultsFile, Element parent) throws IOException, JDOMException {
-
         SAXBuilder builder = SAXBuilderHelper.createSAXBuilder(false);
         Document resultsDocument = builder.build(resultsFile);
         List<Element> resultElements = resultsDocument.getRootElement().getChildren(TagNames.Elements.QUERY_RESULTS);
         Iterator<Element> iter = resultElements.iterator();
         while ( iter.hasNext() ) {
             Element resultElement = iter.next();
-            if ( resultElement.getChild(TagNames.Elements.SELECT) == null ) {
+            if(resultElement.getChild(TagNames.Elements.UPDATE) != null){
+                Element updateElement = resultElement.getChild(TagNames.Elements.UPDATE);
+                resultElement.removeChild(TagNames.Elements.UPDATE);
+                parent.addContent(updateElement);
+            } else if ( resultElement.getChild(TagNames.Elements.SELECT) == null ) {
                 // We've got an exception
                 Element exceptionElement = resultElement.getChild(TagNames.Elements.EXCEPTION);
                 if ( exceptionElement != null ) {
@@ -539,7 +543,12 @@ public class XMLQueryVisitationStrategy {
             results = new QueryResults();
         }
 
-        if ( resultsElement.getChild(TagNames.Elements.SELECT) == null ) {
+        if(resultsElement.getChild(TagNames.Elements.UPDATE) != null){
+            Attribute a = resultsElement.getChild(TagNames.Elements.UPDATE).getAttribute(TagNames.Attributes.UPDATE_CNT);
+            int val = a.getIntValue();
+            results.setUpdateCount(val);
+            return results;
+        } else if ( resultsElement.getChild(TagNames.Elements.SELECT) == null ) {
             return results;
         }
         // -------------------------------

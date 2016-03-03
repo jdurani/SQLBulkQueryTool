@@ -22,7 +22,6 @@
 
 package org.jboss.bqt.client.results.xml;
 
-import java.awt.PageAttributes.OriginType;
 import java.math.BigDecimal;
 import java.sql.Blob;
 import java.sql.Clob;
@@ -176,10 +175,15 @@ public class XMLCompareResults {
 
 			if (expectedResults.getRows().size() > 0) {
 				compareResults(testcase, actualResults, expectedResults, eMsg, isOrdered);
-			} else if (actualResults.getRows() != null
-					&& actualResults.getRows().size() > 0) {
+			} else if (actualResults.getRows().size() > 0) {
 				throw new QueryTestFailedException(
 						eMsg + "Expected results indicated no results, but actual shows " + actualResults.getRows().size() + " rows."); //$NON-NLS-1$	      		    		      		    
+			} else if (expectedResults.getUpdCount() > -1){
+			    // update count
+			    if(expectedResults.getUpdCount() != actualResults.getUpdCount()){
+			        throw new QueryTestFailedException("Expected update count: " + expectedResults.getUpdCount() + ", actual update count: "
+			                + actualResults.getUpdCount() + ".");
+			    }
 			}
 
 			// DEBUG:
@@ -236,7 +240,9 @@ public class XMLCompareResults {
 		final ResultSetMetaData rsMetadata;
 		final int colCount;
 
-		if (results != null) {
+		if(results == null){
+		    resultsHolder.setUpdCount((int)batchSize);
+		} else {
 			// Get column info
 			try {
 				rsMetadata = results.getMetaData();
@@ -271,15 +277,11 @@ public class XMLCompareResults {
 				throw new QueryTestFailedException(qre,
 						"Can't get results: " + qre.getMessage()); //$NON-NLS-1$
 			}
+			// Set info on resultsHolder
+			resultsHolder.setRows(records);
+			resultsHolder.setIdentifiers(columnTypeNames);
+			resultsHolder.setTypes(columnTypes);
 		}
-
-
-
-		// Set info on resultsHolder
-		resultsHolder.setRows(records);
-		resultsHolder.setIdentifiers(columnTypeNames);
-		resultsHolder.setTypes(columnTypes);
-
 		return firstBatchResponseTime;
 	}
 	
@@ -524,29 +526,62 @@ public class XMLCompareResults {
             expectedValue = expectedValue.toString();
         }
 		
-		if(expectedValue instanceof BigDecimal
-						&& actualValue instanceof BigDecimal){
-			BigDecimal expV = (BigDecimal)expectedValue;
-			BigDecimal actV = (BigDecimal)actualValue;
-			boolean fail = false;
-			if(expV.compareTo(actV) != 0){
-				if(allowedDivergenceIsZero){
-					fail = true; //not equals and divergence is zero;
-				} else {
-					fail =     expV.add(allowedDivergence).compareTo(actV) < 0
-							|| expV.subtract(allowedDivergence).compareTo(actV) > 0;
-				}
-			}
+		if((expectedValue instanceof BigDecimal
+						&& actualValue instanceof BigDecimal)
+				|| (expectedValue instanceof Double
+				        && actualValue instanceof Double)
+				|| (expectedValue instanceof Float
+                        && actualValue instanceof Float)){
+		    boolean fail = false;
+		    // big decimal
+		    if(expectedValue instanceof BigDecimal){
+                BigDecimal expV = (BigDecimal)expectedValue;
+                BigDecimal actV = (BigDecimal)actualValue;
+                if(expV.compareTo(actV) != 0){
+                    if(allowedDivergenceIsZero){
+                        fail = true; //not equals and divergence is zero;
+                    } else {
+                        fail =     expV.add(allowedDivergence).compareTo(actV) < 0
+                                || expV.subtract(allowedDivergence).compareTo(actV) > 0;
+                    }
+                }
+            }
+		    // double
+		    if(expectedValue instanceof Double){
+                Double expV = (Double)expectedValue;
+                Double actV = (Double)actualValue;
+                if(expV.doubleValue() != actV.doubleValue()){
+                    if(allowedDivergenceIsZero){
+                        fail = true; //not equals and divergence is zero;
+                    } else {
+                        fail =     expV.doubleValue() + allowedDivergence.doubleValue() < actV.doubleValue()
+                                || expV.doubleValue() - allowedDivergence.doubleValue() > actV.doubleValue();
+                    }
+                }
+            }
+		    // float
+		    if(expectedValue instanceof Float){
+		        Float expV = (Float)expectedValue;
+		        Float actV = (Float)actualValue;
+                if(expV.floatValue() != actV.floatValue()){
+                    if(allowedDivergenceIsZero){
+                        fail = true; //not equals and divergence is zero;
+                    } else {
+                        fail =     expV.floatValue() + allowedDivergence.floatValue() < actV.floatValue()
+                                || expV.floatValue() - allowedDivergence.floatValue() > actV.floatValue();
+                    }
+                }
+            }
 			if(fail){
 				throw new QueryTestFailedException(eMsg
 						+ "Value mismatch at row " + (row + 1) //$NON-NLS-1$
 						+ " and column " + (col + 1) //$NON-NLS-1$
 						+ " (row in actual result: " + actualResultRow + ", row in expected result: " + expectedResultRow + ")"
 						+ ": expected = [" //$NON-NLS-1$
-						+ expV + "], actual = [" //$NON-NLS-1$
-						+ actV + "] {allowed divergence: " + allowedDivergence + "}"); //$NON-NLS-1$ $NON-NLS-2$
+						+ expectedValue + "], actual = [" //$NON-NLS-1$
+						+ actualValue + "] {allowed divergence: " + allowedDivergence + "}"); //$NON-NLS-1$ $NON-NLS-2$
 			} else {
-				return; // column has been compared
+				return; // columns have been compared
 			}
 		}
 		

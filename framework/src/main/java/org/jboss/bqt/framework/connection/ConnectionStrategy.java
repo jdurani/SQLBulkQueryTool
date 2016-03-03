@@ -100,7 +100,7 @@ public abstract class ConnectionStrategy {
 	 * <li>{@link FrameworkException.ErrorCodes#SERVER_CONNECTION_EXCEPTION} - if SQLState start with "08"</li>
 	 * <li>{@link FrameworkException.ErrorCodes#DB_CONNECTION_EXCEPTION} - otherwise</li>
 	 * </ul>    
-	 * @param sqlEx an SQLEception
+	 * @param sqlEx SQLEception
 	 * @return
 	 */
 	protected FrameworkException translaceSQLException(SQLException sqlEx){

@@ -239,7 +239,13 @@ public class XMLErrorWriter extends ErrorWriter {
 					// add the results elements to the root element
 					resultElement.addContent(actualResultsElement);
 
-				} 
+				} else if (testResult.getUpdateCount() > -1){
+				    Element updateElement = new Element(TagNames.Elements.UPDATE);
+				    updateElement.setAttribute(TagNames.Attributes.UPDATE_CNT, Long.toString(testResult.getUpdateCount()));
+				    Element actualResultsElement = new Element(TagNames.Elements.ACTUAL_QUERY_RESULTS);
+                    actualResultsElement.addContent(updateElement);
+                    resultElement.addContent(actualResultsElement);
+				}
 				
 				if (expectedResultFile != null) {
 				// ---------------------
@@ -250,45 +256,14 @@ public class XMLErrorWriter extends ErrorWriter {
 					Element expectedResult = new Element("bogus"); //$NON-NLS-1$
 				
 					try {
-
-						expectedResult = jstrat.parseXMLResultsFile(expectedResultFile,
-								expectedResult);
-						ClientPlugin.LOGGER.warn("**** E 5 Expected: " + expectedResult);
-
+						expectedResult = jstrat.parseXMLResultsFile(expectedResultFile, expectedResult);
 						if (expectedResult.getChild(TagNames.Elements.CLASS) == null) { // exception-class element not found
-
-							expectedResult
-							.setName(TagNames.Elements.EXPECTED_QUERY_RESULTS);
-							
+							expectedResult.setName(TagNames.Elements.EXPECTED_QUERY_RESULTS);
 						} else {
-							
-							expectedResult
-							.setName(TagNames.Elements.EXPECTED_EXCEPTION);
-							
+							expectedResult.setName(TagNames.Elements.EXPECTED_EXCEPTION);
 						}
-						
-//						if (expectedResult.getChild(TagNames.Elements.SELECT) != null) {
-//							// ----------------------------------------------------------
-//							// -
-//							// Expected result was a ResultSet set element name to
-//							// reflect
-//							// ----------------------------------------------------------
-//							// -
-//							expectedResult
-//									.setName(TagNames.Elements.EXPECTED_QUERY_RESULTS);
-//						} else {
-//							// ----------------------------------------------------------
-//							// --
-//							// Expected result was an exception set element name to
-//							// reflect
-//							// ----------------------------------------------------------
-//							// --
-//							expectedResult
-//									.setName(TagNames.Elements.EXPECTED_EXCEPTION);
-//						}
-						
+						ClientPlugin.LOGGER.warn("**** E 5 Expected: " + expectedResult);
 						resultElement.addContent(expectedResult);
-	
 					} catch (Throwable jdomerror) {
 						jstrat.produceMsg(jdomerror, resultElement);
 					}

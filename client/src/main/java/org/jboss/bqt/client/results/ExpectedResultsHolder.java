@@ -48,6 +48,9 @@ public class ExpectedResultsHolder extends ExpectedResults {
 	private List<List<Object>> rows;
 	private List<String> types;
 	private List<String> identifiers;
+	
+	// Update count
+	private int updCount = -1;
 
 	// Exception
 	private String exceptionClassName;
@@ -160,6 +163,14 @@ public class ExpectedResultsHolder extends ExpectedResults {
 		this.exceptionStartsWith = exceptionStartsWith;
 	}
 
+	public void setUpdCount(int updCount) {
+        this.updCount = updCount;
+    }
+	
+	public int getUpdCount() {
+        return updCount;
+    }
+	
 	/**
 	 * Whether message comparison mode is by regular expression.
 	 * @return if the comparison mode is regex
